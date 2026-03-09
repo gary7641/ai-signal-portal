@@ -6,398 +6,546 @@
 <title>AI Signal Portal</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg1:#0a0e27;--bg2:#1a1f3a;--txt1:#2525e4;--txt2:#aba8a0;--cyan:#0d9fff;--purple:#9d4edd;--green:#06d6a0;--red:#ef476f;--border:#2d3354}
-[data-theme="light"]{--bg1:white;--bg2:#f7f7f9;--txt1:#1a1f3a;--txt2:rgba(0,0,0,.7);--border:#dee2e6}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg1);color:var(--txt1);display:flex;align-items:center;gap:1px;background:var(--txt2);overflow-y:auto;z-index:1}
-.sidebar{position:fixed;left:0;top:0;width:240px;height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:20px;overflow-y:auto;z-index:10}
-.nav-label{font-size:11px;text-transform:uppercase;color:var(--txt2);margin-bottom:8px;font-weight:600;letter-spacing:.5px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;color:var(--txt2);cursor:pointer;transition:.2s;margin-bottom:4px;font-size:14px}
+:root{
+  --bg1:#0a0e27;--bg2:#1a1f3a;--txt1:#e8eaf6;--txt2:#9e9e9e;
+  --cyan:#0d9fff;--purple:#9d4edd;--green:#06d6a0;--red:#ef476f;--border:#2d3354
+}
+[data-theme=light]{
+  --bg1:#ffffff;--bg2:#f7f7f9;--txt1:#1a1f3a;--txt2:rgba(0,0,0,.6);--border:#dee2e6
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg1);color:var(--txt1)}
+.sidebar{
+  position:fixed;left:0;top:0;width:240px;height:100vh;
+  background:var(--bg2);border-right:1px solid var(--border);padding:20px;overflow-y:auto;z-index:10
+}
+.logo{font-size:18px;font-weight:700;margin-bottom:24px;padding:10px 0;border-bottom:1px solid var(--border)}
+.nav-label{font-size:11px;text-transform:uppercase;color:var(--txt2);margin:16px 0 6px;font-weight:600;letter-spacing:.8px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  border-radius:8px;color:var(--txt2);cursor:pointer;transition:.2s;margin-bottom:2px;font-size:14px
+}
 .nav-item:hover{background:var(--bg1);color:var(--txt1)}
-.nav-item.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:0}
-.header{position:fixed;top:0;left:240px;right:0;height:64px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:5}
-.header-right{display:flex;align-items:center;gap:20px}
-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;gap:10px}
-.main{margin-left:240px;margin-top:64px;padding:24px;min-height:calc(100vh - 64px)}
-.page{display:none;page.active{display:block}
-.page-title{font-size:28px;font-weight:700;margin-bottom:18px}
-.filter-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-.tab-btn{padding:7px 16px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);color:var(--txt2);cursor:pointer;font-size:13px;transition:.2s}
+.nav-item.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff}
+.sub-nav{display:none;margin-left:12px}
+.sub-nav.show{display:block}
+.sub-item{
+  padding:6px 12px;font-size:13px;color:var(--txt2);
+  cursor:pointer;border-radius:6px;transition:.2s;margin-bottom:2px
+}
+.sub-item:hover{background:var(--bg1);color:var(--txt1)}
+.header{
+  position:fixed;top:0;left:240px;right:0;height:64px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:5
+}
+.header-left{font-size:18px;font-weight:700}
+.header-right{display:flex;align-items:center;gap:16px}
+.avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--cyan);object-fit:cover}
+.username{font-size:14px;font-weight:500}
+.theme-sel{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg1);color:var(--txt1);font-size:13px;cursor:pointer}
+.btn-logout{background:var(--red);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+.main{margin-left:240px;margin-top:64px;padding:28px;min-height:calc(100vh - 64px);background:var(--bg1)}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:26px;font-weight:700;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--txt2);margin-bottom:24px}
+.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{
+  padding:7px 16px;border-radius:20px;background:var(--bg2);
+  border:1px solid var(--border);color:var(--txt2);cursor:pointer;font-size:13px;transition:.2s
+}
 .tab-btn:hover{border-color:var(--cyan);color:var(--txt1)}
 .tab-btn.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:0}
-.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;padding:10px 22px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
-.btn-primary:hover{transform:translate(-1px,-2px);box-shadow:6px 24px,0,rgba(13,158,255,.3)}
-.btn-sec{background:var(--bg2);color:var(--txt1);padding:10px 22px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
-.btn-logout{background:var(--red);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
-.btn-sec:hover{border-color:var(--cyan);color:var(--txt1)}
-.empty{text-align:center;padding:60px 30px;color:var(--txt2)}
-.empty-title{font-size:18px;font-weight:600;margin-bottom:6px}
-.card{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)}
-.badge{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;text-transform:uppercase}
-.badge.public{background:rgba(6,214,160,.2);color:var(--green)}
-.badge.inactive{background:rgba(239,71,111,.2);color:var(--red)}
-.stat-label{font-size:11px;color:var(--txt2);margin-bottom:5px}
-.stat-val{font-size:14px;font-weight:600}
+.action-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.btn-primary{
+  background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;
+  padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(13,158,255,.35)}
+.btn-sec{
+  background:var(--bg2);color:var(--txt1);padding:10px 20px;
+  border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s
+}
+.btn-sec:hover{border-color:var(--cyan)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:20px;transition:.2s;cursor:pointer
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.15);border-color:var(--cyan)}
+.card-broker{font-size:12px;color:var(--txt2);margin-bottom:4px}
+.card-name{font-size:18px;font-weight:700;margin-bottom:12px}
+.card-portfolio{font-size:12px;color:var(--txt2);margin-top:4px}
+.badge{
+  display:inline-block;padding:3px 8px;border-radius:6px;
+  font-size:11px;font-weight:600;text-transform:uppercase
+}
+.badge-public{background:rgba(6,214,160,.15);color:var(--green)}
+.badge-private{background:rgba(239,71,111,.15);color:var(--red)}
+.badge-admin{background:rgba(13,158,255,.15);color:var(--cyan)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--bg1);border-radius:8px;padding:10px}
+.stat-label{font-size:11px;color:var(--txt2);margin-bottom:4px}
+.stat-val{font-size:16px;font-weight:700}
 .stat-val.pos{color:var(--green)}
 .stat-val.neg{color:var(--red)}
-.card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)}
-.signal-name{font-size:19px;font-weight:700}
-.signal-broker{font-size:12px;color:var(--txt2);margin-bottom:3px}
-.badge-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.stat-label{font-size:11px;color:var(--txt2);margin-bottom:5px}
-.btn-logout{background:var(--red);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
-modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);align-items:center;justify-content:center}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.like-btn,.cmt-btn{
+  background:none;border:none;cursor:pointer;color:var(--txt2);
+  font-size:13px;display:flex;align-items:center;gap:4px;transition:.2s;padding:4px 8px;border-radius:6px
+}
+.like-btn:hover{color:var(--red);background:rgba(239,71,111,.1)}
+.like-btn.liked{color:var(--red)}
+.cmt-btn:hover{color:var(--cyan);background:rgba(13,158,255,.1)}
+.portfolio-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.port-tab{
+  padding:6px 14px;border-radius:8px;background:var(--bg2);
+  border:1px solid var(--border);color:var(--txt2);cursor:pointer;font-size:13px;transition:.2s
+}
+.port-tab:hover{border-color:var(--cyan);color:var(--txt1)}
+.port-tab.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:0}
+.empty{text-align:center;padding:80px 20px;color:var(--txt2)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:18px;font-weight:600;color:var(--txt1);margin-bottom:6px}
+.empty-sub{font-size:14px}
+.modal{
+  display:none;position:fixed;z-index:999;inset:0;
+  background:rgba(0,0,0,.6);align-items:center;justify-content:center
+}
 .modal.active{display:flex}
-.modal-content{background:var(--bg2);border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal-box{
+  background:var(--bg2);border-radius:14px;padding:28px;
+  width:90%;max-width:480px;max-height:85vh;overflow-y:auto
+}
 .modal-title{font-size:20px;font-weight:700;margin-bottom:20px}
 .form-group{margin-bottom:16px}
-label{display:block;font-size:13px;margin-bottom:6px;color:var(--txt2)}
-input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg1);color:var(--txt1);font-size:14px}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)}
-checkbox{width:auto;margin-right:6px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.portfolio-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.portfolio-tab{padding:8px 16px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--txt2);cursor:pointer;font-size:13px;transition:.2s}
-.portfolio-tab:hover{border-color:var(--cyan);color:var(--txt1)}
-.portfolio-tab.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:0}
-.sub-nav{margin-left:20px;display:none}
-.sub-nav.show{display:block}
-.user-avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--cyan);object-fit:cover}
-.like-comment{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--txt2)}
-.like-btn,.comment-btn{background:none;border:none;color:var(--txt2);cursor:pointer;display:flex;align-items:center;gap:4px;font-size:13px;transition:.2s}
-.like-btn:hover{color:var(--red)}
-.comment-btn:hover{color:var(--cyan)}
-.like-btn.liked{color:var(--red)}
-.group-item{padding:6px 12px;margin-left:20px;font-size:13px;color:var(--txt2);cursor:pointer;border-radius:6px;transition:.2s}
-.group-item:hover{background:var(--bg1);color:var(--txt1)}
-.group-item.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff}
+.form-label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--txt2)}
+.form-input{
+  width:100%;padding:10px 12px;border-radius:8px;
+  border:1px solid var(--border);background:var(--bg1);color:var(--txt1);font-size:14px
+}
+.form-input:focus{outline:none;border-color:var(--cyan)}
+.form-check{display:flex;align-items:center;gap:8px;font-size:14px}
+.form-check input{width:16px;height:16px;cursor:pointer}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.quota-bar{background:var(--bg1);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px}
+.quota-track{height:6px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
+.quota-fill{height:100%;border-radius:3px;background:linear-gradient(135deg,var(--cyan),var(--purple));transition:.3s}
 </style>
 </head>
 <body data-theme="light">
-
-<div class="sidebar">
-<div class="nav-label">NAVIGATION</div>
-<div class="nav-item" onclick="showPage('home')">🏠 Home</div>
-<div class="nav-item" onclick="showPage('mysignals')">📊 My Signals</div>
-<div id="mySignalsSubNav" class="sub-nav"></div>
-<div class="nav-item" onclick="showPage('mygroups')">👥 My Groups</div>
-<div id="myGroupsSubNav" class="sub-nav"></div>
-<div class="nav-item" onclick="showPage('mylikes')">❤️ My Liked Signals</div>
-<div class="nav-label" style="margin-top:20px">TOOLS</div>
-<div class="nav-item" onclick="showPage('fxtools')">📈 FX Tools</div>
+<div class="sidebar" id="sidebar">
+  <div class="logo">📡 AI Signal Portal</div>
+  <div class="nav-label">MAIN</div>
+  <div class="nav-item active" onclick="showPage('home')">🏠 Home</div>
+  <div class="nav-label">MY ACCOUNT</div>
+  <div class="nav-item" onclick="showPage('mysignals')">📊 My Signals</div>
+  <div id="mySignalsSubNav" class="sub-nav"></div>
+  <div class="nav-item" onclick="showPage('mygroups')">👥 My Groups</div>
+  <div id="myGroupsSubNav" class="sub-nav"></div>
+  <div class="nav-item" onclick="showPage('mylikes')">❤️ My Liked Signals</div>
+  <div class="nav-label">TOOLS</div>
+  <div class="nav-item" onclick="showPage('fxtools')">🔧 FX Tools</div>
+  <div style="margin-top:auto;padding:16px">
+    <div class="quota-bar">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:4px">
+        <span>Signal Quota</span><span id="quotaText">0 / 20</span>
+      </div>
+      <div class="quota-track"><div class="quota-fill" id="quotaFill" style="width:0%"></div></div>
+    </div>
+  </div>
 </div>
-
 <div class="header">
-<div style="font-size:20px;font-weight:700">🔔 AI Signal Portal</div>
-<div class="header-right">
-<img src="https://ui-avatars.com/api/?name=Gary+CY&background=0d9fff&color=fff&size=128" class="user-avatar" alt="User Avatar" />
-<span style="font-size:14px;color:var(--txt1)">GARY CY (麻麻)</span>
-<select onchange="document.body.dataset.theme=this.value" style="width:auto;padding:6px;font-size:13px">
-<option value="light">Light</option>
-<option value="dark">Dark</option>
-</select>
-<button class="btn-logout" onclick="alert('Logout')">Logout</button>
+  <div style="font-weight:700;font-size:18px">AI Signal Portal <span style="font-size:11px;color:var(--cyan);margin-left:8px">v0.1</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <select onchange="setTheme(this.value)" id="themeSelect" style="background:var(--bg1);color:var(--txt1);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:13px">
+      <option value="light">☀️ Light</option>
+      <option value="dark">🌙 Dark</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="https://ui-avatars.com/api/?name=User&background=0dcaf0&color=fff&size=32" id="avatarImg" style="width:32px;height:32px;border-radius:50%;cursor:pointer" onclick="showPage('profile')">
+      <span id="headerUser" style="font-size:14px;color:var(--txt1)">Guest</span>
+    </div>
+    <button onclick="handleLogout()" style="background:var(--bg1);color:var(--txt2);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">Logout</button>
+  </div>
 </div>
-</div>
-
 <div class="main">
-<div id="homePage" class="page active">
-<h1 class="page-title">Home - Ranking</h1>
-<div class="filter-bar">
-<button class="tab-btn active" onclick="filterSignals('all')">All Public Signals</button>
-<button class="tab-btn" onclick="filterSignals('top')">Top Performers</button>
+<!-- HOME PAGE -->
+<div class="page active" id="homePage">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div>
+      <h2 style="margin:0;font-size:22px">📡 Home - Public Signals</h2>
+      <p style="margin:4px 0 0;color:var(--txt2);font-size:13px">Live ranking of all public signals</p>
+    </div>
+  </div>
+  <div id="homeContent"></div>
 </div>
-<div id="homeSignals"></div>
+<!-- MY SIGNALS PAGE -->
+<div class="page" id="mysignalsPage">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2 style="margin:0;font-size:22px">📊 My Signals</h2>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" onclick="openModal('newPortfolioModal')">+ New Portfolio</button>
+      <button class="btn-primary" onclick="openModal('newSignalModal')">+ Add Signal</button>
+    </div>
+  </div>
+  <div id="portfolioTabs" class="portfolio-tabs"></div>
+  <div id="mySignalsContent"></div>
 </div>
-
-<div id="mysignalsPage" class="page">
-<h1 class="page-title">My Signals</h1>
-<div style="display:flex;gap:12px;margin-bottom:20px">
-<button class="btn-primary" onclick="openModal('newPortfolio')">+ Portfolio</button>
-<button class="btn-primary" onclick="openModal('newSignal')">+ Signal</button>
+<!-- MY GROUPS PAGE -->
+<div class="page" id="mygroupsPage">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2 style="margin:0;font-size:22px">👥 My Groups</h2>
+    <button class="btn-primary" onclick="openModal('newGroupModal')">+ New Group</button>
+  </div>
+  <div id="myGroupsContent"></div>
 </div>
-<div id="portfolioTabsContainer" class="portfolio-tabs"></div>
-<div id="mySignalsContainer"></div>
+<!-- MY LIKED SIGNALS PAGE -->
+<div class="page" id="mylikesPage">
+  <div style="margin-bottom:16px">
+    <h2 style="margin:0;font-size:22px">❤️ My Liked Signals</h2>
+    <p style="margin:4px 0 0;color:var(--txt2);font-size:13px">Signals you have liked</p>
+  </div>
+  <div id="myLikesContent"></div>
 </div>
-
-<div id="mygroupsPage" class="page">
-<h1 class="page-title">My Groups</h1>
-<button class="btn-primary" onclick="openModal('newGroup')" style="margin-bottom:20px">+ Create Group</button>
-<div id="myGroupsContainer"></div>
+<!-- FX TOOLS PAGE -->
+<div class="page" id="fxtoolsPage">
+  <h2 style="margin:0 0 20px;font-size:22px">🔧 FX Tools</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+    <div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:36px;margin-bottom:12px">📐</div>
+      <div style="font-weight:600;margin-bottom:6px">Pip Calculator</div>
+      <div style="font-size:13px;color:var(--txt2)">Calculate pip value for your trades</div>
+    </div>
+    <div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:36px;margin-bottom:12px">💰</div>
+      <div style="font-weight:600;margin-bottom:6px">Position Sizer</div>
+      <div style="font-size:13px;color:var(--txt2)">Determine optimal lot size</div>
+    </div>
+    <div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:36px;margin-bottom:12px">📈</div>
+      <div style="font-weight:600;margin-bottom:6px">Risk / Reward</div>
+      <div style="font-size:13px;color:var(--txt2)">Analyse your R:R ratio</div>
+    </div>
+  </div>
 </div>
-
-<div id="mylikesPage" class="page">
-<h1 class="page-title">My Liked Signals</h1>
-<div id="myLikesContainer"></div>
+</div><!-- end .main -->
+<!-- MODALS -->
+<!-- New Portfolio Modal -->
+<div class="modal" id="newPortfolioModal">
+  <div class="modal-box">
+    <div class="modal-title">📁 New Portfolio</div>
+    <div class="form-group">
+      <label class="form-label">Portfolio Name</label>
+      <input class="form-input" id="portName" placeholder="e.g. Main Portfolio">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="portDesc" placeholder="Optional description">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('newPortfolioModal')">Cancel</button>
+      <button class="btn-primary" onclick="createPortfolio()">Create</button>
+    </div>
+  </div>
 </div>
-
-<div id="fxtoolsPage" class="page">
-<h1 class="page-title">FX Tools</h1>
-<div class="empty"><div class="empty-title">FX Tools Coming Soon</div><p>Calculators and analysis tools will be available here</p></div>
+<!-- New Signal Modal -->
+<div class="modal" id="newSignalModal">
+  <div class="modal-box">
+    <div class="modal-title">📡 Add Signal</div>
+    <div class="form-group">
+      <label class="form-label">Signal Name</label>
+      <input class="form-input" id="sigName" placeholder="e.g. My EURUSD Strategy">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Broker Account No.</label>
+      <input class="form-input" id="sigAccNo" placeholder="Account number">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Server</label>
+      <input class="form-input" id="sigServer" placeholder="e.g. ICMarkets-Live01">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Investor Password</label>
+      <input class="form-input" id="sigInvPw" type="password" placeholder="Investor (read-only) password">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Portfolio</label>
+      <select class="form-input" id="sigPortfolio"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Visibility</label>
+      <select class="form-input" id="sigVisibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('newSignalModal')">Cancel</button>
+      <button class="btn-primary" onclick="createSignal()">Add Signal</button>
+    </div>
+  </div>
 </div>
+<!-- New Group Modal -->
+<div class="modal" id="newGroupModal">
+  <div class="modal-box">
+    <div class="modal-title">👥 New Group</div>
+    <div class="form-group">
+      <label class="form-label">Group Name</label>
+      <input class="form-input" id="grpName" placeholder="e.g. Top Scalpers">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="grpDesc" placeholder="Optional description">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Visibility</label>
+      <select class="form-input" id="grpVisibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Allow others to add signals?</label>
+      <div class="form-check">
+        <input class="form-check" type="checkbox" id="grpAllowAdd" checked>
+        <span>Yes, allow members to add signals</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('newGroupModal')">Cancel</button>
+      <button class="btn-primary" onclick="createGroup()">Create Group</button>
+    </div>
+  </div>
 </div>
-
-<div id="newPortfolioModal" class="modal">
-<div class="modal-content">
-<h2 class="modal-title">Create New Portfolio</h2>
-<div class="form-group"><label>Portfolio Name</label><input type="text" id="portfolioName" placeholder="Enter portfolio name" /></div>
-<div class="modal-actions">
-<button class="btn-sec" onclick="closeModal('newPortfolio')">Cancel</button>
-<button class="btn-primary" onclick="createPortfolio()">Create</button>
-</div>
-</div>
-</div>
-
-<div id="newSignalModal" class="modal">
-<div class="modal-content">
-<h2 class="modal-title">Add New Signal</h2>
-<div class="form-group"><label>Signal Name</label><input type="text" id="signalName" placeholder="My EA Signal" /></div>
-<div class="form-group"><label>Portfolio</label><select id="signalPortfolio"></select></div>
-<div class="form-group"><label>Broker Account No.</label><input type="text" id="brokerAccount" placeholder="123456789" /></div>
-<div class="form-group"><label>Server</label><input type="text" id="serverName" placeholder="Vantage-Live" /></div>
-<div class="form-group"><label>Investor Password</label><input type="password" id="investorPassword" placeholder="Read-only password" /></div>
-<div class="form-group"><label><input type="checkbox" id="isPublic" /> Make Public</label></div>
-<div class="modal-actions">
-<button class="btn-sec" onclick="closeModal('newSignal')">Cancel</button>
-<button class="btn-primary" onclick="createSignal()">Add Signal</button>
-</div>
-</div>
-</div>
-
-<div id="newGroupModal" class="modal">
-<div class="modal-content">
-<h2 class="modal-title">Create New Group</h2>
-<div class="form-group"><label>Group Name</label><input type="text" id="groupName" placeholder="My Trading Group" /></div>
-<div class="form-group"><label>Description</label><textarea id="groupDesc" placeholder="Group description" rows="3"></textarea></div>
-<div class="form-group"><label><input type="checkbox" id="groupPublic" /> Public Group</label></div>
-<div class="form-group"><label><input type="checkbox" id="groupOpenAdd" /> Allow others to add signals</label></div>
-<div class="modal-actions">
-<button class="btn-sec" onclick="closeModal('newGroup')">Cancel</button>
-<button class="btn-primary" onclick="createGroup()">Create Group</button>
-</div>
-</div>
-</div>
-
 <script>
-let currentUser='GARY CY';
-let data=JSON.parse(localStorage.getItem('aispdata')||'{"portfolios":[],"signals":[],"groups":[],"likes":[]}');
+let data = JSON.parse(localStorage.getItem('aisp') || '{"portfolios":[],"signals":[],"groups":[],"likes":[]}');
+let currentPortfolio = 'all';
+let currentGroup = null;
 
-function save(){localStorage.setItem('aispdata',JSON.stringify(data));}
-
-function showPage(p){
-document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
-const pg=document.getElementById(p+'Page');
-if(pg) pg.classList.add('active');
-const navItems=document.querySelectorAll('.nav-item');
-navItems.forEach(x=>{if(x.getAttribute('onclick')&&x.getAttribute('onclick').includes("'"+p+"'")) x.classList.add('active');});
-if(p==='home') renderHome();
-if(p==='mysignals'){renderPortfolioTabs();renderMySignals('all');}
-if(p==='mygroups') renderMyGroups();
-if(p==='mylikes') renderMyLikes();
+function save() {
+  localStorage.setItem('aisp', JSON.stringify(data));
 }
 
-function openModal(name){
-if(name==='newSignal') populatePortfolioSelect();
-document.getElementById('new'+name.charAt(0).toUpperCase()+name.slice(1)+'Modal').classList.add('active');
-}
-function closeModal(name){
-document.getElementById('new'+name.charAt(0).toUpperCase()+name.slice(1)+'Modal').classList.remove('active');
+// Theme
+function setTheme(t) {
+  document.body.dataset.theme = t;
+  document.getElementById('themeSelect').value = t;
 }
 
-function createPortfolio(){
-const n=document.getElementById('portfolioName').value.trim();
-if(!n){alert('Please enter a name');return;}
-data.portfolios.push({id:Date.now(),name:n,owner:currentUser});
-save();
-closeModal('newPortfolio');
-document.getElementById('portfolioName').value='';
-renderPortfolioTabs();
-renderMySignalsSubNav();
+// Navigation
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(p + 'Page').classList.add('active');
+  event.target.classList.add('active');
+  if(p === 'home') renderHome();
+  if(p === 'mysignals') renderMySignals();
+  if(p === 'mygroups') renderMyGroups();
+  if(p === 'mylikes') renderMyLikes();
 }
 
-function createSignal(){
-const n=document.getElementById('signalName').value.trim();
-if(!n){alert('Please enter signal name');return;}
-const s={
-id:Date.now(),name:n,
-portfolio:document.getElementById('signalPortfolio').value,
-broker:document.getElementById('brokerAccount').value,
-server:document.getElementById('serverName').value,
-password:document.getElementById('investorPassword').value,
-public:document.getElementById('isPublic').checked,
-owner:currentUser,
-balance:(Math.random()*50000+10000).toFixed(2),
-equity:(Math.random()*50000+10000).toFixed(2),
-growth:(Math.random()*200+10).toFixed(2),
-pnl:(Math.random()*5000-1000).toFixed(2),
-trades:Math.floor(Math.random()*500+50),
-win:(Math.random()*40+50).toFixed(1),
-likes:0
-};
-data.signals.push(s);
-save();
-closeModal('newSignal');
-document.getElementById('signalName').value='';
-document.getElementById('brokerAccount').value='';
-document.getElementById('serverName').value='';
-document.getElementById('investorPassword').value='';
-renderMySignals('all');
-renderMySignalsSubNav();
-renderHome();
+// Modals
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+  if(id === 'newSignalModal') {
+    let sel = document.getElementById('sigPortfolio');
+    sel.innerHTML = '<option value="">Select Portfolio</option>' + data.portfolios.map(p => '<option value="'+p.id+'">'+p.name+'</option>').join('');
+  }
 }
 
-function createGroup(){
-const n=document.getElementById('groupName').value.trim();
-if(!n){alert('Please enter group name');return;}
-const g={
-id:Date.now(),name:n,
-desc:document.getElementById('groupDesc').value,
-public:document.getElementById('groupPublic').checked,
-allowAdd:document.getElementById('groupOpenAdd').checked,
-owner:currentUser,
-signals:[],
-members:[currentUser]
-};
-data.groups.push(g);
-save();
-closeModal('newGroup');
-document.getElementById('groupName').value='';
-document.getElementById('groupDesc').value='';
-renderMyGroups();
-renderMyGroupsSubNav();
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
 }
 
-function toggleLike(sigId){
-const idx=data.likes.indexOf(sigId);
-const sig=data.signals.find(s=>s.id==sigId);
-if(!sig) return;
-if(idx>-1){
-data.likes.splice(idx,1);
-sig.likes=Math.max(0,(sig.likes||0)-1);
-}else{
-data.likes.push(sigId);
-sig.likes=(sig.likes||0)+1;
-}
-save();
-renderHome();
-renderMyLikes();
-}
-
-function signalCard(s,showPortfolio){
-const liked=data.likes.includes(s.id);
-const pnl=parseFloat(s.pnl);
-return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
-<div style="display:flex;justify-content:space-between;align-items:flex-start">
-<div>
-<div class="signal-broker">${s.broker||'Demo Broker'} | ${s.server||'MT4'}</div>
-<div class="signal-name">${s.name}</div>
-${showPortfolio&&s.portfolio?`<div style="font-size:12px;color:var(--txt2);margin-top:3px">Portfolio: ${s.portfolio}</div>`:''}
-</div>
-<div style="display:flex;gap:8px;align-items:center">
-${s.public?'<span class="badge public">Public</span>':''}
-</div>
-</div>
-<div class="stats" style="margin-top:16px">
-<div><div class="stat-label">Balance</div><div class="stat-val">$${parseFloat(s.balance).toLocaleString()}</div></div>
-<div><div class="stat-label">Growth</div><div class="stat-val pos">+${s.growth}%</div></div>
-<div><div class="stat-label">P&L</div><div class="stat-val ${pnl>=0?'pos':'neg'}">${pnl>=0?'+':''}$${parseFloat(pnl).toFixed(2)}</div></div>
-<div><div class="stat-label">Win Rate</div><div class="stat-val">${s.win}%</div></div>
-</div>
-<div class="like-comment">
-<button class="like-btn ${liked?'liked':''}" onclick="toggleLike(${s.id})">\u2764 ${s.likes||0}</button>
-<button class="comment-btn" onclick="alert('Comments coming soon!')">\u{1F4AC} 0</button>
-<span style="margin-left:auto;font-size:12px;color:var(--txt2)">${s.trades||0} trades</span>
-</div>
-</div>`;
+// Portfolio
+function createPortfolio() {
+  const name = document.getElementById('portName').value.trim();
+  const desc = document.getElementById('portDesc').value.trim();
+  if(!name) return alert('Please enter a portfolio name');
+  const p = {id: 'p'+Date.now(), name, description: desc, created: new Date().toISOString()};
+  data.portfolios.push(p);
+  save();
+  renderPortfolioTabs();
+  renderMySignalsSubNav();
+  closeModal('newPortfolioModal');
+  document.getElementById('portName').value = '';
+  document.getElementById('portDesc').value = '';
 }
 
-function renderHome(){
-const el=document.getElementById('homeSignals');
-const pub=data.signals.filter(s=>s.public);
-if(!pub.length){el.innerHTML='<div class="empty"><div class="empty-title">No public signals yet</div><p>Add a signal and make it public</p></div>';return;}
-el.innerHTML=pub.map(s=>signalCard(s,false)).join('');
+function renderPortfolioTabs() {
+  const container = document.getElementById('portfolioTabs');
+  if(!data.portfolios.length) {
+    container.innerHTML = '';
+    return;
+  }
+  let html = '<div class="port-tab '+(currentPortfolio==='all'?'active':'')+'" onclick="filterPortfolio(\'all\')">All Signals</div>';
+  data.portfolios.forEach(p => {
+    html += '<div class="port-tab '+(currentPortfolio===p.id?'active':'')+'" onclick="filterPortfolio(\''+p.id+'\')" title="'+p.description+'">'+p.name+'</div>';
+  });
+  container.innerHTML = html;
 }
 
-let curPortfolio='all';
-function renderPortfolioTabs(){
-const el=document.getElementById('portfolioTabsContainer');
-let html=`<div class="portfolio-tab ${curPortfolio==='all'?'active':''}" onclick="filterMySignals('all')">All</div>`;
-data.portfolios.filter(p=>p.owner===currentUser).forEach(p=>{
-html+=`<div class="portfolio-tab ${curPortfolio===p.name?'active':''}" onclick="filterMySignals('${p.name}')">${p.name}</div>`;
-});
-el.innerHTML=html;
+function renderMySignalsSubNav() {
+  const sub = document.getElementById('mySignalsSubNav');
+  if(!data.portfolios.length) {
+    sub.innerHTML = '';
+    return;
+  }
+  let html = '';
+  data.portfolios.forEach(p => {
+    const count = data.signals.filter(s => s.portfolio === p.id).length;
+    html += '<div class="sub-nav-item" onclick="showPage(\'mysignals\');filterPortfolio(\''+p.id+'\');">'+p.name+' ('+count+')</div>';
+  });
+  sub.innerHTML = html;
 }
-function filterMySignals(portfolio){
-curPortfolio=portfolio;
-renderPortfolioTabs();
-renderMySignals(portfolio);
+
+function filterPortfolio(pid) {
+  currentPortfolio = pid;
+  renderPortfolioTabs();
+  renderMySignals();
 }
-function renderMySignals(filter){
-const el=document.getElementById('mySignalsContainer');
-let signals=data.signals.filter(s=>s.owner===currentUser);
-if(filter&&filter!=='all') signals=signals.filter(s=>s.portfolio===filter);
-if(!signals.length){el.innerHTML='<div class="empty"><div class="empty-title">No signals yet</div><p>Add your first signal</p></div>';return;}
-el.innerHTML=signals.map(s=>signalCard(s,true)).join('');
+
+// Signal
+function createSignal() {
+  const name = document.getElementById('sigName').value.trim();
+  const accNo = document.getElementById('sigAccNo').value.trim();
+  const server = document.getElementById('sigServer').value.trim();
+  const invPw = document.getElementById('sigInvPw').value.trim();
+  const portfolio = document.getElementById('sigPortfolio').value;
+  const visibility = document.getElementById('sigVisibility').value;
+  if(!name || !accNo || !server || !invPw || !portfolio) return alert('Please fill all fields');
+  const sig = {
+    id: 's'+Date.now(),
+    name, accountNo: accNo, server, investorPassword: invPw, portfolio, visibility,
+    created: new Date().toISOString(),
+    likes: 0, comments: 0,
+    gain: (Math.random()*200-50).toFixed(2),
+    balance: (Math.random()*50000+5000).toFixed(2),
+    equity: (Math.random()*50000+5000).toFixed(2),
+    trades: Math.floor(Math.random()*500)
+  };
+  data.signals.push(sig);
+  save();
+  renderMySignals();
+  renderMySignalsSubNav();
+  closeModal('newSignalModal');
+  document.getElementById('sigName').value = '';
+  document.getElementById('sigAccNo').value = '';
+  document.getElementById('sigServer').value = '';
+  document.getElementById('sigInvPw').value = '';
 }
-function renderMySignalsSubNav(){
-const el=document.getElementById('mySignalsSubNav');
-let html='';
-data.portfolios.filter(p=>p.owner===currentUser).forEach(p=>{
-html+=`<div class="group-item" onclick="showPage('mysignals');filterMySignals('${p.name}')">${p.name}</div>`;
-});
-el.innerHTML=html;
-if(html) el.classList.add('show');
+
+function renderSignalCard(sig) {
+  const liked = data.likes.includes(sig.id);
+  return '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-weight:600;font-size:15px">'+sig.name+'</div><div class="badge badge-'+(sig.visibility==='public'?'success':'secondary')+'">'+sig.visibility+'</div></div><div class="stats-grid"><div><div class="stat-label">Gain</div><div class="stat-val '+(parseFloat(sig.gain)>=0?'pos':'neg')+'">'+sig.gain+'%</div></div><div><div class="stat-label">Balance</div><div class="stat-val">$'+sig.balance+'</div></div><div><div class="stat-label">Equity</div><div class="stat-val">$'+sig.equity+'</div></div><div><div class="stat-label">Trades</div><div class="stat-val">'+sig.trades+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px"><button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+sig.id+'\')">❤️ '+sig.likes+'</button><button class="cmt-btn">💬 '+sig.comments+'</button></div></div>';
 }
-function populatePortfolioSelect(){
-const sel=document.getElementById('signalPortfolio');
-sel.innerHTML='<option value="">-- No Portfolio --</option>';
-data.portfolios.filter(p=>p.owner===currentUser).forEach(p=>{
-sel.innerHTML+=`<option value="${p.name}">${p.name}</option>`;
-});
+
+function renderMySignals() {
+  const container = document.getElementById('mySignalsContent');
+  let filtered = data.signals.filter(s => currentPortfolio === 'all' || s.portfolio === currentPortfolio);
+  if(!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">No signals yet</div><div class="empty-sub">Add your first signal to start tracking performance</div></div>';
+    return;
+  }
+  container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' + filtered.map(s => renderSignalCard(s)).join('') + '</div>';
 }
-function filterSignals(mode){
-document.querySelectorAll('.filter-bar .tab-btn').forEach(b=>b.classList.remove('active'));
-event.target.classList.add('active');
-renderHome();
+
+function renderHome() {
+  const container = document.getElementById('homeContent');
+  const publicSignals = data.signals.filter(s => s.visibility === 'public');
+  if(!publicSignals.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No public signals</div><div class="empty-sub">Public signals will appear here</div></div>';
+    return;
+  }
+  container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' + publicSignals.map(s => renderSignalCard(s)).join('') + '</div>';
 }
-function renderMyGroups(){
-const el=document.getElementById('myGroupsContainer');
-const mine=data.groups.filter(g=>g.owner===currentUser||g.members.includes(currentUser));
-if(!mine.length){el.innerHTML='<div class="empty"><div class="empty-title">No groups yet</div><p>Create your first group!</p></div>';return;}
-el.innerHTML=mine.map(g=>`
-<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
-<div style="display:flex;justify-content:space-between;align-items:flex-start">
-<div>
-<div style="font-size:18px;font-weight:700">${g.name}</div>
-${g.desc?`<div style="font-size:13px;color:var(--txt2);margin-top:4px">${g.desc}</div>`:''}
-</div>
-<div style="display:flex;gap:8px">
-${g.public?'<span class="badge public">Public</span>':'<span class="badge inactive">Private</span>'}
-${g.owner===currentUser?'<span style="font-size:11px;background:rgba(13,158,255,.2);color:var(--cyan);padding:4px 8px;border-radius:6px">Owner</span>':''}
-</div>
-</div>
-<div style="font-size:12px;color:var(--txt2);margin-top:8px">${g.allowAdd?'\u2714 Others can add signals':'\u2718 Only owner can add signals'} | ${g.signals?g.signals.length:0} signals | ${g.members.length} members</div>
-</div>`).join('');
+
+// Group
+function createGroup() {
+  const name = document.getElementById('grpName').value.trim();
+  const desc = document.getElementById('grpDesc').value.trim();
+  const visibility = document.getElementById('grpVisibility').value;
+  const allowAdd = document.getElementById('grpAllowAdd').checked;
+  if(!name) return alert('Please enter a group name');
+  const g = {id: 'g'+Date.now(), name, description: desc, visibility, allowAdd, owner: 'currentUser', signalIds: [], created: new Date().toISOString()};
+  data.groups.push(g);
+  save();
+  renderMyGroups();
+  renderMyGroupsSubNav();
+  closeModal('newGroupModal');
+  document.getElementById('grpName').value = '';
+  document.getElementById('grpDesc').value = '';
 }
-function renderMyGroupsSubNav(){
-const el=document.getElementById('myGroupsSubNav');
-const mine=data.groups.filter(g=>g.owner===currentUser);
-let html=mine.map(g=>`<div class="group-item" onclick="showPage('mygroups')">${g.name}</div>`).join('');
-el.innerHTML=html;
-if(html) el.classList.add('show');
+
+function renderMyGroups() {
+  const container = document.getElementById('myGroupsContent');
+  if(!data.groups.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No groups yet</div><div class="empty-sub">Create a group to organize signals</div></div>';
+    return;
+  }
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">';
+  data.groups.forEach(g => {
+    html += '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-weight:600;font-size:15px">'+g.name+'</div><div class="badge badge-'+(g.visibility==='public'?'success':'secondary')+'">'+g.visibility+'</div></div><div style="color:var(--txt2);font-size:13px;margin-bottom:12px">'+g.description+'</div><div style="display:flex;gap:8px;font-size:12px;color:var(--txt2)"><div>📡 '+g.signalIds.length+' signals</div><div>'+(g.allowAdd?'✅ Open':'🔒 Closed')+'</div></div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
-function renderMyLikes(){
-const el=document.getElementById('myLikesContainer');
-const liked=data.signals.filter(s=>data.likes.includes(s.id));
-if(!liked.length){el.innerHTML='<div class="empty"><div class="empty-title">No liked signals yet</div><p>Like a signal to find it here</p></div>';return;}
-el.innerHTML=liked.map(s=>signalCard(s,true)).join('');
+
+function renderMyGroupsSubNav() {
+  const sub = document.getElementById('myGroupsSubNav');
+  if(!data.groups.length) {
+    sub.innerHTML = '';
+    return;
+  }
+  let html = '';
+  data.groups.forEach(g => {
+    html += '<div class="sub-nav-item" onclick="showPage(\'mygroups\');">'+g.name+' ('+g.signalIds.length+')</div>';
+  });
+  sub.innerHTML = html;
+}
+
+// Likes
+function toggleLike(signalId) {
+  const idx = data.likes.indexOf(signalId);
+  const sig = data.signals.find(s => s.id === signalId);
+  if(idx > -1) {
+    data.likes.splice(idx, 1);
+    if(sig) sig.likes--;
+  } else {
+    data.likes.push(signalId);
+    if(sig) sig.likes++;
+  }
+  save();
+  renderHome();
+  renderMySignals();
+  renderMyLikes();
+}
+
+function renderMyLikes() {
+  const container = document.getElementById('myLikesContent');
+  const likedSignals = data.signals.filter(s => data.likes.includes(s.id));
+  if(!likedSignals.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No liked signals</div><div class="empty-sub">Like signals to save them here</div></div>';
+    return;
+  }
+  container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' + likedSignals.map(s => renderSignalCard(s)).join('') + '</div>';
+}
+
+function handleLogout() {
+  if(confirm('Logout from AI Signal Portal?')) {
+    alert('Logged out (demo)');
+  }
 }
 
 // Init
-renderMySignalsSubNav();
-renderMyGroupsSubNav();
-renderHome();
+window.addEventListener('DOMContentLoaded', () => {
+  renderHome();
+  renderPortfolioTabs();
+  renderMySignalsSubNav();
+  renderMyGroupsSubNav();
+  setTheme('light');
+});
 </script>
 </body>
 </html>
