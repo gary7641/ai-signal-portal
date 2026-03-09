@@ -84,6 +84,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge-private{background:rgba(239,71,111,.15);color:var(--red)}
 .badge-admin{background:rgba(13,158,255,.15);color:var(--cyan)}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.port-stats{margin:24px 0;padding:20px;background:var(--bg1);border:1px solid var(--border);border-radius:12px}
+.period-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.period-tab{padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;transition:.2s}
+.period-tab:hover{background:var(--bg1)}
+.period-tab.active{background:var(--cyan);color:var(--bg1);border-color:var(--cyan);font-weight:600}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.stat-card{padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
+.stat-card-label{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat-card-value{font-size:24px;font-weight:700;margin-bottom:4px}
+.stat-card-value.positive{color:var(--green)}
+.stat-card-value.negative{color:var(--red)}
+.monthly-chart{background:var(--bg2);padding:20px;border:1px solid var(--border);border-radius:10px}
+.monthly-chart-title{font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.month-bars{display:flex;gap:8px;align-items:flex-end;height:200px}
+.month-bar{flex:1;background:var(--cyan);border-radius:4px 4px 0 0;position:relative;min-height:2px;cursor:pointer;transition:.2s}
+.month-bar:hover{opacity:.8}
+.month-bar.negative{background:var(--red)}
+.month-label{text-align:center;font-size:11px;color:var(--txt2);margin-top:8px}
 .stat{background:var(--bg1);border-radius:8px;padding:10px}
 .stat-label{font-size:11px;color:var(--txt2);margin-bottom:4px}
 .stat-val{font-size:16px;font-weight:700}
@@ -443,6 +461,7 @@ function renderSignalCard(sig) {
 
 function renderMySignals() {
   const container = document.getElementById('mySignalsContent');
+  renderPortfolioStats();
   let filtered = data.signals.filter(s => currentPortfolio === 'all' || s.portfolio === currentPortfolio);
   if(!filtered.length) {
     container.innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">No signals yet</div><div class="empty-sub">Add your first signal to start tracking performance</div></div>';
@@ -546,6 +565,66 @@ window.addEventListener('DOMContentLoaded', () => {
   renderMyGroupsSubNav();
   setTheme('light');
 });
+
+let currentStatsPeriod = 'today';
+let statsYear = 2026;
+
+function renderPortfolioStats() {
+  const container = document.getElementById('mySignalsContent');
+  const filtered = data.signals.filter(s => currentPortfolio === 'all' || s.portfolio === currentPortfolio);
+  if(!filtered.length) return;
+  
+  const stats = calculatePortfolioStats(filtered, currentStatsPeriod);
+  const monthlyData = calculateMonthlyStats(filtered, statsYear);
+  
+  let html = '<div class="port-stats">';
+  html += '<div class="period-tabs">';
+  html += '<div class="period-tab '+(currentStatsPeriod==='today'?'active':'')+'" onclick="switchStatsPeriod(\'today\')">本日</div>';
+  html += '<div class="period-tab '+(currentStatsPeriod==='week'?'active':'')+'" onclick="switchStatsPeriod(\'week\')">本周</div>';
+  html += '<div class="period-tab '+(currentStatsPeriod==='month'?'active':'')+'" onclick="switchStatsPeriod(\'month\')">本月</div>';
+  html += '<div class="period-tab '+(currentStatsPeriod==='year'?'active':'')+'" onclick="switchStatsPeriod(\'year\')">本年</div>';
+  html += '</div>';
+  html += '<div class="stat-cards">';
+  html += '<div class="stat-card"><div class="stat-card-label">盈虧 (Profit/Loss)</div><div class="stat-card-value '+(stats.profit>=0?'positive':'negative')+'">$'+stats.profit.toFixed(2)+'</div></div>';
+  html += '<div class="stat-card"><div class="stat-card-label">DD (Drawdown)</div><div class="stat-card-value">'+stats.dd.toFixed(2)+'%</div></div>';
+  html += '<div class="stat-card"><div class="stat-card-label">本周期入金 (Deposits)</div><div class="stat-card-value">$'+stats.deposits.toFixed(2)+'</div></div>';
+  html += '<div class="stat-card"><div class="stat-card-label">出金 (Withdrawals)</div><div class="stat-card-value">$'+stats.withdrawals.toFixed(2)+'</div></div>';
+  html += '</div>';
+  html += '<div class="monthly-chart"><div class="monthly-chart-title"><span>年度盈虧統計</span><select onchange="changeStatsYear(this.value)" style="background:var(--bg1);color:var(--txt1);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:12px"><option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select></div><div class="month-bars">';
+  const maxProfit = Math.max(...monthlyData.map(m => Math.abs(m.profit)));
+  monthlyData.forEach((m, i) => {
+    const height = maxProfit ? (Math.abs(m.profit) / maxProfit * 180) : 2;
+    html += '<div style="flex:1"><div class="month-bar '+(m.profit<0?'negative':'')+'" style="height:'+height+'px" title="'+m.month+': $'+m.profit.toFixed(2)+'"></div><div class="month-label">'+m.month+'</div></div>';
+  });
+  const totalProfit = monthlyData.reduce((sum, m) => sum + m.profit, 0);
+  html += '</div><div style="text-align:center;margin-top:16px;font-weight:600;font-size:16px">Total Profit: <span class="'+(totalProfit>=0?'pos':'neg')+'">$'+totalProfit.toFixed(2)+'</span></div></div>';
+  html += '</div>';
+  container.innerHTML = html + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px">' + filtered.map(s => renderSignalCard(s)).join('') + '</div>';
+}
+
+function switchStatsPeriod(period) {
+  currentStatsPeriod = period;
+  renderMySignals();
+}
+
+function changeStatsYear(year) {
+  statsYear = parseInt(year);
+  renderMySignals();
+}
+
+function calculatePortfolioStats(signals, period) {
+  return {
+    profit: Math.random()*10000-2000,
+    dd: Math.random()*30,
+    deposits: Math.random()*5000,
+    withdrawals: Math.random()*3000
+  };
+}
+
+function calculateMonthlyStats(signals, year) {
+  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  return months.map(m => ({month: m, profit: Math.random()*4000-1000}));
+}
 </script>
 </body>
 </html>
