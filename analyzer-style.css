@@ -5,114 +5,21 @@
   box-sizing: border-box;
 }
 
-/* Dark palette（保留作日後 Dark mode 用） */
+/* Palette：跟 AI Signal Portal，用 body[data-theme] 的變數 */
 :root {
-  --bg-main: #0f172a;
-  --bg-panel: #020617;
-  --bg-panel-soft: #02091b;
-  --border-soft: rgba(148, 163, 184, 0.25);
-  --accent-cyan: #22d3ee;
-  --accent-blue: #38bdf8;
-  --accent-green: #22c55e;
-  --accent-red: #ef4444;
-  --text-main: #e5e7eb;
-  --text-sub: #9ca3af;
-  --radius-panel: 18px;
-  --radius-chip: 999px;
-  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.88);
-
-  --accent-color: #22d3ee;
-  --accent-soft: #0f172a;
+  /* 這裏只定義中性數值，不用顏色 */
 }
 
-/* Light mode：白底深字（預設） */
-:root[data-theme="light"] {
-  --bg-main: #f5f5f5;
-  --bg-panel: #ffffff;
-  --bg-panel-soft: #f9fafb;
-  --border-soft: rgba(148, 163, 184, 0.35);
-
-  --text-main: #111827;
-  --text-sub: #4b5563;
-
-  --accent-cyan: #0891b2;
-  --accent-blue: #2563eb;
-  --accent-green: #16a34a;
-  --accent-red: #b91c1c;
-
-  --accent-color: #0891b2;
-  --accent-soft: #e5f3ff;
-
-  --shadow-soft: 0 10px 25px rgba(15, 23, 42, 0.12);
-}
-
+/* 顏色全部由 index.html 內的 body[data-theme] 控制：
+   --bg1, --bg2, --txt1, --txt2, --cyan, --green, --red, --border
+   所有原本 Analyzer 的變數改用這些 */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--bg1);
+  color: var(--txt1);
   -webkit-font-smoothing: antialiased;
-}
-
-/* 頂部 HEADER BAR（顏色固定，不跟 theme 變） */
-.top-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: linear-gradient(90deg, #0ea5e9, #22c55e);
-  padding: 10px 20px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.8);
-}
-
-.top-header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.top-header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.brand-logo {
-  height: 32px;
-  width: auto;
-  display: block;
-}
-
-.top-header-title .app-name {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: #f9fafb;
-}
-
-.top-header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: #e5f8ff;
-  font-size: 13px;
-}
-
-.powered-text {
-  opacity: 0.9;
-}
-
-.lang-select {
-  border-radius: 999px;
-  border: none;
-  padding: 4px 10px;
-  font-size: 12px;
-  background: rgba(15, 23, 42, 0.18);
-  color: #e5f8ff;
-  outline: none;
-  cursor: pointer;
 }
 
 /* Switch 樣式 */
@@ -132,7 +39,7 @@ body {
   position: relative;
   width: 44px;
   height: 24px;
-  background: var(--border-soft);
+  background: var(--border);
   border-radius: 999px;
   transition: background 0.2s ease;
 }
@@ -145,12 +52,12 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--accent-color);
+  background: var(--cyan);
   transition: transform 0.2s ease;
 }
 
 .switch input:checked + .slider {
-  background: var(--accent-soft);
+  background: rgba(13, 158, 255, 0.2);
 }
 
 .switch input:checked + .slider::before {
@@ -160,7 +67,7 @@ body {
 .switch-text-left,
 .switch-text-right {
   font-size: 0.8rem;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 .switch-inline {
@@ -174,10 +81,10 @@ body {
   max-width: 1200px;
   margin: 18px auto;
   padding: 18px 20px;
-  background: var(--bg-panel);
-  border-radius: var(--radius-panel);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
+  background: var(--bg2);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
 }
 
 .panel-title {
@@ -185,7 +92,7 @@ body {
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 /* 上載區 */
@@ -205,28 +112,30 @@ body {
 
 .field label {
   font-size: 13px;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 .file-input-wrapper {
   position: relative;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.02);
-  border: 1px dashed rgba(148, 163, 184, 0.5);
+  background: var(--bg1);
+  border: 1px dashed var(--border);
   padding: 8px 10px;
 }
 
 .file-input-wrapper input[type="file"] {
   width: 100%;
-  color: var(--text-sub);
+  color: var(--txt2);
   font-size: 13px;
+  background: transparent;
+  border: none;
 }
 
 #eaSelect {
   border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.55);
-  background: var(--bg-panel-soft);
-  color: var(--text-main);
+  border: 1px solid var(--border);
+  background: var(--bg1);
+  color: var(--txt1);
   padding: 8px 10px;
   font-size: 13px;
 }
@@ -244,7 +153,7 @@ button {
 .primary {
   border-radius: 999px;
   border: none;
-  background: radial-gradient(circle at 20% 0, #22d3ee, #0284c7);
+  background: radial-gradient(circle at 20% 0, var(--cyan), #0284c7);
   color: #0b1120;
   padding: 8px 20px;
   font-size: 14px;
@@ -253,21 +162,21 @@ button {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
   transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
 }
 
 .primary:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
-  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.2);
 }
 
 .secondary {
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: var(--bg-panel-soft);
-  color: var(--text-main);
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--txt1);
   padding: 7px 18px;
   font-size: 13px;
   cursor: pointer;
@@ -290,19 +199,19 @@ button {
   align-items: center;
   cursor: pointer;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+  border-bottom: 1px solid var(--border);
 }
 
 .collapsible-header h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 .collapse-toggle {
   font-size: 18px;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 .collapsible-body {
@@ -324,33 +233,33 @@ button {
 }
 
 .summary-card {
-  background: var(--bg-panel-soft);
+  background: var(--bg1);
   border-radius: 14px;
   padding: 12px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid var(--border);
 }
 
 .summary-card h3 {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 .summary-value {
   font-size: 22px;
   font-weight: 600;
-  color: var(--accent-cyan);
+  color: var(--cyan);
 }
 
 .summary-sub {
   margin-top: 4px;
   font-size: 12px;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 .summary-row {
   font-size: 13px;
-  color: var(--text-sub);
+  color: var(--txt2);
   display: flex;
   justify-content: space-between;
   margin-top: 2px;
@@ -363,7 +272,7 @@ button {
 
 .bar-label {
   font-size: 12px;
-  color: var(--text-sub);
+  color: var(--txt2);
   margin-bottom: 2px;
 }
 
@@ -377,12 +286,12 @@ button {
 .bar-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #22c55e, #a3e635);
+  background: linear-gradient(90deg, var(--green), #a3e635);
   transition: width 0.18s ease-out;
 }
 
 .bar-profit {
-  background: linear-gradient(90deg, #22c55e, #ef4444);
+  background: linear-gradient(90deg, var(--green), var(--red));
 }
 
 /* 帳戶總覽 */
@@ -395,7 +304,7 @@ button {
 .account-stats h3 {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 /* 帳戶統計：上面兩行橫排 */
@@ -410,7 +319,7 @@ button {
   flex-wrap: wrap;
   gap: 4px 14px;
   font-size: 13px;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 .account-row span {
@@ -419,7 +328,7 @@ button {
 
 #minimumArea div {
   font-size: 13px;
-  color: var(--text-sub);
+  color: var(--txt2);
   margin: 2px 0;
 }
 
@@ -432,17 +341,17 @@ button {
 }
 
 .chart-card {
-  background: var(--bg-panel-soft);
+  background: var(--bg1);
   border-radius: 14px;
   padding: 10px 12px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid var(--border);
 }
 
 .chart-card h3,
 .chart-card h4 {
   margin: 0 0 6px 0;
   font-size: 13px;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 /* Symbol 區 */
@@ -455,9 +364,9 @@ button {
 
 .symbol-btn {
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  background: var(--bg-panel-soft);
-  color: var(--text-main);
+  border: 1px solid var(--border);
+  background: var(--bg1);
+  color: var(--txt1);
   padding: 4px 10px;
   font-size: 12px;
   display: inline-flex;
@@ -468,12 +377,12 @@ button {
 
 .symbol-btn .value {
   font-size: 11px;
-  color: var(--accent-green);
+  color: var(--green);
 }
 
 .symbol-btn.active {
-  border-color: var(--accent-cyan);
-  background: rgba(34, 211, 238, 0.08);
+  border-color: var(--cyan);
+  background: rgba(13, 158, 255, 0.08);
 }
 
 /* Mini charts */
@@ -485,22 +394,22 @@ button {
 }
 
 .mini-chart-card {
-  background: var(--bg-panel-soft);
+  background: var(--bg1);
   border-radius: 12px;
   padding: 6px 8px 8px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border: 1px solid var(--border);
 }
 
 .mini-chart-title {
   margin-top: 4px;
   font-size: 11px;
-  color: var(--text-sub);
+  color: var(--txt2);
   display: flex;
   justify-content: space-between;
 }
 
 .mini-chart-title .value {
-  color: var(--accent-green);
+  color: var(--green);
 }
 
 /* Symbol 深入分析 layout */
@@ -516,7 +425,7 @@ button {
 .symbol-summary-ea {
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 .symbol-summary-ea .ea-tag {
@@ -547,7 +456,7 @@ button {
   flex-wrap: wrap;
   gap: 4px 14px;
   font-size: 13px;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 .symbol-row span {
@@ -586,7 +495,7 @@ button {
   font-size: 0.85rem;
   opacity: 0.8;
   margin-bottom: 0.25rem;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 .chart-title-row {
@@ -600,7 +509,7 @@ button {
 .martin-header {
   margin-top: 8px;
   font-size: 13px;
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 .martin-table-wrapper {
@@ -616,7 +525,7 @@ button {
 
 .martin-table th,
 .martin-table td {
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid var(--border);
   padding: 3px 6px;
   text-align: right;
 }
@@ -627,15 +536,15 @@ button {
 }
 
 .martin-table thead {
-  background: var(--bg-panel-soft);
+  background: var(--bg2);
 }
 
 .row-total-positive {
-  color: #22c55e;
+  color: var(--green);
 }
 
 .row-total-negative {
-  color: #ef4444;
+  color: var(--red);
 }
 
 .level-risk {
@@ -655,17 +564,17 @@ button {
 
 .toggle-mode {
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: var(--bg-panel-soft);
-  color: var(--text-sub);
+  border: 1px solid var(--border);
+  background: var(--bg1);
+  color: var(--txt2);
   font-size: 11px;
   padding: 3px 10px;
   cursor: pointer;
 }
 
 .toggle-mode.active {
-  background: rgba(34, 211, 238, 0.2);
-  color: var(--accent-cyan);
+  background: rgba(13, 158, 255, 0.15);
+  color: var(--cyan);
 }
 
 /* SWOT */
@@ -685,13 +594,13 @@ button {
   line-height: 1.4;
   padding: 8px 9px;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  background: var(--bg-panel-soft);
-  color: var(--text-sub);
+  border: 1px solid var(--border);
+  background: var(--bg1);
+  color: var(--txt2);
 }
 
 .swot-cell strong {
-  color: var(--text-main);
+  color: var(--txt1);
 }
 
 .swot-st { grid-area: st; }
@@ -706,14 +615,14 @@ button {
 .swot-center {
   grid-area: center;
   border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: var(--bg-panel-soft);
+  border: 1px solid var(--border);
+  background: var(--bg2);
   padding: 10px 12px;
 }
 
 .swot-center-text {
   font-size: 12px;
-  color: var(--text-sub);
+  color: var(--txt2);
 }
 
 /* RWD */
@@ -724,12 +633,6 @@ button {
 
   .account-charts {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .top-header-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
   }
 }
 
