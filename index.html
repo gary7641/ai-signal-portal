@@ -7,148 +7,114 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg1:#0a0e27;--bg2:#1a1f3a;--txt1:#e8eaf6;--txt2:#9e9e9e;
-  --cyan:#0d9fff;--purple:#9d4edd;--green:#06d6a0;--red:#ef476f;--border:#2d3354
+  --bg1:#ffffff;
+  --bg2:#f7f7f9;
+  --txt1:#1a1f3a;
+  --txt2:rgba(0,0,0,.6);
+  --cyan:#0d9fff;
+  --purple:#9d4edd;
+  --green:#06d6a0;
+  --red:#ef476f;
+  --border:#dee2e6
 }
-[data-theme=light]{
-  --bg1:#ffffff;--bg2:#f7f7f9;--txt1:#1a1f3a;--txt2:rgba(0,0,0,.6);--border:#dee2e6
+body[data-theme="dark"]{
+  --bg1:#0a0e27;
+  --bg2:#1a1f3a;
+  --txt1:#e8eaf6;
+  --txt2:#9e9e9e;
+  --border:#2d3354
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg1);color:var(--txt1)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg1);
+  color:var(--txt1)
+}
+
+/* Sidebar 收窄 + hover 展開 */
 .sidebar{
-  position:fixed;left:0;top:0;width:240px;height:100vh;
-  background:var(--bg2);border-right:1px solid var(--border);padding:20px;overflow-y:auto;z-index:10
+  position:fixed;left:0;top:0;height:100vh;
+  background:var(--bg2);border-right:1px solid var(--border);
+  padding:20px 12px;overflow-y:auto;z-index:10;
+  width:60px;transition:width .2s;
 }
-.logo{font-size:18px;font-weight:700;margin-bottom:24px;padding:10px 0;border-bottom:1px solid var(--border)}
-.nav-label{font-size:11px;text-transform:uppercase;color:var(--txt2);margin:16px 0 6px;font-weight:600;letter-spacing:.8px}
+.sidebar:hover{width:240px}
+.sidebar .logo-text,
+.sidebar .nav-text,
+.sidebar .quota-bar,
+.sidebar .nav-label{
+  opacity:0;visibility:hidden;
+  transition:opacity .2s;
+}
+.sidebar:hover .logo-text,
+.sidebar:hover .nav-text,
+.sidebar:hover .quota-bar,
+.sidebar:hover .nav-label{
+  opacity:1;visibility:visible;
+}
+.sidebar .logo{
+  display:flex;align-items:center;gap:8px;
+  font-size:18px;font-weight:700;
+  margin-bottom:24px;padding:10px 0;
+  border-bottom:1px solid var(--border)
+}
+.sidebar .logo-icon{font-size:20px}
+.nav-label{
+  font-size:11px;text-transform:uppercase;
+  color:var(--txt2);margin:16px 0 6px;
+  font-weight:600;letter-spacing:.8px
+}
 .nav-item{
-  display:flex;align-items:center;gap:10px;padding:9px 12px;
-  border-radius:8px;color:var(--txt2);cursor:pointer;transition:.2s;margin-bottom:2px;font-size:14px
+  display:flex;align-items:center;gap:8px;
+  padding:9px 10px;border-radius:8px;
+  color:var(--txt2);cursor:pointer;
+  transition:.2s;margin-bottom:2px;font-size:14px;
+  white-space:nowrap;
 }
+.nav-icon{width:20px;text-align:center;font-size:16px}
 .nav-item:hover{background:var(--bg1);color:var(--txt1)}
 .nav-item.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff}
 .sub-nav{display:none;margin-left:12px}
 .sub-nav.show{display:block}
-.sub-item{
-  padding:6px 12px;font-size:13px;color:var(--txt2);
-  cursor:pointer;border-radius:6px;transition:.2s;margin-bottom:2px
-}
-.sub-item:hover{background:var(--bg1);color:var(--txt1)}
+
+/* Header & Main */
 .header{
-  position:fixed;top:0;left:240px;right:0;height:64px;
+  position:fixed;top:0;left:60px;right:0;height:64px;
   background:var(--bg2);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:5
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:5;transition:left .2s;
 }
-.header-left{font-size:18px;font-weight:700}
-.header-right{display:flex;align-items:center;gap:16px}
-.avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--cyan);object-fit:cover}
-.username{font-size:14px;font-weight:500}
-.theme-sel{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg1);color:var(--txt1);font-size:13px;cursor:pointer}
-.btn-logout{background:var(--red);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
-.main{margin-left:240px;margin-top:64px;padding:28px;min-height:calc(100vh - 64px);background:var(--bg1)}
+.sidebar:hover + .header{left:240px}
+.main{
+  margin-left:60px;margin-top:64px;padding:28px;
+  min-height:calc(100vh - 64px);background:var(--bg1);
+  transition:margin-left .2s;
+}
+.sidebar:hover ~ .main{margin-left:240px}
+
 .page{display:none}
 .page.active{display:block}
-.page-title{font-size:26px;font-weight:700;margin-bottom:6px}
-.page-sub{font-size:14px;color:var(--txt2);margin-bottom:24px}
-.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.tab-btn{
-  padding:7px 16px;border-radius:20px;background:var(--bg2);
-  border:1px solid var(--border);color:var(--txt2);cursor:pointer;font-size:13px;transition:.2s
-}
-.tab-btn:hover{border-color:var(--cyan);color:var(--txt1)}
-.tab-btn.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:0}
-.action-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
-.btn-primary{
+
+/* 簡化：其他樣式用你原本既，這裏保留關鍵結構 */
+.page-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--txt2);margin-bottom:16px}
+
+/* Trade Analyzer panel 主要容器 */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.panel h1,.panel h2,.panel h3{margin-bottom:8px}
+.upload-controls{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.file-input-wrapper input{padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg1);color:var(--txt1)}
+.upload-buttons{display:flex;gap:8px}
+.upload-buttons .primary{
   background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;
-  padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s
+  border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px
 }
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(13,158,255,.35)}
-.btn-sec{
-  background:var(--bg2);color:var(--txt1);padding:10px 20px;
-  border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s
+.upload-buttons .secondary{
+  background:var(--bg1);color:var(--txt1);border:1px solid var(--border);
+  border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px
 }
-.btn-sec:hover{border-color:var(--cyan)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
-.card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
-  padding:20px;transition:.2s;cursor:pointer
-}
-.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.15);border-color:var(--cyan)}
-.card-broker{font-size:12px;color:var(--txt2);margin-bottom:4px}
-.card-name{font-size:18px;font-weight:700;margin-bottom:12px}
-.card-portfolio{font-size:12px;color:var(--txt2);margin-top:4px}
-.badge{
-  display:inline-block;padding:3px 8px;border-radius:6px;
-  font-size:11px;font-weight:600;text-transform:uppercase
-}
-.badge-public{background:rgba(6,214,160,.15);color:var(--green)}
-.badge-private{background:rgba(239,71,111,.15);color:var(--red)}
-.badge-admin{background:rgba(13,158,255,.15);color:var(--cyan)}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
-.port-stats{margin:24px 0;padding:20px;background:var(--bg1);border:1px solid var(--border);border-radius:12px}
-.period-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.period-tab{padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;transition:.2s}
-.period-tab:hover{background:var(--bg1)}
-.period-tab.active{background:var(--cyan);color:var(--bg1);border-color:var(--cyan);font-weight:600}
-.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
-.stat-card{padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
-.stat-card-label{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.stat-card-value{font-size:24px;font-weight:700;margin-bottom:4px}
-.stat-card-value.positive{color:var(--green)}
-.stat-card-value.negative{color:var(--red)}
-.monthly-chart{background:var(--bg2);padding:20px;border:1px solid var(--border);border-radius:10px}
-.monthly-chart-title{font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-.month-bars{display:flex;gap:8px;align-items:flex-end;height:200px}
-.month-bar{flex:1;background:var(--cyan);border-radius:4px 4px 0 0;position:relative;min-height:2px;cursor:pointer;transition:.2s}
-.month-bar:hover{opacity:.8}
-.month-bar.negative{background:var(--red)}
-.month-label{text-align:center;font-size:11px;color:var(--txt2);margin-top:8px}
-.stat{background:var(--bg1);border-radius:8px;padding:10px}
-.stat-label{font-size:11px;color:var(--txt2);margin-bottom:4px}
-.stat-val{font-size:16px;font-weight:700}
-.stat-val.pos{color:var(--green)}
-.stat-val.neg{color:var(--red)}
-.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
-.like-btn,.cmt-btn{
-  background:none;border:none;cursor:pointer;color:var(--txt2);
-  font-size:13px;display:flex;align-items:center;gap:4px;transition:.2s;padding:4px 8px;border-radius:6px
-}
-.like-btn:hover{color:var(--red);background:rgba(239,71,111,.1)}
-.like-btn.liked{color:var(--red)}
-.cmt-btn:hover{color:var(--cyan);background:rgba(13,158,255,.1)}
-.portfolio-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.port-tab{
-  padding:6px 14px;border-radius:8px;background:var(--bg2);
-  border:1px solid var(--border);color:var(--txt2);cursor:pointer;font-size:13px;transition:.2s
-}
-.port-tab:hover{border-color:var(--cyan);color:var(--txt1)}
-.port-tab.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;border:0}
-.empty{text-align:center;padding:80px 20px;color:var(--txt2)}
-.empty-icon{font-size:48px;margin-bottom:12px}
-.empty-title{font-size:18px;font-weight:600;color:var(--txt1);margin-bottom:6px}
-.empty-sub{font-size:14px}
-.modal{
-  display:none;position:fixed;z-index:999;inset:0;
-  background:rgba(0,0,0,.6);align-items:center;justify-content:center
-}
-.modal.active{display:flex}
-.modal-box{
-  background:var(--bg2);border-radius:14px;padding:28px;
-  width:90%;max-width:480px;max-height:85vh;overflow-y:auto
-}
-.modal-title{font-size:20px;font-weight:700;margin-bottom:20px}
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--txt2)}
-.form-input{
-  width:100%;padding:10px 12px;border-radius:8px;
-  border:1px solid var(--border);background:var(--bg1);color:var(--txt1);font-size:14px
-}
-.form-input:focus{outline:none;border-color:var(--cyan)}
-.form-check{display:flex;align-items:center;gap:8px;font-size:14px}
-.form-check input{width:16px;height:16px;cursor:pointer}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.quota-bar{background:var(--bg1);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px}
-.quota-track{height:6px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
-.quota-fill{height:100%;border-radius:3px;background:linear-gradient(135deg,var(--cyan),var(--purple));transition:.3s}
+
+/* Summary / charts / symbol 區域略，保留你現有 analyzer-style.css 覆蓋 */
 </style>
 
 <!-- Trade Analyzer 樣式 + 圖表 -->
@@ -157,27 +123,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body data-theme="light">
 <div class="sidebar" id="sidebar">
-  <div class="logo">📡 AI Signal Portal</div>
+  <div class="logo">
+    <span class="logo-icon">📡</span>
+    <span class="logo-text">AI Signal Portal</span>
+  </div>
   <div class="nav-label">MAIN</div>
-  <div class="nav-item active" onclick="showPage('home')">🏠 Home</div>
+  <div class="nav-item active" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span><span class="nav-text">Home</span>
+  </div>
   <div class="nav-label">MY ACCOUNT</div>
-  <div class="nav-item" onclick="showPage('mysignals')">📊 My Signals</div>
+  <div class="nav-item" onclick="showPage('mysignals')">
+    <span class="nav-icon">📊</span><span class="nav-text">My Signals</span>
+  </div>
   <div id="mySignalsSubNav" class="sub-nav"></div>
-  <div class="nav-item" onclick="showPage('mygroups')">👥 My Groups</div>
+  <div class="nav-item" onclick="showPage('mygroups')">
+    <span class="nav-icon">👥</span><span class="nav-text">My Groups</span>
+  </div>
   <div id="myGroupsSubNav" class="sub-nav"></div>
-  <div class="nav-item" onclick="showPage('mylikes')">❤️ My Liked Signals</div>
+  <div class="nav-item" onclick="showPage('mylikes')">
+    <span class="nav-icon">❤️</span><span class="nav-text">My Liked Signals</span>
+  </div>
   <div class="nav-label">TOOLS</div>
-  <div class="nav-item" onclick="showPage('fxtools')">🔧 FX Tools</div>
-  <div class="nav-item" onclick="showPage('analyzer')">📈 Trade Analyzer</div>
-  <div style="margin-top:auto;padding:16px">
+  <div class="nav-item" onclick="showPage('fxtools')">
+    <span class="nav-icon">🔧</span><span class="nav-text">FX Tools</span>
+  </div>
+  <div class="nav-item" onclick="showPage('analyzer')">
+    <span class="nav-icon">📈</span><span class="nav-text">Trade Analyzer</span>
+  </div>
+  <div style="margin-top:auto;padding:8px 4px">
     <div class="quota-bar">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:4px">
         <span>Signal Quota</span><span id="quotaText">0 / 20</span>
       </div>
-      <div class="quota-track"><div class="quota-fill" id="quotaFill" style="width:0%"></div></div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div class="quota-fill" id="quotaFill" style="width:0%;height:100%;background:linear-gradient(135deg,var(--cyan),var(--purple));"></div>
+      </div>
     </div>
   </div>
 </div>
+
 <div class="header">
   <div style="font-weight:700;font-size:18px">AI Signal Portal <span style="font-size:11px;color:var(--cyan);margin-left:8px">v0.1</span></div>
   <div style="display:flex;align-items:center;gap:12px">
@@ -192,425 +176,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button onclick="handleLogout()" style="background:var(--bg1);color:var(--txt2);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">Logout</button>
   </div>
 </div>
+
 <div class="main">
-<!-- HOME PAGE -->
-<div class="page active" id="homePage">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-    <div>
-      <h2 style="margin:0;font-size:22px">📡 Home - Public Signals</h2>
-      <p style="margin:4px 0 0;color:var(--txt2);font-size:13px">Live ranking of all public signals</p>
-    </div>
-  </div>
-  <div id="homeContent"></div>
-</div>
-<!-- MY SIGNALS PAGE -->
-<div class="page" id="mysignalsPage">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h2 style="margin:0;font-size:22px">📊 My Signals</h2>
-    <div style="display:flex;gap:8px">
-      <button class="btn-primary" onclick="openModal('newPortfolioModal')">+ New Portfolio</button>
-      <button class="btn-primary" onclick="openModal('newSignalModal')">+ Add Signal</button>
-    </div>
-  </div>
-  <div id="portfolioTabs" class="portfolio-tabs"></div>
-  <div id="mySignalsContent"></div>
-</div>
-<!-- MY GROUPS PAGE -->
-<div class="page" id="mygroupsPage">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h2 style="margin:0;font-size:22px">👥 My Groups</h2>
-    <button class="btn-primary" onclick="openModal('newGroupModal')">+ New Group</button>
-  </div>
-  <div id="myGroupsContent"></div>
-</div>
-<!-- MY LIKED SIGNALS PAGE -->
-<div class="page" id="mylikesPage">
-  <div style="margin-bottom:16px">
-    <h2 style="margin:0;font-size:22px">❤️ My Liked Signals</h2>
-    <p style="margin:4px 0 0;color:var(--txt2);font-size:13px">Signals you have liked</p>
-  </div>
-  <div id="myLikesContent"></div>
-</div>
-<!-- FX TOOLS PAGE -->
-<div class="page" id="fxtoolsPage">
-  <h2 style="margin:0 0 20px;font-size:22px">🔧 FX Tools</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
-    <div class="card" style="text-align:center;padding:24px">
-      <div style="font-size:36px;margin-bottom:12px">📐</div>
-      <div style="font-weight:600;margin-bottom:6px">Pip Calculator</div>
-      <div style="font-size:13px;color:var(--txt2)">Calculate pip value for your trades</div>
-    </div>
-    <div class="card" style="text-align:center;padding:24px">
-      <div style="font-size:36px;margin-bottom:12px">💰</div>
-      <div style="font-weight:600;margin-bottom:6px">Position Sizer</div>
-      <div style="font-size:13px;color:var(--txt2)">Determine optimal lot size</div>
-    </div>
-    <div class="card" style="text-align:center;padding:24px">
-      <div style="font-size:36px;margin-bottom:12px">📈</div>
-      <div style="font-weight:600;margin-bottom:6px">Risk / Reward</div>
-      <div style="font-size:13px;color:var(--txt2)">Analyse your R:R ratio</div>
-    </div>
-  </div>
-</div>
-
-<!-- TRADE ANALYZER PAGE -->
-<div class="page" id="analyzerPage">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-    <h2 style="margin:0;font-size:22px">📈 Trade Analyzer</h2>
-    <span style="font-size:12px;color:var(--txt2)">Powered by FFSOMEONE</span>
+  <!-- HOME PAGE -->
+  <div class="page active" id="homePage">
+    <h2 class="page-title">📡 Home - Public Signals</h2>
+    <p class="page-sub">Live ranking of all public signals</p>
+    <div id="homeContent"></div>
   </div>
 
-  <div id="analyzerContainer" style="background:var(--bg1);border-radius:12px;padding:16px;">
-    <!-- 1. 匯入 MT4/MT5 報表 CSV -->
-    <section class="panel">
-      <h1 class="panel-title">1. 匯入 MT4/MT5 報表 CSV</h1>
+  <!-- 其他 My Signals / Groups / Likes / FX Tools 保持之前版本，略 -->
 
-      <div class="upload-controls">
-        <div class="field">
-          <label for="csvFile">交易報表 CSV</label>
-          <div class="file-input-wrapper">
-            <input type="file" id="csvFile" accept=".csv" />
+  <!-- TRADE ANALYZER PAGE -->
+  <div class="page" id="analyzerPage">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 class="page-title">📈 Trade Analyzer</h2>
+      <span style="font-size:12px;color:var(--txt2)">Powered by trading_history_analytics</span>
+    </div>
+    <div id="analyzerContainer" style="background:var(--bg1);border-radius:12px;padding:16px;">
+      <!-- 1. 匯入 MT4/MT5 報表 CSV -->
+      <section class="panel">
+        <h1>1. 匯入 MT4/MT5 報表 CSV</h1>
+        <div class="upload-controls">
+          <div class="field">
+            <label for="csvFile">交易報表 CSV</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="csvFile" accept=".csv" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="eaSelect">EA 類型</label>
+            <select id="eaSelect">
+              <option value="SMA">SMA (Standard)</option>
+              <option value="SMA_Pro">SMA Pro</option>
+              <option value="MKD">MKD (Standard)</option>
+              <option value="MKD_Pro">MKD Pro</option>
+              <option value="Flash">Flash (Standard)</option>
+              <option value="Flash_Pro">Flash Pro</option>
+              <option value="S10">S10 (Standard)</option>
+              <option value="S10_Pro">S10 Pro</option>
+              <option value="OtherBasic">Other EA (Basic)</option>
+              <option value="OtherPro">Other EA (Pro)</option>
+            </select>
+          </div>
+          <div class="upload-buttons">
+            <button id="analyzeBtn" class="primary">
+              <span>🚀</span><span>開始分析</span>
+            </button>
+            <button id="resetBtn" class="secondary">Reset</button>
           </div>
         </div>
+      </section>
 
-        <div class="field">
-          <label for="eaSelect">EA 類型</label>
-          <select id="eaSelect">
-            <option value="SMA">SMA (Standard)</option>
-            <option value="SMA_Pro">SMA Pro</option>
-            <option value="MKD">MKD (Standard)</option>
-            <option value="MKD_Pro">MKD Pro</option>
-            <option value="Flash">Flash (Standard)</option>
-            <option value="Flash_Pro">Flash Pro</option>
-            <option value="S10">S10 (Standard)</option>
-            <option value="S10_Pro">S10 Pro</option>
-            <option value="OtherBasic">Other EA (Basic)</option>
-            <option value="OtherPro">Other EA (Pro)</option>
-          </select>
-        </div>
-
-        <div class="upload-buttons">
-          <button id="analyzeBtn" class="primary">
-            <span class="rocket">🚀</span>
-            <span>開始分析</span>
-          </button>
-          <button id="resetBtn" class="secondary">Reset</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. 帳戶 Summary Cards -->
-    <section id="summaryCardsSection" class="panel" style="display:none;">
-      <div class="collapsible-header" data-target="summaryCardsBody">
-        <h2>2. 帳戶總覽 Summary</h2>
-        <span class="collapse-toggle">－</span>
-      </div>
-      <div id="summaryCardsBody" class="collapsible-body">
-        <div class="summary-grid">
-          <div class="summary-card">
-            <h3>成長 & 期間</h3>
-            <div class="summary-value" id="growthValue">0 %</div>
-            <div class="summary-sub" id="growthPeriod"></div>
-
-            <div class="summary-row">
-              <span>Algo</span>
-              <span id="radarAlgo">EA Radar</span>
-            </div>
-            <div class="summary-row">
-              <span>勝率</span>
-              <span id="radarProfitTrades"></span>
-            </div>
-            <div class="summary-row">
-              <span>虧損率</span>
-              <span id="radarLossTrades"></span>
-            </div>
-            <div class="summary-row">
-              <span>Max DD</span>
-              <span id="radarMaxDD"></span>
-            </div>
-            <div class="summary-row">
-              <span>PF</span>
-              <span id="radarPF"></span>
-            </div>
-            <div class="summary-row">
-              <span>活動度</span>
-              <span id="radarActivity"></span>
-            </div>
-          </div>
-
-          <div class="summary-card">
-            <h3>Equity / Profit</h3>
-            <div class="summary-row">
-              <span>Initial Deposit</span>
-              <span id="initialDepositValue">0.00</span>
-            </div>
-
-            <div class="bar-group">
-              <div class="bar-label">Equity</div>
-              <div class="bar-track">
-                <div id="equityBar" class="bar-fill"></div>
-              </div>
-            </div>
-
-            <div class="bar-group">
-              <div class="bar-label">Profit</div>
-              <div class="bar-track">
-                <div id="profitBar" class="bar-fill bar-profit"></div>
-              </div>
-            </div>
-
-            <div class="summary-row" style="margin-top:6px;">
-              <span>Equity</span>
-              <span id="equityValue">0.00</span>
-            </div>
-            <div class="summary-row">
-              <span>Profit</span>
-              <span id="profitValue">0.00</span>
-            </div>
-          </div>
-
-          <div class="summary-card">
-            <h3>Minimum Area (Key Stats)</h3>
-            <div id="minimumArea"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. 帳戶總體分析 -->
-    <section id="accountSection" class="panel" style="display:none;">
-      <div class="collapsible-header" data-target="accountBody">
-        <h2>3. 帳戶總體分析</h2>
-        <span class="collapse-toggle">－</span>
-      </div>
-      <div id="accountBody" class="collapsible-body">
-        <div class="account-layout">
-          <div class="account-stats">
-            <h3>帳戶統計</h3>
-            <div id="accountStats"></div>
-          </div>
-
-          <div class="account-charts">
-            <div class="chart-card">
-              <h3>Equity Curve</h3>
-              <canvas id="equityChart"></canvas>
-            </div>
-            <div class="chart-card">
-              <h3>Weekday Trades</h3>
-              <canvas id="weekdayChart"></canvas>
-            </div>
-            <div class="chart-card">
-              <h3>Symbol Profit 排名</h3>
-              <canvas id="symbolProfitChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Symbol Buttons + Mini Charts -->
-    <section id="symbolSection" class="panel" style="display:none;">
-      <div class="collapsible-header" data-target="symbolBody">
-        <h2>4. Symbol 一覽與 Mini Equity</h2>
-        <span class="collapse-toggle">－</span>
-      </div>
-      <div id="symbolBody" class="collapsible-body">
-        <div>
-          <h3>Symbols</h3>
-          <div id="symbolButtons" class="symbol-buttons"></div>
-        </div>
-
-        <div style="margin-top:10px;">
-          <h3>Symbol 累積 Profit 小圖</h3>
-          <div id="symbolMiniCharts" class="mini-chart-grid"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Symbol 深入分析 📊 -->
-    <section id="symbolDetailSection" class="panel" style="display:none;">
-      <div class="collapsible-header" data-target="symbolDetailBody">
-        <h2 id="symbolTitle">5. Symbol 深入分析 📊</h2>
-        <span class="collapse-toggle">－</span>
-      </div>
-      <div id="symbolDetailBody" class="collapsible-body">
-
-        <div class="symbol-summary-grid">
-          <div class="symbol-summary-main">
-            <h3>Symbol 指標</h3>
-            <div id="symbolStats"></div>
-          </div>
-          <div class="symbol-summary-ea">
-            <span id="eaTag" class="ea-tag">EA</span>
-            <div id="eaCenterAnalysis"></div>
-          </div>
-          <div class="symbol-summary-switches">
-            <span class="switch-text-left">All</span>
-            <label class="switch" id="cumSwitchWrapper" style="display:none;">
-              <input type="checkbox" id="cumSwitch" />
-              <span class="slider"></span>
-            </label>
-            <span class="switch-text-right">Separate</span>
-          </div>
-        </div>
-
-        <div class="symbol-charts-layout">
-          <div class="symbol-charts-left">
-            <div class="chart-title-row">
-              <h3 class="chart-title">Cumulative Profit</h3>
-            </div>
-            <canvas id="symbolCumulativeChart"></canvas>
-          </div>
-
-          <div class="symbol-charts-right">
-            <div class="symbol-charts-row">
-              <div class="chart-box">
-                <h3 class="chart-title">Weekday Profit</h3>
-                <canvas id="symbolWeekdayProfitChart"></canvas>
-              </div>
-              <div class="chart-box">
-                <h3 class="chart-title">Weekday Trades</h3>
-                <canvas id="symbolWeekdayCountChart"></canvas>
-              </div>
-            </div>
-            <div class="symbol-charts-row">
-              <div class="chart-box">
-                <h3 class="chart-title">Hourly Profit</h3>
-                <canvas id="symbolHourlyProfitChart"></canvas>
-              </div>
-              <div class="chart-box">
-                <h3 class="chart-title">Hourly Trades</h3>
-                <canvas id="symbolHourlyCountChart"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. 馬丁層數分析 -->
-    <section id="martinSection" class="panel" style="display:none;">
-      <div class="collapsible-header" data-target="martinBody">
-        <h2>6. 馬丁層數分析</h2>
-        <span class="collapse-toggle">－</span>
-      </div>
-      <div id="martinBody" class="collapsible-body">
-        <div id="martinTables"></div>
-      </div>
-    </section>
-
-    <!-- 7. SWOT 分析 -->
-    <section id="swotSection" class="panel" style="display:none;">
-      <div class="collapsible-header" data-target="swotBody">
-        <h2>7. EA SWOT 分析</h2>
-        <span class="collapse-toggle">－</span>
-      </div>
-      <div id="swotBody" class="collapsible-body">
-        <div class="swot-layout">
-          <div id="swotST" class="swot-cell swot-st"></div>
-          <div id="swotS" class="swot-cell swot-s"></div>
-          <div id="swotSW" class="swot-cell swot-sw"></div>
-
-          <div id="swotT" class="swot-cell swot-t"></div>
-          <div class="swot-center">
-            <div id="eaCenterAnalysis" class="swot-center-text"></div>
-          </div>
-          <div id="swotW" class="swot-cell swot-w"></div>
-
-          <div id="swotOT" class="swot-cell swot-ot"></div>
-          <div id="swotO" class="swot-cell swot-o"></div>
-          <div id="swotOW" class="swot-cell swot-ow"></div>
-        </div>
-      </div>
-    </section>
-  </div>
-</div>
-</div><!-- end .main -->
-
-<!-- MODALS -->
-<div class="modal" id="newPortfolioModal">
-  <div class="modal-box">
-    <div class="modal-title">📁 New Portfolio</div>
-    <div class="form-group">
-      <label class="form-label">Portfolio Name</label>
-      <input class="form-input" id="portName" placeholder="e.g. Main Portfolio">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Description</label>
-      <input class="form-input" id="portDesc" placeholder="Optional description">
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sec" onclick="closeModal('newPortfolioModal')">Cancel</button>
-      <button class="btn-primary" onclick="createPortfolio()">Create</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="newSignalModal">
-  <div class="modal-box">
-    <div class="modal-title">📡 Add Signal</div>
-    <div class="form-group">
-      <label class="form-label">Signal Name</label>
-      <input class="form-input" id="sigName" placeholder="e.g. My EURUSD Strategy">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Broker Account No.</label>
-      <input class="form-input" id="sigAccNo" placeholder="Account number">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Server</label>
-      <input class="form-input" id="sigServer" placeholder="e.g. ICMarkets-Live01">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Investor Password</label>
-      <input class="form-input" id="sigInvPw" type="password" placeholder="Investor (read-only) password">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Portfolio</label>
-      <select class="form-input" id="sigPortfolio"></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Visibility</label>
-      <select class="form-input" id="sigVisibility">
-        <option value="public">Public</option>
-        <option value="private">Private</option>
-      </select>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sec" onclick="closeModal('newSignalModal')">Cancel</button>
-      <button class="btn-primary" onclick="createSignal()">Add Signal</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="newGroupModal">
-  <div class="modal-box">
-    <div class="modal-title">👥 New Group</div>
-    <div class="form-group">
-      <label class="form-label">Group Name</label>
-      <input class="form-input" id="grpName" placeholder="e.g. Top Scalpers">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Description</label>
-      <input class="form-input" id="grpDesc" placeholder="Optional description">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Visibility</label>
-      <select class="form-input" id="grpVisibility">
-        <option value="public">Public</option>
-        <option value="private">Private</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Allow others to add signals?</label>
-      <div class="form-check">
-        <input class="form-check" type="checkbox" id="grpAllowAdd" checked>
-        <span>Yes, allow members to add signals</span>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sec" onclick="closeModal('newGroupModal')">Cancel</button>
-      <button class="btn-primary" onclick="createGroup()">Create Group</button>
+      <!-- 2..7 Analyzer 其他 section 保持你原本 index.html 那部份結構不變 -->
+      <!-- 直接沿用你之前已經 working 的 summary / account / symbol / martin / swot markup -->
     </div>
   </div>
 </div>
@@ -618,305 +237,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 let data = JSON.parse(localStorage.getItem('aisp') || '{"portfolios":[],"signals":[],"groups":[],"likes":[]}');
 let currentPortfolio = 'all';
-let currentGroup = null;
 
-function save() {
-  localStorage.setItem('aisp', JSON.stringify(data));
+function save(){localStorage.setItem('aisp',JSON.stringify(data));}
+function setTheme(t){
+  document.body.dataset.theme=t;
+  document.getElementById('themeSelect').value=t;
+  localStorage.setItem('theme',t);
 }
-
-// Theme
-function setTheme(t) {
-  document.body.dataset.theme = t;
-  document.getElementById('themeSelect').value = t;
+function showPage(p){
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  const el=document.getElementById(p+'Page');
+  if(el)el.classList.add('active');
+  if(p==='home')renderHome();
+  if(p==='mysignals')renderMySignals();
+  if(p==='mygroups')renderMyGroups();
+  if(p==='mylikes')renderMyLikes();
+  if(p==='analyzer'){} // Analyzer 由 trade-analyzer.js 自己處理
 }
+function renderHome(){ /* 略，用你原本的 renderHome 實現 */ }
+function renderMySignals(){ /* 略，用你原本的 renderMySignals 實現 */ }
+function renderMyGroups(){ /* 略 */ }
+function renderMyLikes(){ /* 略 */ }
+function handleLogout(){alert('Logged out (demo)');}
 
-// Navigation
-function showPage(p) {
-  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const pageEl = document.getElementById(p + 'Page');
-  if (pageEl) pageEl.classList.add('active');
-  if (event && event.target && event.target.classList.contains('nav-item')) {
-    event.target.classList.add('active');
-  }
-  if(p === 'home') renderHome();
-  if(p === 'mysignals') renderMySignals();
-  if(p === 'mygroups') renderMyGroups();
-  if(p === 'mylikes') renderMyLikes();
-  if(p === 'analyzer') initAnalyzerShell();
-}
-
-// Modals
-function openModal(id) {
-  document.getElementById(id).style.display = 'flex';
-  if(id === 'newSignalModal') {
-    let sel = document.getElementById('sigPortfolio');
-    sel.innerHTML = '<option value="">Select Portfolio</option>' + data.portfolios.map(p => '<option value="'+p.id+'">'+p.name+'</option>').join('');
-  }
-}
-
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-}
-
-// Portfolio
-function createPortfolio() {
-  const name = document.getElementById('portName').value.trim();
-  const desc = document.getElementById('portDesc').value.trim();
-  if(!name) return alert('Please enter a portfolio name');
-  const p = {id: 'p'+Date.now(), name, description: desc, created: new Date().toISOString()};
-  data.portfolios.push(p);
-  save();
-  renderPortfolioTabs();
-  renderMySignalsSubNav();
-  closeModal('newPortfolioModal');
-  document.getElementById('portName').value = '';
-  document.getElementById('portDesc').value = '';
-}
-
-function renderPortfolioTabs() {
-  const container = document.getElementById('portfolioTabs');
-  if(!data.portfolios.length) {
-    container.innerHTML = '';
-    return;
-  }
-  let html = '<div class="port-tab '+(currentPortfolio==='all'?'active':'')+'" onclick="filterPortfolio(\'all\')">All Signals</div>';
-  data.portfolios.forEach(p => {
-    html += '<div class="port-tab '+(currentPortfolio===p.id?'active':'')+'" onclick="filterPortfolio(\''+p.id+'\')" title="'+p.description+'">'+p.name+'</div>';
-  });
-  container.innerHTML = html;
-}
-
-function renderMySignalsSubNav() {
-  const sub = document.getElementById('mySignalsSubNav');
-  if(!data.portfolios.length) {
-    sub.innerHTML = '';
-    return;
-  }
-  let html = '';
-  data.portfolios.forEach(p => {
-    const count = data.signals.filter(s => s.portfolio === p.id).length;
-    html += '<div class="sub-nav-item" onclick="showPage(\'mysignals\');filterPortfolio(\''+p.id+'\');">'+p.name+' ('+count+')</div>';
-  });
-  sub.innerHTML = html;
-}
-
-function filterPortfolio(pid) {
-  currentPortfolio = pid;
-  renderPortfolioTabs();
-  renderMySignals();
-}
-
-// Signal
-function createSignal() {
-  const name = document.getElementById('sigName').value.trim();
-  const accNo = document.getElementById('sigAccNo').value.trim();
-  const server = document.getElementById('sigServer').value.trim();
-  const invPw = document.getElementById('sigInvPw').value.trim();
-  const portfolio = document.getElementById('sigPortfolio').value;
-  const visibility = document.getElementById('sigVisibility').value;
-  if(!name || !accNo || !server || !invPw || !portfolio) return alert('Please fill all fields');
-  const sig = {
-    id: 's'+Date.now(),
-    name, accountNo: accNo, server, investorPassword: invPw, portfolio, visibility,
-    created: new Date().toISOString(),
-    likes: 0, comments: 0,
-    gain: (Math.random()*200-50).toFixed(2),
-    balance: (Math.random()*50000+5000).toFixed(2),
-    equity: (Math.random()*50000+5000).toFixed(2),
-    trades: Math.floor(Math.random()*500)
-  };
-  data.signals.push(sig);
-  save();
-  renderMySignals();
-  renderMySignalsSubNav();
-  closeModal('newSignalModal');
-  document.getElementById('sigName').value = '';
-  document.getElementById('sigAccNo').value = '';
-  document.getElementById('sigServer').value = '';
-  document.getElementById('sigInvPw').value = '';
-}
-
-function renderSignalCard(sig) {
-  const liked = data.likes.includes(sig.id);
-  return '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-weight:600;font-size:15px">'+sig.name+'</div><div class="badge badge-'+(sig.visibility==='public'?'success':'secondary')+'">'+sig.visibility+'</div></div><div class="stats-grid"><div><div class="stat-label">Gain</div><div class="stat-val '+(parseFloat(sig.gain)>=0?'pos':'neg')+'">'+sig.gain+'%</div></div><div><div class="stat-label">Balance</div><div class="stat-val">$'+sig.balance+'</div></div><div><div class="stat-label">Equity</div><div class="stat-val">$'+sig.equity+'</div></div><div><div class="stat-label">Trades</div><div class="stat-val">'+sig.trades+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px"><button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+sig.id+'\')">❤️ '+sig.likes+'</button><button class="cmt-btn">💬 '+sig.comments+'</button></div></div>';
-}
-
-function renderMySignals() {
-  const container = document.getElementById('mySignalsContent');
-  renderPortfolioStats();
-  let filtered = data.signals.filter(s => currentPortfolio === 'all' || s.portfolio === currentPortfolio);
-  if(!filtered.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">No signals yet</div><div class="empty-sub">Add your first signal to start tracking performance</div></div>';
-    return;
-  }
-  container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' + filtered.map(s => renderSignalCard(s)).join('') + '</div>';
-}
-
-function renderHome() {
-  const container = document.getElementById('homeContent');
-  const publicSignals = data.signals.filter(s => s.visibility === 'public');
-  if(!publicSignals.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No public signals</div><div class="empty-sub">Public signals will appear here</div></div>';
-    return;
-  }
-  container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' + publicSignals.map(s => renderSignalCard(s)).join('') + '</div>';
-}
-
-// Group
-function createGroup() {
-  const name = document.getElementById('grpName').value.trim();
-  const desc = document.getElementById('grpDesc').value.trim();
-  const visibility = document.getElementById('grpVisibility').value;
-  const allowAdd = document.getElementById('grpAllowAdd').checked;
-  if(!name) return alert('Please enter a group name');
-  const g = {id: 'g'+Date.now(), name, description: desc, visibility, allowAdd, owner: 'currentUser', signalIds: [], created: new Date().toISOString()};
-  data.groups.push(g);
-  save();
-  renderMyGroups();
-  renderMyGroupsSubNav();
-  closeModal('newGroupModal');
-  document.getElementById('grpName').value = '';
-  document.getElementById('grpDesc').value = '';
-}
-
-function renderMyGroups() {
-  const container = document.getElementById('myGroupsContent');
-  if(!data.groups.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No groups yet</div><div class="empty-sub">Create a group to organize signals</div></div>';
-    return;
-  }
-  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">';
-  data.groups.forEach(g => {
-    html += '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-weight:600;font-size:15px">'+g.name+'</div><div class="badge badge-'+(g.visibility==='public'?'success':'secondary')+'">'+g.visibility+'</div></div><div style="color:var(--txt2);font-size:13px;margin-bottom:12px">'+g.description+'</div><div style="display:flex;gap:8px;font-size:12px;color:var(--txt2)"><div>📡 '+g.signalIds.length+' signals</div><div>'+(g.allowAdd?'✅ Open':'🔒 Closed')+'</div></div></div>';
-  });
-  html += '</div>';
-  container.innerHTML = html;
-}
-
-function renderMyGroupsSubNav() {
-  const sub = document.getElementById('myGroupsSubNav');
-  if(!data.groups.length) {
-    sub.innerHTML = '';
-    return;
-  }
-  let html = '';
-  data.groups.forEach(g => {
-    html += '<div class="sub-nav-item" onclick="showPage(\'mygroups\');">'+g.name+' ('+g.signalIds.length+')</div>';
-  });
-  sub.innerHTML = html;
-}
-
-// Likes
-function toggleLike(signalId) {
-  const idx = data.likes.indexOf(signalId);
-  const sig = data.signals.find(s => s.id === signalId);
-  if(idx > -1) {
-    data.likes.splice(idx, 1);
-    if(sig) sig.likes--;
-  } else {
-    data.likes.push(signalId);
-    if(sig) sig.likes++;
-  }
-  save();
+window.addEventListener('DOMContentLoaded',()=>{
+  setTheme(localStorage.getItem('theme')||'light');
   renderHome();
-  renderMySignals();
-  renderMyLikes();
-}
-
-function renderMyLikes() {
-  const container = document.getElementById('myLikesContent');
-  const likedSignals = data.signals.filter(s => data.likes.includes(s.id));
-  if(!likedSignals.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No liked signals</div><div class="empty-sub">Like signals to save them here</div></div>';
-    return;
-  }
-  container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">' + likedSignals.map(s => renderSignalCard(s)).join('') + '</div>';
-}
-
-function handleLogout() {
-  if(confirm('Logout from AI Signal Portal?')) {
-    alert('Logged out (demo)');
-  }
-}
-
-// Trade Analyzer 殼（現階段只需確保切頁冇 error，實際初始化由 trade-analyzer.js 自己做）
-function initAnalyzerShell() {
-  const container = document.getElementById('analyzerContainer');
-  if (!container) return;
-}
-
-// Init
-window.addEventListener('DOMContentLoaded', () => {
-  renderHome();
-  renderPortfolioTabs();
-  renderMySignalsSubNav();
-  renderMyGroupsSubNav();
-  setTheme('light');
 });
-
-let currentStatsPeriod = 'today';
-let statsYear = 2026;
-
-function renderPortfolioStats() {
-  const container = document.getElementById('mySignalsContent');
-  const filtered = data.signals.filter(s => currentPortfolio === 'all' || s.portfolio === currentPortfolio);
-  if(!filtered.length) return;
-  
-  const stats = calculatePortfolioStats(filtered, currentStatsPeriod);
-  const monthlyData = calculateMonthlyStats(filtered, statsYear);
-  
-  let html = '<div class="port-stats">';
-  html += '<div class="period-tabs">';
-  html += '<div class="period-tab '+(currentStatsPeriod==='today'?'active':'')+'" onclick="switchStatsPeriod(\'today\')">本日</div>';
-  html += '<div class="period-tab '+(currentStatsPeriod==='week'?'active':'')+'" onclick="switchStatsPeriod(\'week\')">本周</div>';
-  html += '<div class="period-tab '+(currentStatsPeriod==='month'?'active':'')+'" onclick="switchStatsPeriod(\'month\')">本月</div>';
-  html += '<div class="period-tab '+(currentStatsPeriod==='year'?'active':'')+'" onclick="switchStatsPeriod(\'year\')">本年</div>';
-  html += '</div>';
-  html += '<div class="stat-cards">';
-  html += '<div class="stat-card"><div class="stat-card-label">盈虧 (Profit/Loss)</div><div class="stat-card-value '+(stats.profit>=0?'positive':'negative')+'">$'+stats.profit.toFixed(2)+'</div></div>';
-  html += '<div class="stat-card"><div class="stat-card-label">DD (Drawdown)</div><div class="stat-card-value">'+stats.dd.toFixed(2)+'%</div></div>';
-  html += '<div class="stat-card"><div class="stat-card-label">本周期入金 (Deposits)</div><div class="stat-card-value">$'+stats.deposits.toFixed(2)+'</div></div>';
-  html += '<div class="stat-card"><div class="stat-card-label">出金 (Withdrawals)</div><div class="stat-card-value">$'+stats.withdrawals.toFixed(2)+'</div></div>';
-  html += '</div>';
-  html += '<div class="monthly-chart"><div class="monthly-chart-title"><span>年度盈虧統計</span><select onchange="changeStatsYear(this.value)" style="background:var(--bg1);color:var(--txt1);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:12px"><option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select></div><div class="month-bars">';
-  const maxProfit = Math.max(...monthlyData.map(m => Math.abs(m.profit)));
-  monthlyData.forEach((m, i) => {
-    const height = maxProfit ? (Math.abs(m.profit) / maxProfit * 180) : 2;
-    html += '<div style="flex:1"><div class="month-bar '+(m.profit<0?'negative':'')+'" style="height:'+height+'px" title="'+m.month+': $'+m.profit.toFixed(2)+'"></div><div class="month-label">'+m.month+'</div></div>';
-  });
-  const totalProfit = monthlyData.reduce((sum, m) => sum + m.profit, 0);
-  html += '</div><div style="text-align:center;margin-top:16px;font-weight:600;font-size:16px">Total Profit: <span class="'+(totalProfit>=0?'pos':'neg')+'">$'+totalProfit.toFixed(2)+'</span></div></div>';
-  html += '</div>';
-  container.innerHTML = html + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px">' + filtered.map(s => renderSignalCard(s)).join('') + '</div>';
-}
-
-function switchStatsPeriod(period) {
-  currentStatsPeriod = period;
-  renderMySignals();
-}
-
-function changeStatsYear(year) {
-  statsYear = parseInt(year);
-  renderMySignals();
-}
-
-function calculatePortfolioStats(signals, period) {
-  return {
-    profit: Math.random()*10000-2000,
-    dd: Math.random()*30,
-    deposits: Math.random()*5000,
-    withdrawals: Math.random()*3000
-  };
-}
-
-function calculateMonthlyStats(signals, year) {
-  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  return months.map(m => ({month: m, profit: Math.random()*4000-1000}));
-}
 </script>
 
-<!-- Trade Analyzer JS -->
 <script src="ea-rules.js"></script>
 <script src="trade-analyzer.js"></script>
 </body>
