@@ -1,11 +1,5 @@
 // trade-analyzer.js
-// v0.0260308003
-// CSV → 帳戶摘要 + 圖表 + All Symbols / 各貨幣按鈕 +
-// 馬丁表(只限單一Symbol) + MFE/MAE (Pips / Money) + SWOT
-// + Symbol 累積 Profit 小圖 + Reset
-// + Symbol 深入分析：Cumulative / Weekday / Hourly Profit & Count
-// + Dark/Light Theme Switch + Cumulative All / Separate Switch
-// + 帳戶統計、Symbol 指標 2 行橫向排版
+// v0.0260308003 + sort-by-closeTime + sync body theme
 
 let globalTrades = [];
 let globalBySymbol = {};
@@ -22,20 +16,21 @@ let symbolCumulativeChart,
 let mfeMaeMode = "pips"; // "pips" | "money"
 let cumulativeMode = "all"; // "all" | "separate"
 
-// ---------- Theme Switch (Dark / Light) ----------
-// 勾 = dark，default = light
+// ---------- Theme Switch (跟 AI Signals Hub，用 body.data-theme) ----------
 (function setupThemeSwitch() {
-  const html = document.documentElement;
+  const body = document.body;
   const themeInput = document.getElementById("themeSwitch");
-  if (!themeInput) return;
+  if (!themeInput || !body) return;
 
-  const saved = localStorage.getItem("theme") || "light";
-  html.setAttribute("data-theme", saved);
+  // 跟 Hub：讀 body 上的 data-theme / localStorage，預設 light
+  const saved =
+    body.dataset.theme || localStorage.getItem("theme") || "light";
+  body.dataset.theme = saved;
   themeInput.checked = saved === "dark";
 
   themeInput.addEventListener("change", () => {
     const theme = themeInput.checked ? "dark" : "light";
-    html.setAttribute("data-theme", theme);
+    body.dataset.theme = theme;
     localStorage.setItem("theme", theme);
   });
 })();
@@ -104,7 +99,7 @@ function handleAnalyze() {
   reader.readAsText(file);
 }
 
-// ---------- CSV 解析 ----------
+// ---------- CSV 解析（統一按 closeTime 由最舊到最新排序） ----------
 function parseCsv(text) {
   const lines = text.trim().split(/\r?\n/);
   if (!lines.length) {
@@ -161,8 +156,16 @@ function parseCsv(text) {
     trades.push(t);
   }
 
+  // 入口統一排序：按 closeTime（無就用 openTime）由最舊到最新
   globalTrades = trades;
-  globalBySymbol = groupBySymbol(trades);
+  globalTrades.sort((a, b) => {
+    const da = new Date(a.closeTime || a.openTime);
+    const db = new Date(b.closeTime || b.openTime);
+    return da - db;
+  });
+
+  // 以已排序的 globalTrades 做 groupBySymbol
+  globalBySymbol = groupBySymbol(globalTrades);
 }
 
 function parseHoldingToDays(text) {
@@ -439,7 +442,7 @@ function resetView() {
   const themeInput = document.getElementById("themeSwitch");
   if (themeInput) {
     themeInput.checked = false; // false = light
-    document.documentElement.setAttribute("data-theme", "light");
+    document.body.dataset.theme = "light";
     localStorage.setItem("theme", "light");
   }
 
@@ -479,7 +482,6 @@ function renderSummaryCards(acc) {
   const radarMaxDD = document.getElementById("radarMaxDD");
   const radarPF = document.getElementById("radarPF");
   const radarActivity = document.getElementById("radarActivity");
-
   if (radarProfit)
     radarProfit.textContent = (stats.winRate * 100).toFixed(1) + " %";
   if (radarLoss)
@@ -544,7 +546,7 @@ function renderAccountCharts(acc) {
   if (symbolProfitChart) symbolProfitChart.destroy();
 
   const POS = "#22d3ee";
-  const NEG = "#ef4444";
+  const NEG = "#ef476f";
 
   equityChart = new Chart(ctx1, {
     type: "line",
@@ -768,17 +770,10 @@ function addMiniChartCard(container, label, trades) {
 
   let cum = 0;
   const points = [];
-  trades
-    .slice()
-    .sort(
-      (a, b) =>
-        new Date(a.closeTime || a.openTime) -
-        new Date(b.closeTime || b.openTime)
-    )
-    .forEach((t) => {
-      cum += t.netProfit;
-      points.push(cum);
-    });
+  trades.forEach((t) => {
+    cum += t.netProfit;
+    points.push(cum);
+  });
 
   new Chart(canvas.getContext("2d"), {
     type: "line",
@@ -823,13 +818,8 @@ function renderSymbolExtraCharts(symbol, trades) {
   if (!cumCtx || !wdProfitCtx || !wdCountCtx || !hrProfitCtx || !hrCountCtx)
     return;
 
-  const sorted = trades
-    .slice()
-    .sort(
-      (a, b) =>
-        new Date(a.closeTime || a.openTime) -
-        new Date(b.closeTime || b.openTime)
-    );
+  // trades 已在 parseCsv 時做過時間排序，這裡直接用
+  const sorted = trades;
 
   const cumCtx2d = cumCtx.getContext("2d");
 
@@ -989,7 +979,6 @@ function renderSymbolExtraCharts(symbol, trades) {
     hourlyProfit[h] += t.netProfit;
     hourlyCount[h] += 1;
   });
-
   const hourLabels = Array.from({ length: 24 }, (_, i) =>
     i.toString().padStart(2, "0")
   );
@@ -1039,279 +1028,6 @@ function renderSymbolExtraCharts(symbol, trades) {
   });
 }
 
-// ---------- 馬丁 Table ----------
-function buildMartinForSymbol(symbolTrades) {
-  const map = {};
-  for (const t of symbolTrades) {
-    const key = `${t.symbol}|${t.type}|${t.lots.toFixed(2)}`;
-    if (!map[key]) {
-      map[key] = {
-        symbol: t.symbol,
-        side: t.type.toUpperCase(),
-        lots: t.lots,
-        tradeCount: 0,
-        sumProfit: 0,
-        sumPips: 0
-      };
-    }
-    const m = map[key];
-    m.tradeCount++;
-    m.sumProfit += t.netProfit;
-    m.sumPips += t.netPips;
-  }
-  const rows = Object.values(map);
-  const bySide = {};
-  for (const r of rows) {
-    const key = `${r.symbol}|${r.side}`;
-    if (!bySide[key]) bySide[key] = [];
-    bySide[key].push(r);
-  }
-
-  const tablePerSide = [];
-  const martinSummary = {
-    totalProfit: 0,
-    firstPositiveLevel: null,
-    maxLevel: 0,
-    worstSideNegative: null
-  };
-
-  for (const key of Object.keys(bySide)) {
-    const [symbol, side] = key.split("|");
-    const arr = bySide[key].sort((a, b) => a.lots - b.lots);
-    let totalProfit = 0;
-    let totalPips = 0;
-    let totalTrades = 0;
-    for (const r of arr) {
-      totalProfit += r.sumProfit;
-      totalPips += r.sumPips;
-      totalTrades += r.tradeCount;
-    }
-    let cum = 0;
-    let levelIndex = 0;
-    let firstPositiveLevel = null;
-    const rowsOut = [];
-
-    for (const r of arr) {
-      levelIndex++;
-      cum += r.sumProfit;
-      if (cum >= 0 && firstPositiveLevel == null)
-        firstPositiveLevel = levelIndex;
-
-      rowsOut.push({
-        symbol,
-        side,
-        level: levelIndex,
-        lots: r.lots,
-        levelTrades: r.tradeCount,
-        levelSumProfit: r.sumProfit,
-        levelSumPips: r.sumPips,
-        cumulativeProfit: cum,
-        totalProfit,
-        totalPips,
-        totalTrades
-      });
-    }
-
-    tablePerSide.push({
-      symbol,
-      side,
-      totalProfit,
-      totalPips,
-      totalTrades,
-      rows: rowsOut,
-      firstPositiveLevel,
-      maxLevel: levelIndex
-    });
-
-    martinSummary.totalProfit += totalProfit;
-    if (levelIndex > martinSummary.maxLevel)
-      martinSummary.maxLevel = levelIndex;
-
-    if (totalProfit < 0) {
-      martinSummary.worstSideNegative = {
-        symbol,
-        side,
-        totalProfit
-      };
-    }
-    if (
-      martinSummary.firstPositiveLevel == null &&
-      firstPositiveLevel != null
-    ) {
-      martinSummary.firstPositiveLevel = firstPositiveLevel;
-    } else if (
-      firstPositiveLevel != null &&
-      firstPositiveLevel <
-        (martinSummary.firstPositiveLevel || Number.MAX_SAFE_INTEGER)
-    ) {
-      martinSummary.firstPositiveLevel = firstPositiveLevel;
-    }
-  }
-
-  return { tablePerSide, martinSummary };
-}
-
-function renderMartinTables(symbol, tablePerSide) {
-  const container = document.getElementById("martinTables");
-  container.innerHTML = "";
-  tablePerSide.forEach((block) => {
-    const title = document.createElement("div");
-    title.className = "martin-header";
-    const totalClass =
-      block.totalProfit < 0 ? "row-total-negative" : "row-total-positive";
-    title.innerHTML = `${symbol} - ${block.side} (Total Profit: <span class="${totalClass}">${block.totalProfit.toFixed(
-      2
-    )}</span>, Trades: ${block.totalTrades})`;
-    container.appendChild(title);
-
-    const wrap = document.createElement("div");
-    wrap.className = "martin-table-wrapper";
-    const table = document.createElement("table");
-    table.className = "martin-table";
-
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>層數</th>
-          <th>Lots</th>
-          <th>開單數量</th>
-          <th>該層SUM Profit</th>
-          <th>該層SUM Pips</th>
-          <th>由第1層累積Profit</th>
-          <th>Symbol+Side TOTAL Profit</th>
-          <th>Total Trades</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    `;
-
-    const tbody = table.querySelector("tbody");
-
-    block.rows.forEach((r) => {
-      const tr = document.createElement("tr");
-
-      let cls = "";
-      if (block.totalProfit < 0) {
-        cls = "row-total-negative";
-      } else if (block.firstPositiveLevel != null) {
-        if (r.level < block.firstPositiveLevel) cls = "level-risk";
-        else cls = "level-safe";
-      }
-      if (cls) tr.classList.add(cls);
-
-      tr.innerHTML = `
-        <td>${r.level}</td>
-        <td>${r.lots.toFixed(2)}</td>
-        <td>${r.levelTrades}</td>
-        <td>${r.levelSumProfit.toFixed(2)}</td>
-        <td>${r.levelSumPips.toFixed(1)}</td>
-        <td>${r.cumulativeProfit.toFixed(2)}</td>
-        <td>${r.totalProfit.toFixed(2)}</td>
-        <td>${r.totalTrades}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    wrap.appendChild(table);
-    container.appendChild(wrap);
-  });
-}
-
-// ---------- MFE / MAE / Holding ----------
-function renderMfeMaeHoldingCharts(trades) {
-  const mfeCtx = document.getElementById("mfeChart").getContext("2d");
-  const maeCtx = document.getElementById("maeChart").getContext("2d");
-  const holdCtx = document.getElementById("holdingChart").getContext("2d");
-
-  if (mfeChart) mfeChart.destroy();
-  if (maeChart) maeChart.destroy();
-  if (holdingChart) holdingChart.destroy();
-
-  const xKey = mfeMaeMode === "pips" ? "netPips" : "netProfit";
-
-  const mfeData = trades.map((t) => ({
-    x: t[xKey],
-    y: t.mfe,
-    c: t.netProfit >= 0 ? "#16a34a" : "#dc2626"
-  }));
-  const maeData = trades.map((t) => ({
-    x: t[xKey],
-    y: t.mae,
-    c: t.netProfit >= 0 ? "#16a34a" : "#dc2626"
-  }));
-  const holdData = trades.map((t) => ({
-    x: t[xKey],
-    y: t.holdingDays,
-    c: t.netProfit >= 0 ? "#16a34a" : "#dc2626"
-  }));
-
-  const xTitle =
-    mfeMaeMode === "pips" ? "Result (Net Pips)" : "Result (Net Profit)";
-
-  mfeChart = new Chart(mfeCtx, {
-    type: "scatter",
-    data: {
-      datasets: [
-        {
-          label: "MFE vs Result",
-          data: mfeData,
-          backgroundColor: mfeData.map((d) => d.c)
-        }
-      ]
-    },
-    options: {
-      parsing: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { title: { display: true, text: xTitle } },
-        y: { title: { display: true, text: "MFE (pips)" } }
-      }
-    }
-  });
-
-  maeChart = new Chart(maeCtx, {
-    type: "scatter",
-    data: {
-      datasets: [
-        {
-          label: "MAE vs Result",
-          data: maeData,
-          backgroundColor: maeData.map((d) => d.c)
-        }
-      ]
-    },
-    options: {
-      parsing: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { title: { display: true, text: xTitle } },
-        y: { title: { display: true, text: "MAE (pips)" } }
-      }
-    }
-  });
-
-  holdingChart = new Chart(holdCtx, {
-    type: "scatter",
-    data: {
-      datasets: [
-        {
-          label: "Holding Time vs Result",
-          data: holdData,
-          backgroundColor: holdData.map((d) => d.c)
-        }
-      ]
-    },
-    options: {
-      parsing: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { title: { display: true, text: xTitle } },
-        y: { title: { display: true, text: "Holding Time (days)" } }
-      }
-    }
-  });
-}
-
 // ---------- SWOT ----------
 function renderSwot(swot) {
   if (!swot) return;
@@ -1339,235 +1055,4 @@ function renderSwot(swot) {
   eaCenterText.innerHTML = swot.centerAnalysis
     ? swot.centerAnalysis.join("<br>")
     : "";
-}
-
-function buildAccountStats(trades, options = {}) {
-  const ACCOUNT_CCY = options.currency || 'USD';
-  const initialEquity = options.initialEquity != null ? options.initialEquity : 0;
-
-  const stats = {
-    currency: ACCOUNT_CCY,
-    initialEquity,
-    finalEquity: initialEquity,
-    startDate: null,
-    endDate: null,
-    days: 0,
-    totalTrades: 0,
-
-    grossProfit: 0,
-    grossLoss: 0,
-    netProfit: 0,
-    netProfitPct: 0,
-
-    growth: {
-      netProfit: 0,
-      netProfitPct: 0,
-      cagrPct: 0,
-      periodDays: 0,
-      periodLabel: '',
-      totalTrades: 0,
-      tradesPerDay: 0
-    },
-
-    risk: {
-      winRatePct: 0,
-      lossRatePct: 0,
-      profitFactor: 0,
-      maxDrawdownPct: 0,
-      maxDrawdownValue: 0,
-      expectancyPerTrade: 0,
-      avgWin: 0,
-      avgLoss: 0,
-      activityPerDay: 0
-    },
-
-    radar: {
-      algoQuality: 0,
-      winRate: 0,
-      lossControl: 0,
-      riskReturn: 0,
-      activity: 0
-    }
-  };
-
-  if (!trades || trades.length === 0) {
-    return stats;
-  }
-
-  // ---------- 基礎時間 & 數量 ----------
-  stats.totalTrades = trades.length;
-  stats.startDate = new Date(trades[0].closeTime);
-  stats.endDate = new Date(trades[trades.length - 1].closeTime);
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const rawDays = (stats.endDate - stats.startDate) / msPerDay;
-  stats.days = rawDays > 0 ? rawDays : 1; // 避免除 0
-
-  // ---------- 金額累計 & Equity Curve ----------
-  let equity = initialEquity;
-  let equityPeak = initialEquity;
-  let maxDDValue = 0;
-
-  let grossProfit = 0;
-  let grossLoss = 0;
-  let winCount = 0;
-  let lossCount = 0;
-  let winSum = 0;
-  let lossSum = 0;
-
-  trades.forEach((t) => {
-    const pl = (t.profit || 0) + (t.swap || 0) + (t.commission || 0);
-
-    // Equity 更新
-    equity += pl;
-    if (equity > equityPeak) {
-      equityPeak = equity;
-    }
-    const ddValue = equityPeak - equity;
-    if (ddValue > maxDDValue) {
-      maxDDValue = ddValue;
-    }
-
-    // 利潤分類
-    if (pl > 0) {
-      grossProfit += pl;
-      winCount += 1;
-      winSum += pl;
-    } else if (pl < 0) {
-      grossLoss += pl; // 負數
-      lossCount += 1;
-      lossSum += pl;
-    }
-  });
-
-  stats.finalEquity = equity;
-  stats.grossProfit = grossProfit;
-  stats.grossLoss = grossLoss;
-  stats.netProfit = grossProfit + grossLoss;
-
-  if (initialEquity > 0) {
-    stats.netProfitPct = (stats.netProfit / initialEquity) * 100;
-  }
-
-  // ---------- Growth 區 ----------
-  stats.growth.netProfit = stats.netProfit;
-  stats.growth.netProfitPct = stats.netProfitPct;
-  stats.growth.periodDays = stats.days;
-  stats.growth.periodLabel =
-    stats.startDate.toISOString().slice(0, 10) +
-    ' ~ ' +
-    stats.endDate.toISOString().slice(0, 10);
-  stats.growth.totalTrades = stats.totalTrades;
-  stats.growth.tradesPerDay = stats.totalTrades / stats.days;
-
-  // 年化回報 (CAGR)
-  if (initialEquity > 0 && stats.days > 0) {
-    const years = stats.days / 365;
-    const ratio = stats.finalEquity / initialEquity;
-    if (ratio > 0 && years > 0) {
-      const cagr = Math.pow(ratio, 1 / years) - 1;
-      stats.growth.cagrPct = cagr * 100;
-    }
-  }
-
-  // ---------- Risk 區 ----------
-  const totalTrades = stats.totalTrades;
-  const Pw = totalTrades > 0 ? winCount / totalTrades : 0;
-  const Pl = totalTrades > 0 ? lossCount / totalTrades : 0;
-
-  const avgWin = winCount > 0 ? winSum / winCount : 0;
-  const avgLoss = lossCount > 0 ? lossSum / lossCount : 0; // 負數
-
-  stats.risk.winRatePct = Pw * 100;
-  stats.risk.lossRatePct = Pl * 100;
-  stats.risk.avgWin = avgWin;
-  stats.risk.avgLoss = avgLoss;
-
-  // Profit Factor
-  if (grossLoss < 0) {
-    stats.risk.profitFactor = grossProfit / Math.abs(grossLoss);
-  }
-
-  // Max Drawdown
-  stats.risk.maxDrawdownValue = maxDDValue;
-  if (equityPeak > 0) {
-    stats.risk.maxDrawdownPct = (maxDDValue / equityPeak) * 100;
-  }
-
-  // Expectancy per trade（簡化版）
-  stats.risk.expectancyPerTrade =
-    totalTrades > 0 ? stats.netProfit / totalTrades : 0;
-
-  // 或想用更嚴謹版本：Pw*avgWin - Pl*|avgLoss| [web:117][web:123]
-  // const expectancy =
-  //   Pw * avgWin - Pl * Math.abs(avgLoss);
-  // stats.risk.expectancyPerTrade = expectancy;
-
-  stats.risk.activityPerDay = stats.growth.tradesPerDay;
-
-  // ---------- Radar ----------
-  stats.radar = buildEaRadarMetrics(stats);
-
-  return stats;
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function buildEaRadarMetrics(stats) {
-  const radar = {
-    algoQuality: 0,
-    winRate: 0,
-    lossControl: 0,
-    riskReturn: 0,
-    activity: 0
-  };
-
-  const risk = stats.risk || {};
-  const growth = stats.growth || {};
-
-  // ---------- Win Rate ----------
-  radar.winRate = clamp(risk.winRatePct || 0, 0, 100);
-
-  // ---------- Loss Control（Max DD 越細越高分） ----------
-  const maxDD = risk.maxDrawdownPct || 0;
-  // 你可以之後調整 2 呢個係數
-  radar.lossControl = clamp(100 - maxDD * 2, 0, 100);
-
-  // ---------- Activity（trades/day） ----------
-  const tpd = growth.tradesPerDay || 0;
-  let activityScore = 0;
-  if (tpd <= 0.5) activityScore = 30;
-  else if (tpd <= 1) activityScore = 60;
-  else if (tpd <= 3) activityScore = 80;
-  else activityScore = 100;
-  radar.activity = activityScore;
-
-  // ---------- Risk/Return Balance（CAGR / MaxDD） ----------
-  const cagr = growth.cagrPct || 0;
-  let rrScore = 0;
-  if (maxDD > 0) {
-    const ratio = cagr / maxDD;
-    // 粗略映射，你可以再 tune
-    rrScore = clamp(ratio * 100, 0, 100);
-  } else if (cagr > 0 && maxDD === 0) {
-    rrScore = 100;
-  }
-  radar.riskReturn = rrScore;
-
-  // ---------- Algo Quality（PF + Expectancy 綜合） ----------
-  const pf = risk.profitFactor || 0;
-  const exp = risk.expectancyPerTrade || 0;
-
-  // PF 部分（PF=2 左右 ≈ 60 分）
-  const pfScore = clamp((pf / 2) * 60, 0, 60);
-
-  // Expectancy 部分：你之後可以用「以平均虧損絕對值為 1R」去正規化
-  // 這度暫時 simple: exp 每 1 單位(貨幣) ≈ 10 分，上限 40 分
-  const expScore = clamp(exp * 10, -20, 40);
-
-  radar.algoQuality = clamp(pfScore + expScore, 0, 100);
-
-  return radar;
 }
