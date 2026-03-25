@@ -1,5 +1,5 @@
 // trade-analyzer.js
-// v0.0260308003 + sort-by-closeTime + sync body theme
+// v0.0260308003 + sort-by-closeTime + sync body theme + SWoT center id fix
 
 let globalTrades = [];
 let globalBySymbol = {};
@@ -1051,8 +1051,11 @@ function renderSwot(swot) {
   document.getElementById("swotOW").innerHTML =
     "<strong>OW</strong><br>" + swot.OW.join("<br>");
 
-  const eaCenterText = document.getElementById("eaCenterAnalysis");
-  eaCenterText.innerHTML = swot.centerAnalysis
-    ? swot.centerAnalysis.join("<br>")
-    : "";
+  // 注意：這裏用 swotCenterText，避免和 Symbol 區的 eaCenterAnalysis 撞 id
+  const eaCenterText = document.getElementById("swotCenterText");
+  if (eaCenterText) {
+    eaCenterText.innerHTML = swot.centerAnalysis
+      ? swot.centerAnalysis.join("<br>")
+      : "";
+  }
 }
