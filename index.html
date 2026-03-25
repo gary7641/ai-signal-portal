@@ -309,6 +309,38 @@ body{
       </div>
     </section>
 
+          <!-- 3. 帳戶總體分析 -->
+    <section id="accountSection" class="panel" style="display:none;">
+      <div class="collapsible-header" data-target="accountBody">
+        <h2>3. 帳戶總體分析</h2>
+        <span class="collapse-toggle">－</span>
+      </div>
+      <div id="accountBody" class="collapsible-body">
+        <div class="account-layout">
+          <div class="account-stats">
+            <h3>帳戶統計</h3>
+            <div id="accountStats"></div>
+          </div>
+
+          <div class="account-charts">
+            <div class="chart-card">
+              <h3>Equity Curve</h3>
+              <canvas id="equityChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Weekday Trades</h3>
+              <canvas id="weekdayChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Symbol Profit 排名</h3>
+              <canvas id="symbolProfitChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+      
     </div>
   </div>
 </div>
