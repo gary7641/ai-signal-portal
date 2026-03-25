@@ -173,28 +173,29 @@ body{
     <span class="logo-text">AI Signal Portal</span>
   </div>
   <div class="nav-label">MAIN</div>
-  <div class="nav-item active" onclick="showPage('home')">
-    <span class="nav-icon">🏠</span><span class="nav-text">Home</span>
-  </div>
-  <div class="nav-label">MY ACCOUNT</div>
-  <div class="nav-item" onclick="showPage('mysignals')">
-    <span class="nav-icon">📊</span><span class="nav-text">My Signals</span>
-  </div>
-  <div id="mySignalsSubNav" class="sub-nav"></div>
-  <div class="nav-item" onclick="showPage('mygroups')">
-    <span class="nav-icon">👥</span><span class="nav-text">My Groups</span>
-  </div>
-  <div id="myGroupsSubNav" class="sub-nav"></div>
-  <div class="nav-item" onclick="showPage('mylikes')">
-    <span class="nav-icon">❤️</span><span class="nav-text">My Liked Signals</span>
-  </div>
-  <div class="nav-label">TOOLS</div>
-  <div class="nav-item" onclick="showPage('fxtools')">
-    <span class="nav-icon">🔧</span><span class="nav-text">FX Tools</span>
-  </div>
-  <div class="nav-item" onclick="showPage('analyzer')">
-    <span class="nav-icon">📈</span><span class="nav-text">Trade Analyzer</span>
-  </div>
+<div class="nav-item active" data-page="home" onclick="showPage('home')">
+  <span class="nav-icon">🏠</span><span class="nav-text">Home</span>
+</div>
+
+<div class="nav-item" data-page="mysignals" onclick="showPage('mysignals')">
+  <span class="nav-icon">📊</span><span class="nav-text">My Signals</span>
+</div>
+
+<div class="nav-item" data-page="mygroups" onclick="showPage('mygroups')">
+  <span class="nav-icon">👥</span><span class="nav-text">My Groups</span>
+</div>
+
+<div class="nav-item" data-page="mylikes" onclick="showPage('mylikes')">
+  <span class="nav-icon">❤️</span><span class="nav-text">My Liked Signals</span>
+</div>
+
+<div class="nav-item" data-page="fxtools" onclick="showPage('fxtools')">
+  <span class="nav-icon">🔧</span><span class="nav-text">FX Tools</span>
+</div>
+
+<div class="nav-item" data-page="analyzer" onclick="showPage('analyzer')">
+  <span class="nav-icon">📈</span><span class="nav-text">Trade Analyzer</span>
+</div>
   <div style="margin-top:auto;padding:8px 4px">
     <div class="quota-bar">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:4px">
