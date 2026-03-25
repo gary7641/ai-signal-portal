@@ -528,15 +528,24 @@ function setTheme(t){
   localStorage.setItem('theme',t);
 }
 function showPage(p){
+  // Page 顯示
   document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
   const el=document.getElementById(p+'Page');
   if(el)el.classList.add('active');
+
+  // Sidebar active 樣式
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.classList.remove('active');
+    if (item.dataset.page === p) item.classList.add('active');
+  });
+
   if(p==='home')renderHome();
   if(p==='mysignals')renderMySignals();
   if(p==='mygroups')renderMyGroups();
   if(p==='mylikes')renderMyLikes();
   if(p==='analyzer'){} // Analyzer 由 trade-analyzer.js 自己處理
 }
+
 function renderHome(){ /* 略，用你原本的 renderHome 實現 */ }
 function renderMySignals(){ /* 略，用你原本的 renderMySignals 實現 */ }
 function renderMyGroups(){ /* 略 */ }
