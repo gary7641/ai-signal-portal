@@ -469,52 +469,7 @@ function renderSummaryCards(acc) {
       : 0;
   const weeks = (periodDays / 7).toFixed(1);
 
-  // 用 buildAccountStats + Radar metrics
-  const accountStats = buildAccountStats(globalTrades, {
-    currency: "USD",
-    initialEquity: initialDeposit
-  });
-  const radar = accountStats.radar;
-  const risk = accountStats.risk;
-
-  // 畫雷達圖
-  renderRadarChart(accountStats);
-
-  // 左邊 6 行數值
-  const radarProfit = document.getElementById("radarProfitTrades");
-  const radarLoss = document.getElementById("radarLossTrades");
-  const radarDepositLoad = document.getElementById("radarDepositLoad");
-  const radarMaxDD = document.getElementById("radarMaxDD");
-  const radarActivity = document.getElementById("radarActivity");
-  const radarAlgoScore = document.getElementById("radarAlgoScore");
-
-  if (radarProfit)
-    radarProfit.textContent = risk.winRatePct.toFixed(1) + " %";
-  if (radarLoss)
-    radarLoss.textContent = risk.lossRatePct.toFixed(1) + " %";
-
-  const depositLoadPct =
-    typeof risk.maxDepositLoadPct === "number"
-      ? risk.maxDepositLoadPct
-      : 0;
-  if (radarDepositLoad)
-    radarDepositLoad.textContent = depositLoadPct.toFixed(1) + " %";
-
-  if (radarMaxDD)
-    radarMaxDD.textContent =
-      risk.maxDrawdownValue.toFixed(2) +
-      " (" +
-      risk.maxDrawdownPct.toFixed(1) +
-      " %)";
-
-  if (radarActivity)
-    radarActivity.textContent =
-      accountStats.growth.tradesPerDay.toFixed(2) + " /day";
-
-  if (radarAlgoScore)
-    radarAlgoScore.textContent = radar.algoQuality.toFixed(0) + " / 100";
-
-  // 右邊 Growth 區
+  // 右邊 Growth 數值
   const growthEl = document.getElementById("growthValue");
   const growthPeriodEl = document.getElementById("growthPeriod");
   if (growthEl)
@@ -536,7 +491,33 @@ function renderSummaryCards(acc) {
   const profitBar = document.getElementById("profitBar");
   if (equityBar) equityBar.style.width = equityPct + "%";
   if (profitBar) profitBar.style.width = profitPct + "%";
+
+  // 左邊 6 行：暫時用簡單 stats 填數（未用 radar formula）
+  const radarProfit = document.getElementById("radarProfitTrades");
+  const radarLoss = document.getElementById("radarLossTrades");
+  const radarDepositLoad = document.getElementById("radarDepositLoad");
+  const radarMaxDD = document.getElementById("radarMaxDD");
+  const radarActivity = document.getElementById("radarActivity");
+  const radarAlgoScore = document.getElementById("radarAlgoScore");
+
+  if (radarProfit)
+    radarProfit.textContent = (stats.winRate * 100).toFixed(1) + " %";
+  if (radarLoss)
+    radarLoss.textContent = (stats.lossRate * 100).toFixed(1) + " %";
+
+  // Deposit Load 暫時無數據，用 0 站位
+  if (radarDepositLoad) radarDepositLoad.textContent = "0.0 %";
+
+  if (radarMaxDD)
+    radarMaxDD.textContent = stats.maxDrawdown.toFixed(2);
+
+  if (radarActivity)
+    radarActivity.textContent = stats.totalTrades + " trades";
+
+  if (radarAlgoScore)
+    radarAlgoScore.textContent = "–";
 }
+
 
 function renderRadarChart(accountStats) {
   const ctxEl = document.getElementById("radarChart");
