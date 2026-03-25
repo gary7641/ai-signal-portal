@@ -12,6 +12,7 @@ let symbolCumulativeChart,
   symbolWeekdayCountChart,
   symbolHourlyProfitChart,
   symbolHourlyCountChart;
+let radarChart;
 
 let mfeMaeMode = "pips"; // "pips" | "money"
 let cumulativeMode = "all"; // "all" | "separate"
@@ -468,35 +469,153 @@ function renderSummaryCards(acc) {
       : 0;
   const weeks = (periodDays / 7).toFixed(1);
 
-  document.getElementById("growthValue").textContent =
-    growthPct.toFixed(2) + " %";
-  document.getElementById("growthPeriod").textContent = "Week(s): " + weeks;
+  // 用 buildAccountStats + Radar metrics
+  const accountStats = buildAccountStats(globalTrades, {
+    currency: "USD",
+    initialEquity: initialDeposit
+  });
+  const radar = accountStats.radar;
+  const risk = accountStats.risk;
 
+  // 畫雷達圖
+  renderRadarChart(accountStats);
+
+  // 左邊 6 行數值
   const radarProfit = document.getElementById("radarProfitTrades");
   const radarLoss = document.getElementById("radarLossTrades");
+  const radarDepositLoad = document.getElementById("radarDepositLoad");
   const radarMaxDD = document.getElementById("radarMaxDD");
-  const radarPF = document.getElementById("radarPF");
   const radarActivity = document.getElementById("radarActivity");
-  if (radarProfit)
-    radarProfit.textContent = (stats.winRate * 100).toFixed(1) + " %";
-  if (radarLoss)
-    radarLoss.textContent = (stats.lossRate * 100).toFixed(1) + " %";
-  if (radarMaxDD) radarMaxDD.textContent = stats.maxDrawdown.toFixed(2);
-  if (radarPF)
-    radarPF.textContent =
-      stats.profitFactor === Infinity ? "∞" : stats.profitFactor.toFixed(2);
-  if (radarActivity) radarActivity.textContent = stats.totalTrades + " trades";
+  const radarAlgoScore = document.getElementById("radarAlgoScore");
 
-  document.getElementById("equityValue").textContent = equity.toFixed(2);
-  document.getElementById("profitValue").textContent = netProfit.toFixed(2);
-  document.getElementById("initialDepositValue").textContent =
-    initialDeposit.toFixed(2);
+  if (radarProfit)
+    radarProfit.textContent = risk.winRatePct.toFixed(1) + " %";
+  if (radarLoss)
+    radarLoss.textContent = risk.lossRatePct.toFixed(1) + " %";
+
+  const depositLoadPct =
+    typeof risk.maxDepositLoadPct === "number"
+      ? risk.maxDepositLoadPct
+      : 0;
+  if (radarDepositLoad)
+    radarDepositLoad.textContent = depositLoadPct.toFixed(1) + " %";
+
+  if (radarMaxDD)
+    radarMaxDD.textContent =
+      risk.maxDrawdownValue.toFixed(2) +
+      " (" +
+      risk.maxDrawdownPct.toFixed(1) +
+      " %)";
+
+  if (radarActivity)
+    radarActivity.textContent =
+      accountStats.growth.tradesPerDay.toFixed(2) + " /day";
+
+  if (radarAlgoScore)
+    radarAlgoScore.textContent = radar.algoQuality.toFixed(0) + " / 100";
+
+  // 右邊 Growth 區
+  const growthEl = document.getElementById("growthValue");
+  const growthPeriodEl = document.getElementById("growthPeriod");
+  if (growthEl)
+    growthEl.textContent = growthPct.toFixed(2) + " %";
+  if (growthPeriodEl)
+    growthPeriodEl.textContent =
+      "Days: " + periodDays + " (Week(s): " + weeks + ")";
+
+  const equityEl = document.getElementById("equityValue");
+  const profitEl = document.getElementById("profitValue");
+  const initEl = document.getElementById("initialDepositValue");
+  if (equityEl) equityEl.textContent = equity.toFixed(2);
+  if (profitEl) profitEl.textContent = netProfit.toFixed(2);
+  if (initEl) initEl.textContent = initialDeposit.toFixed(2);
 
   const equityPct = Math.min(100, (equity / initialDeposit) * 20);
   const profitPct = Math.min(100, Math.abs(netProfit / initialDeposit) * 20);
-  document.getElementById("equityBar").style.width = equityPct + "%";
-  document.getElementById("profitBar").style.width = profitPct + "%";
+  const equityBar = document.getElementById("equityBar");
+  const profitBar = document.getElementById("profitBar");
+  if (equityBar) equityBar.style.width = equityPct + "%";
+  if (profitBar) profitBar.style.width = profitPct + "%";
 }
+
+function renderRadarChart(accountStats) {
+  const ctxEl = document.getElementById("radarChart");
+  if (!ctxEl) return;
+
+  if (radarChart) radarChart.destroy();
+
+  const risk = accountStats.risk;
+  const radar = accountStats.radar;
+
+  const profitScore = risk.winRatePct;              // 多多益善
+  const lossScore = 100 - risk.lossRatePct;         // 越少越好
+  const depositLoadPct =
+    typeof risk.maxDepositLoadPct === "number"
+      ? risk.maxDepositLoadPct
+      : 0;
+  const depositScore = 100 - Math.min(100, depositLoadPct); // 倉位壓力低→好
+
+  const ddScore = 100 - Math.min(100, risk.maxDrawdownPct); // DD 低→好
+
+  const activityScore = accountStats.growth.tradesPerDay * 20;
+  const clippedActivity = Math.max(0, Math.min(100, activityScore));
+
+  const algoScore = radar.algoQuality;
+
+  const labels = [
+    "Profit Trades",
+    "Loss Trades",
+    "Max Deposit Load",
+    "Max DD",
+    "Trading Activity",
+    "Algo Trading"
+  ];
+
+  const data = [
+    profitScore,
+    lossScore,
+    depositScore,
+    ddScore,
+    clippedActivity,
+    algoScore
+  ];
+
+  radarChart = new Chart(ctxEl.getContext("2d"), {
+    type: "radar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "EA Radar",
+          data,
+          backgroundColor: "rgba(14, 165, 233, 0.25)",
+          borderColor: "#0ea5e9",
+          borderWidth: 2,
+          pointBackgroundColor: "#0ea5e9",
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          beginAtZero: true,
+          min: 0,
+          max: 100,
+          ticks: {
+            stepSize: 20,
+            showLabelBackdrop: false
+          },
+          grid: { color: "rgba(148, 163, 184, 0.4)" },
+          angleLines: { color: "rgba(148, 163, 184, 0.4)" },
+          pointLabels: { font: { size: 10 } }
+        }
+      }
+    }
+  });
+}
+
 
 // ---------- 帳戶總覽圖表 + MINIMUM ----------
 function renderAccountStats(stats) {
