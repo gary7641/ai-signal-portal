@@ -230,6 +230,85 @@ body{
 
       <!-- 2..7 Analyzer 其他 section 保持你原本 index.html 那部份結構不變 -->
       <!-- 直接沿用你之前已經 working 的 summary / account / symbol / martin / swot markup -->
+
+          <!-- 2. 帳戶 Summary Cards -->
+    <section id="summaryCardsSection" class="panel" style="display:none;">
+      <div class="collapsible-header" data-target="summaryCardsBody">
+        <h2>2. 帳戶總覽 Summary</h2>
+        <span class="collapse-toggle">－</span>
+      </div>
+      <div id="summaryCardsBody" class="collapsible-body">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h3>成長 & 期間</h3>
+            <div class="summary-value" id="growthValue">0 %</div>
+            <div class="summary-sub" id="growthPeriod"></div>
+
+            <div class="summary-row">
+              <span>Algo</span>
+              <span id="radarAlgo">EA Radar</span>
+            </div>
+            <div class="summary-row">
+              <span>勝率</span>
+              <span id="radarProfitTrades"></span>
+            </div>
+            <div class="summary-row">
+              <span>虧損率</span>
+              <span id="radarLossTrades"></span>
+            </div>
+            <div class="summary-row">
+              <span>Max DD</span>
+              <span id="radarMaxDD"></span>
+            </div>
+            <div class="summary-row">
+              <span>PF</span>
+              <span id="radarPF"></span>
+            </div>
+            <div class="summary-row">
+              <span>活動度</span>
+              <span id="radarActivity"></span>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <h3>Equity / Profit</h3>
+            <div class="summary-row">
+              <span>Initial Deposit</span>
+              <span id="initialDepositValue">0.00</span>
+            </div>
+
+            <div class="bar-group">
+              <div class="bar-label">Equity</div>
+              <div class="bar-track">
+                <div id="equityBar" class="bar-fill"></div>
+              </div>
+            </div>
+
+            <div class="bar-group">
+              <div class="bar-label">Profit</div>
+              <div class="bar-track">
+                <div id="profitBar" class="bar-fill bar-profit"></div>
+              </div>
+            </div>
+
+            <div class="summary-row" style="margin-top:6px;">
+              <span>Equity</span>
+              <span id="equityValue">0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Profit</span>
+              <span id="profitValue">0.00</span>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <h3>Minimum Area (Key Stats)</h3>
+            <div id="minimumArea"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     </div>
   </div>
 </div>
