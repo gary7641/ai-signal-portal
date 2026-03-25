@@ -234,81 +234,85 @@ body{
 
       <!-- 2. 帳戶 Summary Cards -->
       <section id="summaryCardsSection" class="panel" style="display:none;">
-        <div class="collapsible-header" data-target="summaryCardsBody">
-          <h2>2. 帳戶總覽 Summary</h2>
-          <span class="collapse-toggle">－</span>
+  <div class="collapsible-header" data-target="summaryCardsBody">
+    <h2>2. 帳戶總覽 Summary</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
+  <div id="summaryCardsBody" class="collapsible-body">
+    <div class="summary-grid summary-grid-2col">
+      <!-- 左：Radar 指標卡（1/3） -->
+      <div class="summary-card radar-card">
+        <h3>EA Radar (6D)</h3>
+        <div class="radar-row">
+          <span>1) Profit Trades</span>
+          <span id="radarProfitTrades">–</span>
         </div>
-        <div id="summaryCardsBody" class="collapsible-body">
-          <div class="summary-grid">
-            <div class="summary-card">
-              <h3>成長 & 期間</h3>
-              <div class="summary-value" id="growthValue">0 %</div>
-              <div class="summary-sub" id="growthPeriod"></div>
+        <div class="radar-row">
+          <span>2) Loss Trades</span>
+          <span id="radarLossTrades">–</span>
+        </div>
+        <div class="radar-row">
+          <span>3) Max Deposit Load</span>
+          <span id="radarDepositLoad">–</span>
+        </div>
+        <div class="radar-row">
+          <span>4) Max. DD</span>
+          <span id="radarMaxDD">–</span>
+        </div>
+        <div class="radar-row">
+          <span>5) Trading Activity</span>
+          <span id="radarActivity">–</span>
+        </div>
+        <div class="radar-row">
+          <span>6) Algo Trading</span>
+          <span id="radarAlgoScore">–</span>
+        </div>
+      </div>
 
-              <div class="summary-row">
-                <span>Algo</span>
-                <span id="radarAlgo">EA Radar</span>
-              </div>
-              <div class="summary-row">
-                <span>勝率</span>
-                <span id="radarProfitTrades"></span>
-              </div>
-              <div class="summary-row">
-                <span>虧損率</span>
-                <span id="radarLossTrades"></span>
-              </div>
-              <div class="summary-row">
-                <span>Max DD</span>
-                <span id="radarMaxDD"></span>
-              </div>
-              <div class="summary-row">
-                <span>PF</span>
-                <span id="radarPF"></span>
-              </div>
-              <div class="summary-row">
-                <span>活動度</span>
-                <span id="radarActivity"></span>
-              </div>
+      <!-- 右：放大 Growth Curve + 百分比（2/3） -->
+      <div class="summary-card growth-card">
+        <h3>Equity Growth</h3>
+        <div class="growth-main-row">
+          <div>
+            <div class="summary-label">Growth</div>
+            <div class="summary-value" id="growthValue">0 %</div>
+            <div class="summary-sub" id="growthPeriod"></div>
+          </div>
+          <div class="growth-kpi">
+            <div class="summary-label">Net Profit</div>
+            <div class="summary-kpi-value" id="profitValue">0.00</div>
+            <div class="summary-label small">
+              Initial: <span id="initialDepositValue">0.00</span>
             </div>
-
-            <div class="summary-card">
-              <h3>Equity / Profit</h3>
-              <div class="summary-row">
-                <span>Initial Deposit</span>
-                <span id="initialDepositValue">0.00</span>
-              </div>
-
-              <div class="bar-group">
-                <div class="bar-label">Equity</div>
-                <div class="bar-track">
-                  <div id="equityBar" class="bar-fill"></div>
-                </div>
-              </div>
-
-              <div class="bar-group">
-                <div class="bar-label">Profit</div>
-                <div class="bar-track">
-                  <div id="profitBar" class="bar-fill bar-profit"></div>
-                </div>
-              </div>
-
-              <div class="summary-row" style="margin-top:6px;">
-                <span>Equity</span>
-                <span id="equityValue">0.00</span>
-              </div>
-              <div class="summary-row">
-                <span>Profit</span>
-                <span id="profitValue">0.00</span>
-              </div>
-            </div>
-
-            <div class="summary-card">
-              <h3>Minimum Area (Key Stats)</h3>
-              <div id="minimumArea"></div>
+            <div class="summary-label small">
+              Equity: <span id="equityValue">0.00</span>
             </div>
           </div>
         </div>
-      </section>
+
+        <div class="growth-chart-wrapper">
+          <!-- 直接重用原本 equityChart 作 Growth Curve -->
+          <canvas id="equityChart"></canvas>
+        </div>
+
+        <div class="growth-bars-row">
+          <div class="bar-group">
+            <div class="bar-label">Equity</div>
+            <div class="bar-track">
+              <div id="equityBar" class="bar-fill"></div>
+            </div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">Profit</div>
+            <div class="bar-track">
+              <div id="profitBar" class="bar-fill bar-profit"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
       <!-- 3. 帳戶總體分析 -->
       <section id="accountSection" class="panel" style="display:none;">
