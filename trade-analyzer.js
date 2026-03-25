@@ -1,5 +1,5 @@
 // trade-analyzer.js
-// v0.0260308003 + sort-by-closeTime + sync body theme + SWoT center id fix
+// v0.0260308003 + sort-by-closeTime + sync body theme + Martin + MFE/MAE + SWOT center id
 
 let globalTrades = [];
 let globalBySymbol = {};
@@ -22,7 +22,6 @@ let cumulativeMode = "all"; // "all" | "separate"
   const themeInput = document.getElementById("themeSwitch");
   if (!themeInput || !body) return;
 
-  // 跟 Hub：讀 body 上的 data-theme / localStorage，預設 light
   const saved =
     body.dataset.theme || localStorage.getItem("theme") || "light";
   body.dataset.theme = saved;
@@ -41,7 +40,7 @@ let cumulativeMode = "all"; // "all" | "separate"
   if (!cumInput) return;
 
   cumulativeMode = "all";
-  cumInput.checked = false; // off = all, on = separate
+  cumInput.checked = false;
 
   cumInput.addEventListener("change", () => {
     cumulativeMode = cumInput.checked ? "separate" : "all";
@@ -55,9 +54,7 @@ let cumulativeMode = "all"; // "all" | "separate"
 
 // Analyze button
 const analyzeBtn = document.getElementById("analyzeBtn");
-if (analyzeBtn) {
-  analyzeBtn.addEventListener("click", handleAnalyze);
-}
+if (analyzeBtn) analyzeBtn.addEventListener("click", handleAnalyze);
 
 // Reset button
 const resetBtn = document.getElementById("resetBtn");
@@ -99,7 +96,7 @@ function handleAnalyze() {
   reader.readAsText(file);
 }
 
-// ---------- CSV 解析（統一按 closeTime 由最舊到最新排序） ----------
+// ---------- CSV 解析（按 closeTime 由最舊到最新） ----------
 function parseCsv(text) {
   const lines = text.trim().split(/\r?\n/);
   if (!lines.length) {
@@ -156,7 +153,6 @@ function parseCsv(text) {
     trades.push(t);
   }
 
-  // 入口統一排序：按 closeTime（無就用 openTime）由最舊到最新
   globalTrades = trades;
   globalTrades.sort((a, b) => {
     const da = new Date(a.closeTime || a.openTime);
@@ -164,7 +160,6 @@ function parseCsv(text) {
     return da - db;
   });
 
-  // 以已排序的 globalTrades 做 groupBySymbol
   globalBySymbol = groupBySymbol(globalTrades);
 }
 
@@ -441,7 +436,7 @@ function resetView() {
 
   const themeInput = document.getElementById("themeSwitch");
   if (themeInput) {
-    themeInput.checked = false; // false = light
+    themeInput.checked = false;
     document.body.dataset.theme = "light";
     localStorage.setItem("theme", "light");
   }
@@ -734,6 +729,187 @@ function renderSymbolStats(stats) {
   `;
 }
 
+// ---------- Martin 表建構 ----------
+function buildMartinForSymbol(trades) {
+  const map = {};
+  for (const t of trades) {
+    const key = `${t.symbol}_${t.type}_${t.lots.toFixed(2)}`;
+    if (!map[key]) {
+      map[key] = {
+        symbol: t.symbol,
+        side: t.type.toUpperCase(),
+        lots: t.lots,
+        tradeCount: 0,
+        sumProfit: 0,
+        sumPips: 0
+      };
+    }
+    const m = map[key];
+    m.tradeCount++;
+    m.sumProfit += t.netProfit;
+    m.sumPips += t.netPips;
+  }
+
+  const rows = Object.values(map);
+  const bySide = {};
+  for (const r of rows) {
+    const key = `${r.symbol}_${r.side}`;
+    if (!bySide[key]) bySide[key] = [];
+    bySide[key].push(r);
+  }
+
+  const tablePerSide = [];
+  const martinSummary = {
+    totalProfit: 0,
+    firstPositiveLevel: null,
+    maxLevel: 0,
+    worstSideNegative: null
+  };
+
+  for (const key of Object.keys(bySide)) {
+    const [symbol, side] = key.split("_");
+    const arr = bySide[key].sort((a, b) => a.lots - b.lots);
+
+    let totalProfit = 0;
+    let totalPips = 0;
+    let totalTrades = 0;
+    let cum = 0;
+    let levelIndex = 0;
+    let firstPositiveLevel = null;
+    const rowsOut = [];
+
+    for (const r of arr) {
+      totalProfit += r.sumProfit;
+      totalPips += r.sumPips;
+      totalTrades += r.tradeCount;
+
+      levelIndex++;
+      cum += r.sumProfit;
+      if (cum >= 0 && firstPositiveLevel === null) {
+        firstPositiveLevel = levelIndex;
+      }
+
+      rowsOut.push({
+        symbol,
+        side,
+        level: levelIndex,
+        lots: r.lots,
+        levelTrades: r.tradeCount,
+        levelSumProfit: r.sumProfit,
+        levelSumPips: r.sumPips,
+        cumulativeProfit: cum,
+        totalProfit,
+        totalPips,
+        totalTrades
+      });
+    }
+
+    tablePerSide.push({
+      symbol,
+      side,
+      totalProfit,
+      totalPips,
+      totalTrades,
+      rows: rowsOut,
+      firstPositiveLevel,
+      maxLevel: levelIndex
+    });
+
+    martinSummary.totalProfit += totalProfit;
+    if (levelIndex > martinSummary.maxLevel) {
+      martinSummary.maxLevel = levelIndex;
+    }
+    if (totalProfit < 0) {
+      martinSummary.worstSideNegative = { symbol, side, totalProfit };
+    }
+    if (firstPositiveLevel !== null) {
+      if (
+        martinSummary.firstPositiveLevel === null ||
+        firstPositiveLevel < martinSummary.firstPositiveLevel
+      ) {
+        martinSummary.firstPositiveLevel = firstPositiveLevel;
+      }
+    }
+  }
+
+  return { tablePerSide, martinSummary };
+}
+
+function renderMartinTables(symbol, tablePerSide) {
+  const container = document.getElementById("martinTables");
+  if (!container) return;
+  container.innerHTML = "";
+
+  tablePerSide.forEach((block) => {
+    const title = document.createElement("div");
+    title.className = "martin-header";
+    const totalClass =
+      block.totalProfit < 0 ? "row-total-negative" : "row-total-positive";
+    title.innerHTML = `
+      <span>${block.symbol} - ${block.side}</span>
+      <span style="margin-left:8px;">
+        TOTAL Profit:
+        <span class="${totalClass}">${block.totalProfit.toFixed(2)}</span>,
+        Trades: ${block.totalTrades}
+      </span>
+    `;
+    container.appendChild(title);
+
+    const wrap = document.createElement("div");
+    wrap.className = "martin-table-wrapper";
+
+    const table = document.createElement("table");
+    table.className = "martin-table";
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Lots</th>
+          <th>Trades</th>
+          <th>SUM Profit</th>
+          <th>SUM Pips</th>
+          <th>Cum Profit</th>
+          <th>Symbol/Side TOTAL Profit</th>
+          <th>Total Trades</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector("tbody");
+
+    block.rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      let cls = "";
+      if (block.totalProfit < 0) {
+        cls = "row-total-negative";
+      } else if (
+        block.firstPositiveLevel !== null &&
+        r.level >= block.firstPositiveLevel
+      ) {
+        cls = "level-safe";
+      } else {
+        cls = "level-risk";
+      }
+      if (cls) tr.classList.add(cls);
+
+      tr.innerHTML = `
+        <td>${r.level}</td>
+        <td>${r.lots.toFixed(2)}</td>
+        <td>${r.levelTrades}</td>
+        <td>${r.levelSumProfit.toFixed(2)}</td>
+        <td>${r.levelSumPips.toFixed(1)}</td>
+        <td>${r.cumulativeProfit.toFixed(2)}</td>
+        <td>${r.totalProfit.toFixed(2)}</td>
+        <td>${r.totalTrades}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    wrap.appendChild(table);
+    container.appendChild(wrap);
+  });
+}
+
 // ---------- Symbol 累積 Profit 小圖 ----------
 function renderSymbolMiniCharts() {
   const container = document.getElementById("symbolMiniCharts");
@@ -800,6 +976,101 @@ function addMiniChartCard(container, label, trades) {
   });
 }
 
+// ---------- MFE / MAE / Holding ----------
+function renderMfeMaeHoldingCharts(trades) {
+  const mfeCtx = document.getElementById("mfeChart");
+  const maeCtx = document.getElementById("maeChart");
+  const holdCtx = document.getElementById("holdingChart");
+  if (!mfeCtx || !maeCtx || !holdCtx) return;
+
+  if (mfeChart) mfeChart.destroy();
+  if (maeChart) maeChart.destroy();
+  if (holdingChart) holdingChart.destroy();
+
+  const xKey = mfeMaeMode === "pips" ? "netPips" : "netProfit";
+  const mfeData = trades.map((t) => ({
+    x: t[xKey],
+    y: t.mfe,
+    c: t.netProfit >= 0 ? "#16a34a" : "#dc2626"
+  }));
+  const maeData = trades.map((t) => ({
+    x: t[xKey],
+    y: t.mae,
+    c: t.netProfit >= 0 ? "#16a34a" : "#dc2626"
+  }));
+  const holdData = trades.map((t) => ({
+    x: t[xKey],
+    y: t.holdingDays,
+    c: t.netProfit >= 0 ? "#16a34a" : "#dc2626"
+  }));
+
+  const xTitle =
+    mfeMaeMode === "pips" ? "Result (Net Pips)" : "Result (Net Profit)";
+
+  mfeChart = new Chart(mfeCtx.getContext("2d"), {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: "MFE vs Result",
+          data: mfeData,
+          backgroundColor: mfeData.map((d) => d.c)
+        }
+      ]
+    },
+    options: {
+      parsing: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: xTitle } },
+        y: { title: { display: true, text: "MFE (pips)" } }
+      }
+    }
+  });
+
+  maeChart = new Chart(maeCtx.getContext("2d"), {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: "MAE vs Result",
+          data: maeData,
+          backgroundColor: maeData.map((d) => d.c)
+        }
+      ]
+    },
+    options: {
+      parsing: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: xTitle } },
+        y: { title: { display: true, text: "MAE (pips)" } }
+      }
+    }
+  });
+
+  holdingChart = new Chart(holdCtx.getContext("2d"), {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: "Holding Time vs Result",
+          data: holdData,
+          backgroundColor: holdData.map((d) => d.c)
+        }
+      ]
+    },
+    options: {
+      parsing: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: xTitle } },
+        y: { title: { display: true, text: "Holding Time (days)" } }
+      }
+    }
+  });
+}
+
 // ---------- Symbol 深入分析：Cumulative / Weekday / Hourly ----------
 function renderSymbolExtraCharts(symbol, trades) {
   const cumCtx = document.getElementById("symbolCumulativeChart");
@@ -818,12 +1089,9 @@ function renderSymbolExtraCharts(symbol, trades) {
   if (!cumCtx || !wdProfitCtx || !wdCountCtx || !hrProfitCtx || !hrCountCtx)
     return;
 
-  // trades 已在 parseCsv 時做過時間排序，這裡直接用
   const sorted = trades;
-
   const cumCtx2d = cumCtx.getContext("2d");
 
-  // Cumulative: All / Separate
   if (symbol === "ALL" && cumulativeMode === "separate") {
     const grouped = {};
     sorted.forEach((t) => {
@@ -874,9 +1142,7 @@ function renderSymbolExtraCharts(symbol, trades) {
         datasets
       },
       options: {
-        plugins: {
-          legend: { display: true }
-        },
+        plugins: { legend: { display: true } },
         scales: {
           x: { title: { display: true, text: "Trade Index (per Symbol)" } },
           y: { title: { display: true, text: "Profit" } }
@@ -918,7 +1184,6 @@ function renderSymbolExtraCharts(symbol, trades) {
     });
   }
 
-  // Weekday / Hourly
   const weekdayProfit = Array(7).fill(0);
   const weekdayCount = Array(7).fill(0);
   sorted.forEach((t) => {
@@ -1051,7 +1316,6 @@ function renderSwot(swot) {
   document.getElementById("swotOW").innerHTML =
     "<strong>OW</strong><br>" + swot.OW.join("<br>");
 
-  // 注意：這裏用 swotCenterText，避免和 Symbol 區的 eaCenterAnalysis 撞 id
   const eaCenterText = document.getElementById("swotCenterText");
   if (eaCenterText) {
     eaCenterText.innerHTML = swot.centerAnalysis
