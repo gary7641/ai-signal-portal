@@ -754,3 +754,35 @@ button {
   font-weight: 700;
   font-size: 16px;
 }
+
+.martin-symbol-grids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.martin-symbol-group-card {
+  flex: 1 1 260px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.martin-symbol-group-card h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.martin-symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px 12px;
+}
+
+.martin-symbol-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
