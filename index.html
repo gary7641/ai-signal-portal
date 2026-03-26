@@ -238,11 +238,21 @@ body{
     <p class="page-sub">Utility tools for FX and gold trading</p>
 
     <!-- FX Tools Menu Bar -->
-    <div id="fxToolsTabs" class="fx-tools-tabs">
-      <button class="fx-tab-btn active" data-fx-tab="volatility">Volatility Table</button>
-      <button class="fx-tab-btn" data-fx-tab="cost">Cost Calculator</button>
-      <button class="fx-tab-btn" data-fx-tab="martingale">Martingale Calculator</button>
-    </div>
+<div id="fxToolsTabs" class="fx-tools-tabs">
+  <button class="fx-tab-btn secondary" data-fx-tab="volatility">Volatility Table</button>
+  <button class="fx-tab-btn secondary" data-fx-tab="cost">Cost Calculator</button>
+  <button class="fx-tab-btn primary" data-fx-tab="martingale">Martingale Calculator</button>
+</div><div id="fxTab-volatility" class="fx-tab-content" style="display:none;">
+  ...
+</div>
+
+<div id="fxTab-cost" class="fx-tab-content" style="display:none;">
+  ...
+</div>
+
+<div id="fxTab-martingale" class="fx-tab-content active">
+  ...
+</div>
 
     <!-- Volatility Tool -->
     <div id="fxTab-volatility" class="fx-tab-content active">
@@ -711,6 +721,50 @@ const MARTIN_SYMBOLS = [
   { symbol: "XAUEUR", type: "XAU" },
   { symbol: "XAUJPY", type: "XAU" }
 ];
+function initFxToolsTabs() {
+  const tabs = document.querySelectorAll(".fx-tab-btn");
+  if (!tabs.length) return;
+
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.fxTab;
+      if (!key) return;
+
+      tabs.forEach((b) => {
+        b.classList.remove("primary");
+        if (!b.classList.contains("secondary")) {
+          b.classList.add("secondary");
+        }
+      });
+      btn.classList.remove("secondary");
+      btn.classList.add("primary");
+
+      document.querySelectorAll(".fx-tab-content").forEach((c) => {
+        c.style.display = "none";
+        c.classList.remove("active");
+      });
+      const target = document.getElementById("fxTab-" + key);
+      if (target) {
+        target.style.display = "block";
+        target.classList.add("active");
+      }
+
+      if (key === "martingale") {
+        initMartinSymbolTable();
+      }
+    });
+  });
+
+  // 預設啟動時，強制切到 martingale
+  const defaultBtn = document.querySelector(
+    '.fx-tab-btn[data-fx-tab="martingale"]'
+  );
+  if (defaultBtn) {
+    defaultBtn.click();
+  }
+}
+
+  
 
 function initMartinSymbolTable() {
   const tbody = document.getElementById("martinSymbolTbody");
