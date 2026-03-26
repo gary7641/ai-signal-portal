@@ -232,6 +232,66 @@ body{
   </div>
 
   <!-- 其他 My Signals / Groups / Likes / FX Tools 保持之前版本，略 -->
+  <!-- FX TOOLS PAGE -->
+  <div class="page" id="fxtoolsPage">
+    <h2 class="page-title">🔧 FX Tools</h2>
+    <p class="page-sub">Utility tools for FX and gold trading</p>
+
+    <!-- FX Tools Menu Bar -->
+    <div id="fxToolsTabs" class="fx-tools-tabs">
+      <button class="fx-tab-btn active" data-fx-tab="volatility">Volatility Table</button>
+      <button class="fx-tab-btn" data-fx-tab="cost">Cost Calculator</button>
+      <button class="fx-tab-btn" data-fx-tab="martingale">Martingale Calculator</button>
+    </div>
+
+    <!-- Volatility Tool -->
+    <div id="fxTab-volatility" class="fx-tab-content active">
+      <section class="panel">
+        <h2>Volatility Table</h2>
+        <div id="volatilityTool">
+          <!-- 之後放返你原本 Volatility 工具 -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Cost Calculator -->
+    <div id="fxTab-cost" class="fx-tab-content" style="display:none;">
+      <section class="panel">
+        <h2>Cost Calculator</h2>
+        <div id="costTool">
+          <!-- 之後放返你原本 Cost Calculator 工具 -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Martingale Calculator -->
+    <div id="fxTab-martingale" class="fx-tab-content" style="display:none;">
+      <section class="panel" id="martinCalcPanel">
+        <h2>Martingale Calculator – Symbol Selection</h2>
+
+        <div class="martin-symbol-controls">
+          <button id="selectAllCcyBtn" class="secondary">Select All FX Pairs</button>
+          <button id="selectAllXauBtn" class="secondary">Select All XAU Pairs</button>
+          <button id="clearAllSymbolsBtn" class="secondary">Clear All</button>
+        </div>
+
+        <table class="martin-symbol-table">
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Symbol</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="martinSymbolTbody">
+            <!-- JS 會填 28 FX + 4 XAU -->
+          </tbody>
+        </table>
+
+        <div id="martinCalcResults" style="margin-top:12px;"></div>
+      </section>
+    </div>
+  </div>
 
   <!-- TRADE ANALYZER PAGE -->
   <div class="page" id="analyzerPage">
