@@ -367,36 +367,40 @@ body{
       </section>
 
       <!-- 3. 帳戶總體分析 -->
-      <section id="accountSection" class="panel" style="display:none;">
-        <div class="collapsible-header" data-target="accountBody">
-          <h2>3. 帳戶總體分析</h2>
-          <span class="collapse-toggle">－</span>
-        </div>
-        <div id="accountBody" class="collapsible-body">
-          <div class="account-layout">
-            <div class="account-stats">
-              <h3>帳戶統計</h3>
-              <div id="accountStats"></div>
-            </div>
+<section id="accountSection" class="panel" style="display:none;">
+  <div class="collapsible-header" data-target="accountBody">
+    <h2>Account Analysis</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
+  <div id="accountBody" class="collapsible-body">
+    <div class="account-layout">
+      <!-- 左：帳戶統計文字 -->
+      <div class="account-stats">
+        <h3>Account Statistics</h3>
+        <div id="accountStats"></div>
+      </div>
 
-            <div class="account-charts">
-              <div class="chart-card">
-                <h3>Equity Curve</h3>
-                <!-- 注意：2 區已經用 equityChart 畫 Growth，呢度如果唔想重覆，可以改名或之後拆開 -->
-                <canvas id="weekdayChart"></canvas>
-              </div>
-              <div class="chart-card">
-                <h3>Weekday Trades</h3>
-                <canvas id="weekdayChart"></canvas>
-              </div>
-              <div class="chart-card">
-                <h3>Symbol Profit 排名</h3>
-                <canvas id="symbolProfitChart"></canvas>
-              </div>
-            </div>
-          </div>
+      <!-- 右：Equity / Weekday / Symbol Profit -->
+      <div class="account-charts">
+        <div class="chart-card">
+          <h3>Equity Curve</h3>
+          <canvas id="equityChart"></canvas>
         </div>
-      </section>
+        <div class="chart-card">
+          <h3>Weekday Trades</h3>
+          <canvas id="weekdayChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Symbol Profit Ranking</h3>
+          <canvas id="symbolProfitChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Minimum 區，對應 JS 裏面 renderMinimumArea -->
+    <div id="minimumArea" style="margin-top:12px;"></div>
+  </div>
+</section>
 
       <!-- 4. Symbol Buttons + Mini Charts -->
       <section id="symbolSection" class="panel" style="display:none;">
