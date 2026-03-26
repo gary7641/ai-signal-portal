@@ -904,13 +904,25 @@ function buildMartinForSymbol(trades) {
         lots: t.lots,
         tradeCount: 0,
         sumProfit: 0,
-        sumPips: 0
+        sumPips: 0,
+        winCount: 0,
+        lossCount: 0,
+        minWinProfit: null
       };
     }
     const m = map[key];
     m.tradeCount++;
     m.sumProfit += t.netProfit;
     m.sumPips += t.netPips;
+
+    if (t.netProfit > 0) {
+      m.winCount++;
+      if (m.minWinProfit === null || t.netProfit < m.minWinProfit) {
+        m.minWinProfit = t.netProfit;
+      }
+    } else if (t.netProfit < 0) {
+      m.lossCount++;
+    }
   }
 
   const rows = Object.values(map);
@@ -952,6 +964,10 @@ function buildMartinForSymbol(trades) {
         firstPositiveLevel = levelIndex;
       }
 
+      const levelWinRate =
+        r.tradeCount > 0 ? (r.winCount / r.tradeCount) * 100 : 0;
+      const levelMinWin = r.minWinProfit;
+
       rowsOut.push({
         symbol,
         side,
@@ -963,7 +979,9 @@ function buildMartinForSymbol(trades) {
         cumulativeProfit: cum,
         totalProfit,
         totalPips,
-        totalTrades
+        totalTrades,
+        levelWinRate,
+        levelMinWin
       });
     }
 
