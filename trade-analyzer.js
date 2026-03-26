@@ -276,6 +276,71 @@ function buildAccountSummary() {
   return { stats, weekdayCounts, symbolRanking, curve, firstTime, lastTime };
 }
 
+// ---------- Account Statistics (MT4-style text block) ----------
+function renderAccountStatistics(stats) {
+  const container = document.getElementById("accountStats");
+  if (!container || !stats) {
+    if (container) container.textContent = "";
+    return;
+  }
+
+  const fmt = (v, digits = 2) =>
+    typeof v === "number" ? v.toFixed(digits) : (v ?? "–");
+
+  // 暫時用你現有 buildStats 既欄位去填，之後再加 bestTrade 等進階指標
+  const totalTrades = stats.totalTrades;
+  const profitTrades = stats.profitTrades;
+  const lossTrades = stats.lossTrades;
+  const winRatePct = (stats.winRate * 100) || 0;
+  const lossRatePct = (stats.lossRate * 100) || 0;
+  const grossProfit = stats.grossProfit;
+  const grossLoss = stats.grossLoss;
+  const netProfit = grossProfit - grossLoss;
+  const profitFactor =
+    stats.profitFactor === Infinity ? "∞" : fmt(stats.profitFactor, 2);
+  const expectancy = fmt(stats.expectancy, 2);
+  const maxDD = fmt(stats.maxDrawdown, 2);
+  const maxConsecLoss = stats.maxConsecLoss;
+
+  // 暫時未計：best/worst trade、holding time、recovery factor 等
+  // 先用 placeholder「–」，之後你可以喺 buildStats 或另一個計算器加回
+  const html = `
+    <div class="stat-line">Trades: ${totalTrades}</div>
+    <div class="stat-line">Profit Trades: ${profitTrades} (${fmt(
+    winRatePct,
+    2
+  )} %)</div>
+    <div class="stat-line">Loss Trades: ${lossTrades} (${fmt(
+    lossRatePct,
+    2
+  )} %)</div>
+
+    <div class="stat-line">Gross Profit: ${fmt(grossProfit, 2)} USD</div>
+    <div class="stat-line">Gross Loss: ${fmt(grossLoss, 2)} USD</div>
+    <div class="stat-line">Net Profit: ${fmt(netProfit, 2)} USD</div>
+
+    <div class="stat-line">Profit Factor: ${profitFactor}</div>
+    <div class="stat-line">Expected Payoff: ${expectancy} USD</div>
+
+    <div class="stat-line">Maximum consecutive losses: ${maxConsecLoss}</div>
+    <div class="stat-line">Maximal drawdown: ${maxDD} USD</div>
+
+    <div class="stat-line">Best trade: –</div>
+    <div class="stat-line">Worst trade: –</div>
+
+    <div class="stat-line">Long Trades: –</div>
+    <div class="stat-line">Short Trades: –</div>
+
+    <div class="stat-line">Recovery Factor: –</div>
+    <div class="stat-line">Avg holding time: –</div>
+    <div class="stat-line">Algo trading: –</div>
+    <div class="stat-line">Swaps: –</div>
+    <div class="stat-line">Commission: –</div>
+  `;
+
+  container.innerHTML = html;
+}
+
 // ---------- Collapsible ----------
 document.addEventListener("click", (e) => {
   const header = e.target.closest(".collapsible-header");
@@ -319,11 +384,16 @@ function buildAll() {
   document.getElementById("summaryCardsSection").style.display = "block";
   expandBody("summaryCardsBody");
 
-  renderAccountStats(acc.stats);
+  renderSummaryCards(acc);
+  document.getElementById("summaryCardsSection").style.display = "block";
+  expandBody("summaryCardsBody");
+
+  renderAccountStatistics(acc.stats);
   renderMinimumArea(acc.stats);
   renderAccountCharts(acc);
   document.getElementById("accountSection").style.display = "block";
   expandBody("accountBody");
+
 
   renderSymbolButtons();
   document.getElementById("symbolSection").style.display = "block";
