@@ -710,3 +710,6 @@ button {
   font-size:11px;
   color:var(--txt2);
 }
+.level-high-winrate {
+  background: rgba(125, 211, 252, 0.25); /* 粉藍色 */
+}
