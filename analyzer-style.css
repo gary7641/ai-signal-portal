@@ -743,3 +743,14 @@ button {
 .martin-legend .row-total-negative {
   background: rgba(254, 202, 202, 0.9); /* 你現時負數紅色，可微調 */
 }
+
+.swot-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.swot-center-text {
+  font-weight: 700;
+  font-size: 16px;
+}
