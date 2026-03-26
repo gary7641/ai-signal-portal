@@ -663,6 +663,109 @@ window.addEventListener('DOMContentLoaded',()=>{
   setTheme(localStorage.getItem('theme')||'light');
   renderHome();
 });
+
+// FX Tools tabs
+function initFxToolsTabs() {
+  const tabs = document.querySelectorAll(".fx-tab-btn");
+  if (!tabs.length) return;
+
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.fxTab;
+      if (!key) return;
+
+      // Tab 按鈕 active 樣式
+      tabs.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // 內容切換
+      document.querySelectorAll(".fx-tab-content").forEach((c) => {
+        c.style.display = "none";
+        c.classList.remove("active");
+      });
+      const target = document.getElementById("fxTab-" + key);
+      if (target) {
+        target.style.display = "block";
+        target.classList.add("active");
+      }
+
+      // 進入 Martingale Calculator 時初始化 Symbol Table
+      if (key === "martingale") {
+        initMartinSymbolTable();
+      }
+    });
+  });
+}
+
+// 馬丁 Calculator 可選 Symbol 列表
+const MARTIN_SYMBOLS = [
+  // 你可以補齊28對FX，這裡示例幾個
+  { symbol: "EURUSD", type: "FX" },
+  { symbol: "GBPUSD", type: "FX" },
+  { symbol: "USDJPY", type: "FX" },
+  { symbol: "AUDUSD", type: "FX" },
+  { symbol: "USDCHF", type: "FX" },
+  // ... 其他 FX 對 ...
+  { symbol: "XAUUSD", type: "XAU" },
+  { symbol: "XAUAUD", type: "XAU" },
+  { symbol: "XAUEUR", type: "XAU" },
+  { symbol: "XAUJPY", type: "XAU" }
+];
+
+function initMartinSymbolTable() {
+  const tbody = document.getElementById("martinSymbolTbody");
+  if (!tbody) return;
+
+  // 如果已經有內容，就唔重覆建
+  if (tbody.children.length > 0) return;
+
+  tbody.innerHTML = "";
+
+  MARTIN_SYMBOLS.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <input type="checkbox"
+               class="martin-symbol-checkbox"
+               data-symbol="${s.symbol}"
+               data-type="${s.type}">
+      </td>
+      <td>${s.symbol}</td>
+      <td>${s.type}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const btnAllCcy = document.getElementById("selectAllCcyBtn");
+  const btnAllXau = document.getElementById("selectAllXauBtn");
+  const btnClear = document.getElementById("clearAllSymbolsBtn");
+
+  if (btnAllCcy) {
+    btnAllCcy.onclick = () => {
+      document
+        .querySelectorAll('.martin-symbol-checkbox[data-type="FX"]')
+        .forEach((cb) => (cb.checked = true));
+    };
+  }
+
+  if (btnAllXau) {
+    btnAllXau.onclick = () => {
+      document
+        .querySelectorAll('.martin-symbol-checkbox[data-type="XAU"]')
+        .forEach((cb) => (cb.checked = true));
+    };
+  }
+
+  if (btnClear) {
+    btnClear.onclick = () => {
+      document
+        .querySelectorAll(".martin-symbol-checkbox")
+        .forEach((cb) => (cb.checked = false));
+    };
+  }
+}
+
+  
 </script>
 
 <script src="ea-rules.js"></script>
