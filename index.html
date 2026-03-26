@@ -506,30 +506,59 @@ body{
 
 
       <!-- 7. SWOT 分析 -->
-      <section id="swotSection" class="panel" style="display:none;">
-        <div class="collapsible-header" data-target="swotBody">
-          <h2>7. EA SWOT 分析</h2>
-          <span class="collapse-toggle">－</span>
-        </div>
-        <div id="swotBody" class="collapsible-body">
-          <div class="swot-layout">
-            <div id="swotST" class="swot-cell swot-st"></div>
-            <div id="swotS" class="swot-cell swot-s"></div>
-            <div id="swotSW" class="swot-cell swot-sw"></div>
+     <section id="swotSection" class="panel" style="display:none;">
+  <div class="collapsible-header" data-target="swotBody">
+    <h2>EA SWOT Analysis</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
 
-            <div id="swotT" class="swot-cell swot-t"></div>
-            <div class="swot-center">
-              <div id="swotCenterText" class="swot-center-text">
-              <strong>EA</strong> SWOT </div>
-            </div>
-            <div id="swotW" class="swot-cell swot-w"></div>
+  <div id="swotBody" class="collapsible-body">
+    <div class="swot-layout">
+      <!-- 上排：ST / S / SW -->
+      <div id="swotST" class="swot-cell swot-st">
+        <div class="swot-title">ST – Strength–Threat Strategies（優勢–威脅策略）</div>
+        <!-- 內容由 renderSwot(swot) 填入 -->
+      </div>
 
-            <div id="swotOT" class="swot-cell swot-ot"></div>
-            <div id="swotO" class="swot-cell swot-o"></div>
-            <div id="swotOW" class="swot-cell swot-ow"></div>
-          </div>
+      <div id="swotS" class="swot-cell swot-s">
+        <div class="swot-title">S – Strengths（優勢）</div>
+      </div>
+
+      <div id="swotSW" class="swot-cell swot-sw">
+        <div class="swot-title">SW – Strength–Weakness Balance（優劣平衡 / 內部調整）</div>
+      </div>
+
+      <!-- 中排：T / 中央 EA SWOT / W -->
+      <div id="swotT" class="swot-cell swot-t">
+        <div class="swot-title">T – Threats（威脅）</div>
+      </div>
+
+      <div class="swot-center">
+        <div id="swotCenterText" class="swot-center-text">
+          <strong>EA</strong> SWOT
         </div>
-      </section>
+      </div>
+
+      <div id="swotW" class="swot-cell swot-w">
+        <div class="swot-title">W – Weaknesses（劣勢）</div>
+      </div>
+
+      <!-- 下排：OT / O / OW -->
+      <div id="swotOT" class="swot-cell swot-ot">
+        <div class="swot-title">OT – Opportunity–Threat Strategies（機會–威脅策略）</div>
+      </div>
+
+      <div id="swotO" class="swot-cell swot-o">
+        <div class="swot-title">O – Opportunities（機會）</div>
+      </div>
+
+      <div id="swotOW" class="swot-cell swot-ow">
+        <div class="swot-title">OW – Opportunity–Weakness Strategies（機會–劣勢改善）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     </div>
   </div>
