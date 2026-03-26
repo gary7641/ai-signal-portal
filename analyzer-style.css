@@ -713,3 +713,33 @@ button {
 .level-high-winrate {
   background: rgba(125, 211, 252, 0.25); /* 粉藍色 */
 }
+.martin-legend {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--txt2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.martin-legend .legend-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* 用已存在的 background class 當色塊來源 */
+.martin-legend .level-high-winrate {
+  background: rgba(125, 211, 252, 0.8);
+}
+
+.martin-legend .level-safe {
+  background: rgba(187, 247, 208, 0.8); /* 你現時安全層綠色，可微調 */
+}
+
+.martin-legend .row-total-negative {
+  background: rgba(254, 202, 202, 0.9); /* 你現時負數紅色，可微調 */
+}
