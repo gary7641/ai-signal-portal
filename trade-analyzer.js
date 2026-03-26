@@ -893,6 +893,7 @@ function renderSymbolStats(stats) {
 }
 
 // ---------- Martin 表建構 ----------
+// ---------- Martin 表建構 ----------
 function buildMartinForSymbol(trades) {
   const map = {};
   for (const t of trades) {
@@ -1016,6 +1017,7 @@ function buildMartinForSymbol(trades) {
   return { tablePerSide, martinSummary };
 }
 
+
 function renderMartinTables(symbol, tablePerSide) {
   const container = document.getElementById("martinTables");
   if (!container) return;
@@ -1050,6 +1052,8 @@ function renderMartinTables(symbol, tablePerSide) {
           <th>SUM Profit</th>
           <th>SUM Pips</th>
           <th>Cum Profit</th>
+          <th>Win Rate %</th>
+          <th>Min Win Profit</th>
           <th>Symbol/Side TOTAL Profit</th>
           <th>Total Trades</th>
         </tr>
@@ -1061,6 +1065,7 @@ function renderMartinTables(symbol, tablePerSide) {
     block.rows.forEach((r) => {
       const tr = document.createElement("tr");
       let cls = "";
+
       if (block.totalProfit < 0) {
         cls = "row-total-negative";
       } else if (
@@ -1073,28 +1078,27 @@ function renderMartinTables(symbol, tablePerSide) {
       }
       if (cls) tr.classList.add(cls);
 
-const winRate = r.levelWinRate || 0;
-const minWinText =
-  r.levelMinWin == null ? "–" : r.levelMinWin.toFixed(2);
+      const winRate = r.levelWinRate || 0;
+      const minWinText =
+        r.levelMinWin == null ? "–" : r.levelMinWin.toFixed(2);
 
-// winrate >= 80% 就加粉藍 highlight class
-if (winRate >= 80) {
-  tr.classList.add("level-high-winrate");
-}
+      // 高勝率層：粉藍色
+      if (winRate >= 80) {
+        tr.classList.add("level-high-winrate");
+      }
 
-tr.innerHTML = `
-  <td>${r.level}</td>
-  <td>${r.lots.toFixed(2)}</td>
-  <td>${r.levelTrades}</td>
-  <td>${r.levelSumProfit.toFixed(2)}</td>
-  <td>${r.levelSumPips.toFixed(1)}</td>
-  <td>${r.cumulativeProfit.toFixed(2)}</td>
-  <td>${winRate.toFixed(1)}%</td>
-  <td>${minWinText}</td>
-  <td>${r.totalProfit.toFixed(2)}</td>
-  <td>${r.totalTrades}</td>
-`;
-
+      tr.innerHTML = `
+        <td>${r.level}</td>
+        <td>${r.lots.toFixed(2)}</td>
+        <td>${r.levelTrades}</td>
+        <td>${r.levelSumProfit.toFixed(2)}</td>
+        <td>${r.levelSumPips.toFixed(1)}</td>
+        <td>${r.cumulativeProfit.toFixed(2)}</td>
+        <td>${winRate.toFixed(1)}%</td>
+        <td>${minWinText}</td>
+        <td>${r.totalProfit.toFixed(2)}</td>
+        <td>${r.totalTrades}</td>
+      `;
       tbody.appendChild(tr);
     });
 
