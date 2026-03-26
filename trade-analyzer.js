@@ -287,7 +287,6 @@ function renderAccountStatistics(stats) {
   const fmt = (v, digits = 2) =>
     typeof v === "number" ? v.toFixed(digits) : (v ?? "–");
 
-  // 暫時用你現有 buildStats 既欄位去填，之後再加 bestTrade 等進階指標
   const totalTrades = stats.totalTrades;
   const profitTrades = stats.profitTrades;
   const lossTrades = stats.lossTrades;
@@ -302,8 +301,6 @@ function renderAccountStatistics(stats) {
   const maxDD = fmt(stats.maxDrawdown, 2);
   const maxConsecLoss = stats.maxConsecLoss;
 
-  // 暫時未計：best/worst trade、holding time、recovery factor 等
-  // 先用 placeholder「–」，之後你可以喺 buildStats 或另一個計算器加回
   const html = `
     <div class="stat-line">Trades: ${totalTrades}</div>
     <div class="stat-line">Profit Trades: ${profitTrades} (${fmt(
@@ -388,12 +385,8 @@ function buildAll() {
   document.getElementById("summaryCardsSection").style.display = "block";
   expandBody("summaryCardsBody");
 
-  renderAccountStatistics(acc.stats);
+  renderAccountStatistics(acc.stats);  // ★ NEW
   renderMinimumArea(acc.stats);
-  renderAccountCharts(acc);
-  document.getElementById("accountSection").style.display = "block";
-  expandBody("accountBody");
-
 
   renderSymbolButtons();
   document.getElementById("symbolSection").style.display = "block";
