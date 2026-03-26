@@ -1073,16 +1073,28 @@ function renderMartinTables(symbol, tablePerSide) {
       }
       if (cls) tr.classList.add(cls);
 
-      tr.innerHTML = `
-        <td>${r.level}</td>
-        <td>${r.lots.toFixed(2)}</td>
-        <td>${r.levelTrades}</td>
-        <td>${r.levelSumProfit.toFixed(2)}</td>
-        <td>${r.levelSumPips.toFixed(1)}</td>
-        <td>${r.cumulativeProfit.toFixed(2)}</td>
-        <td>${r.totalProfit.toFixed(2)}</td>
-        <td>${r.totalTrades}</td>
-      `;
+const winRate = r.levelWinRate || 0;
+const minWinText =
+  r.levelMinWin == null ? "–" : r.levelMinWin.toFixed(2);
+
+// winrate >= 80% 就加粉藍 highlight class
+if (winRate >= 80) {
+  tr.classList.add("level-high-winrate");
+}
+
+tr.innerHTML = `
+  <td>${r.level}</td>
+  <td>${r.lots.toFixed(2)}</td>
+  <td>${r.levelTrades}</td>
+  <td>${r.levelSumProfit.toFixed(2)}</td>
+  <td>${r.levelSumPips.toFixed(1)}</td>
+  <td>${r.cumulativeProfit.toFixed(2)}</td>
+  <td>${winRate.toFixed(1)}%</td>
+  <td>${minWinText}</td>
+  <td>${r.totalProfit.toFixed(2)}</td>
+  <td>${r.totalTrades}</td>
+`;
+
       tbody.appendChild(tr);
     });
 
