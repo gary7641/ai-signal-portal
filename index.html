@@ -483,25 +483,27 @@ body{
       </section>
 
       <!-- 6. 馬丁層數分析 -->
-      <section id="martinSection" class="panel" style="display:none;">
-        <div class="collapsible-header" data-target="martinBody">
-          <h2>6. 馬丁層數分析</h2>
-          <span class="collapse-toggle">－</span>
-        </div>
-        <div id="martinBody" class="collapsible-body">
-          <div id="martinTables"></div>
-          <div class="martin-legend">
-  <span class="legend-box level-high-winrate"></span>
-  <span class="legend-text">Win Rate ≥ 80%（高勝率層）</span>
+<section id="martinSection" class="panel" style="display:none;">
+  <div class="collapsible-header" data-target="martinBody">
+    <h2>Martingale Layer Analysis</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
+  <div id="martinBody" class="collapsible-body">
+    <div id="martinTables"></div>
 
-  <span class="legend-box level-safe"></span>
-  <span class="legend-text">Cumulative Profit ≥ 0（安全層）</span>
+    <div class="martin-legend">
+      <span class="legend-box level-high-winrate"></span>
+      <span class="legend-text">High win rate level (Win Rate ≥ 80%)</span>
 
-  <span class="legend-box row-total-negative"></span>
-  <span class="legend-text">Symbol/Side TOTAL Profit < 0（風險層）</span>
-</div>
-        </div>
-      </section>
+      <span class="legend-box level-safe"></span>
+      <span class="legend-text">Safe level (Cumulative Profit ≥ 0)</span>
+
+      <span class="legend-box row-total-negative"></span>
+      <span class="legend-text">Risk level (Symbol/Side TOTAL Profit &lt; 0)</span>
+    </div>
+  </div>
+</section>
+
 
       <!-- 7. SWOT 分析 -->
       <section id="swotSection" class="panel" style="display:none;">
