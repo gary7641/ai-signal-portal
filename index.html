@@ -767,27 +767,43 @@ function initFxToolsTabs() {
   
 
 function initMartinSymbolTable() {
-  const tbody = document.getElementById("martinSymbolTbody");
-  if (!tbody) return;
+  const fxGrid = document.getElementById("martinFxGrid");
+  const xauGrid = document.getElementById("martinXauGrid");
+  if (!fxGrid || !xauGrid) return;
 
-  // 如果已經有內容，就唔重覆建
-  if (tbody.children.length > 0) return;
+  // 已有內容就唔重覆建立
+  if (fxGrid.children.length || xauGrid.children.length) return;
 
-  tbody.innerHTML = "";
+  fxGrid.innerHTML = "";
+  xauGrid.innerHTML = "";
 
-  MARTIN_SYMBOLS.forEach((s) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>
-        <input type="checkbox"
-               class="martin-symbol-checkbox"
-               data-symbol="${s.symbol}"
-               data-type="${s.type}">
-      </td>
-      <td>${s.symbol}</td>
-      <td>${s.type}</td>
+  const fxSymbols = MARTIN_SYMBOLS.filter((s) => s.type === "FX");
+  const xauSymbols = MARTIN_SYMBOLS.filter((s) => s.type === "XAU");
+
+  fxSymbols.forEach((s) => {
+    const div = document.createElement("label");
+    div.className = "martin-symbol-item";
+    div.innerHTML = `
+      <input type="checkbox"
+             class="martin-symbol-checkbox"
+             data-symbol="${s.symbol}"
+             data-type="${s.type}">
+      <span>${s.symbol}</span>
     `;
-    tbody.appendChild(tr);
+    fxGrid.appendChild(div);
+  });
+
+  xauSymbols.forEach((s) => {
+    const div = document.createElement("label");
+    div.className = "martin-symbol-item";
+    div.innerHTML = `
+      <input type="checkbox"
+             class="martin-symbol-checkbox"
+             data-symbol="${s.symbol}"
+             data-type="${s.type}">
+      <span>${s.symbol}</span>
+    `;
+    xauGrid.appendChild(div);
   });
 
   const btnAllCcy = document.getElementById("selectAllCcyBtn");
@@ -818,6 +834,7 @@ function initMartinSymbolTable() {
     };
   }
 }
+
 
   
 </script>
