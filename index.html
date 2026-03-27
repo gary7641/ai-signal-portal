@@ -303,52 +303,73 @@ body{
     </div>
   </div>
 
-  <!-- TRADE ANALYZER PAGE -->
-  <div class="page" id="analyzerPage">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 class="page-title">📈 Trade Analyzer</h2>
-      <span style="font-size:12px;color:var(--txt2)">Powered by trading_history_analytics</span>
-    </div>
+<!-- TRADE ANALYZER PAGE -->
+<div class="page" id="analyzerPage">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2 class="page-title">📈 Trade Analyzer 交易分析</h2>
+    <span style="font-size:12px;color:var(--txt2)">Powered by ShenXu 2026</span>
+  </div>
 
-    <div id="analyzerContainer" style="background:var(--bg1);border-radius:12px;padding:16px;">
+  <div id="analyzerContainer" style="background:var(--bg1);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:16px;">
 
-      <!-- 1. 匯入 MT4/MT5 報表 CSV -->
-      <section class="panel">
-        <h1 class="panel-title">1. 匯入 MT4/MT5 報表 CSV</h1>
+    <!-- 1. 匯入 MT4/MT5 報表 CSV（保持不動，只微調標題字） -->
+    <section class="panel">
+      <h1 class="panel-title">1. 匯入 MT4/MT5 報表 CSV</h1>
 
-        <div class="upload-controls">
-          <div class="field">
-            <label for="csvFile">交易報表 CSV</label>
-            <div class="file-input-wrapper">
-              <input type="file" id="csvFile" accept=".csv" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="eaSelect">EA 類型</label>
-            <select id="eaSelect">
-              <option value="SMA">SMA (Standard)</option>
-              <option value="SMA_Pro">SMA Pro</option>
-              <option value="MKD">MKD (Standard)</option>
-              <option value="MKD_Pro">MKD Pro</option>
-              <option value="Flash">Flash (Standard)</option>
-              <option value="Flash_Pro">Flash Pro</option>
-              <option value="S10">S10 (Standard)</option>
-              <option value="S10_Pro">S10 Pro</option>
-              <option value="OtherBasic">Other EA (Basic)</option>
-              <option value="OtherPro">Other EA (Pro)</option>
-            </select>
-          </div>
-
-          <div class="upload-buttons">
-            <button id="analyzeBtn" class="primary">
-              <span class="rocket">🚀</span>
-              <span>開始分析</span>
-            </button>
-            <button id="resetBtn" class="secondary">Reset</button>
+      <div class="upload-controls">
+        <div class="field">
+          <label for="csvFile">交易報表 CSV / Trade Report CSV</label>
+          <div class="file-input-wrapper">
+            <input type="file" id="csvFile" accept=".csv" />
           </div>
         </div>
-      </section>
+
+        <div class="field">
+          <label for="eaSelect">EA 類型 / EA Type</label>
+          <select id="eaSelect">
+            <option value="SMA">SMA (Standard)</option>
+            <option value="SMA_Pro">SMA Pro</option>
+            <option value="MKD">MKD (Standard)</option>
+            <option value="MKD_Pro">MKD Pro</option>
+            <option value="Flash">Flash (Standard)</option>
+            <option value="Flash_Pro">Flash Pro</option>
+            <option value="S10">S10 (Standard)</option>
+            <option value="S10_Pro">S10 Pro</option>
+            <option value="OtherBasic">Other EA (Basic)</option>
+            <option value="OtherPro">Other EA (Pro)</option>
+          </select>
+        </div>
+
+        <div class="upload-buttons">
+          <button id="analyzeBtn" class="primary">
+            <span class="rocket">🚀</span>
+            <span>開始分析 / Analyze</span>
+          </button>
+          <button id="resetBtn" class="secondary">Reset / 重設</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Trade Analyzer Layout（新加，放你啱啱個 Trade Analyzer UI） -->
+    <section class="ta-panel">
+      <!-- 用我之前俾你個 Trade Analyzer layout（Equity / Radar / Symbol / Table），
+           將 <section id="tab-trade-analyzer"...> 改成 simple div 就得 -->
+      <!-- 例： -->
+      <div class="ta-header">
+        <div class="ta-title">
+          <h2>Trade Analyzer 交易分析儀表板</h2>
+          <p class="ta-subtitle">
+            Analyze AI trading signals & trades / 分析 AI 交易信號及交易表現
+          </p>
+        </div>
+      </div>
+
+      <!-- Equity / Radar / Symbol / Details 三個區，照剛才嗰套貼落嚟 -->
+      <!-- ...（直接將我上個回覆個 ta-* HTML 貼入呢度）... -->
+    </section>
+
+  </div>
+</div>
 
       <!-- 2. 帳戶 Summary Cards -->
       <section id="summaryCardsSection" class="panel" style="display:none;">
