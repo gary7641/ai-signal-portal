@@ -558,7 +558,6 @@ function buildAll() {
   // 新 Dashboard 圖表
   renderEquityGrowthDashboard();
   renderEaRadarDashboard();
-}
 
 // === Trade Analyzer chart popup modal ===
 (function setupTradeAnalyzerModal() {
