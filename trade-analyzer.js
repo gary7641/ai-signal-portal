@@ -282,62 +282,54 @@ function buildAll() {
   }
 
   const acc = buildAccountSummary();
+
+  // 安全檢查：acc 或 acc.stats 係 null 就唔繼續
   if (!acc || !acc.stats) {
-    alert("統計資料計算失敗，請檢查 CSV 內容");
+    alert("統計資料計算失敗，請檢查 CSV 格式是否正確");
     return;
   }
 
-  // 顯示 taPanel
-  const taPanel = document.getElementById("taPanel");
-  if (taPanel) taPanel.style.display = "block";
-
   renderSummaryCards(acc);
+
   const summarySection = document.getElementById("summaryCardsSection");
-  if (summarySection) {
-    summarySection.style.display = "block";
-    expandBody("summaryCardsBody");
-  }
+  if (summarySection) summarySection.style.display = "block";
+  expandBody("summaryCardsBody");
 
   renderAccountStatistics(acc.stats);
   renderMinimumArea(acc.stats);
 
   const accountSection = document.getElementById("accountSection");
-  if (accountSection) {
-    accountSection.style.display = "block";
-    expandBody("accountBody");
-  }
+  if (accountSection) accountSection.style.display = "block";
+  expandBody("accountBody");
 
   renderSymbolButtons();
+
   const symbolSection = document.getElementById("symbolSection");
-  if (symbolSection) {
-    symbolSection.style.display = "block";
-    renderSymbolMiniCharts();
-    expandBody("symbolBody");
-  }
+  if (symbolSection) symbolSection.style.display = "block";
+  renderSymbolMiniCharts();
+  expandBody("symbolBody");
 
   renderSymbol("ALL");
 
   const martinSection = document.getElementById("martinSection");
-  if (martinSection) {
-    martinSection.style.display = "block";
-    renderMartinTables();
-    expandBody("martinBody");
-  }
+  if (martinSection) martinSection.style.display = "block";
+  renderMartinTables();
+  expandBody("martinBody");
 
   const swotSection = document.getElementById("swotSection");
-  if (swotSection) {
-    swotSection.style.display = "block";
-    renderSwot(buildSwotData(acc.stats));
-    expandBody("swotBody");
-  }
+  if (swotSection) swotSection.style.display = "block";
+  renderSwot(buildSwotData(acc.stats));
+  expandBody("swotBody");
 
-  // Trade Analyzer Dashboard charts
+  // Trade Analyzer Dashboard
+  const taPanel = document.getElementById("taPanel");
+  if (taPanel) taPanel.style.display = "block";
+
   renderEquityGrowthDashboard();
   renderEaRadarDashboard();
   renderSymbolPerfDashboard();
   renderTaDetailsTable("ea");
 }
-
 // ---------- expandBody ----------
 function expandBody(id) {
   const el = document.getElementById(id);
