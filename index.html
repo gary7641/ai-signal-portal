@@ -310,9 +310,12 @@ body{
     <span style="font-size:12px;color:var(--txt2)">Powered by ShenXu 2026</span>
   </div>
 
-  <div id="analyzerContainer" style="background:var(--bg1);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:16px;">
+  <div
+    id="analyzerContainer"
+    style="background:var(--bg1);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:16px;"
+  >
 
-    <!-- 1. 匯入 MT4/MT5 報表 CSV（保持不動，只微調標題字） -->
+    <!-- 1. 匯入 MT4/MT5 報表 CSV -->
     <section class="panel">
       <h1 class="panel-title">1. 匯入 MT4/MT5 報表 CSV</h1>
 
@@ -350,11 +353,10 @@ body{
       </div>
     </section>
 
-    <!-- 2. Trade Analyzer Layout（新加，放你啱啱個 Trade Analyzer UI） -->
+    <!-- 2. Trade Analyzer Layout Dashboard -->
     <section class="ta-panel">
-      <!-- 用我之前俾你個 Trade Analyzer layout（Equity / Radar / Symbol / Table），
-           將 <section id="tab-trade-analyzer"...> 改成 simple div 就得 -->
-      <!-- 例： -->
+
+      <!-- Header（panel 內） -->
       <div class="ta-header">
         <div class="ta-title">
           <h2>Trade Analyzer 交易分析儀表板</h2>
@@ -363,6 +365,127 @@ body{
           </p>
         </div>
       </div>
+
+      <!-- Top Row: Equity Growth -->
+      <div class="ta-row ta-row-top">
+        <div class="ta-card ta-card-equity">
+          <div class="ta-card-header">
+            <h3>Equity Growth 資金曲線</h3>
+            <span class="ta-card-desc">
+              Overall equity curve by time / 按時間顯示整體資金變化
+            </span>
+          </div>
+          <div class="ta-card-body">
+            <div class="ta-chart-shell" data-chart="equity">
+              <div id="taEquityGrowthPlaceholder" class="ta-chart-placeholder">
+                <span>Equity Growth Chart Placeholder / 資金曲線圖佔位</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle Row: EA Radar + Symbol Performance -->
+      <div class="ta-row ta-row-middle">
+        <div class="ta-card ta-card-radar">
+          <div class="ta-card-header">
+            <h3>EA Radar 策略雷達圖</h3>
+            <span class="ta-card-desc">
+              Multi-metric EA performance / 多維度策略表現
+            </span>
+          </div>
+          <div class="ta-card-body">
+            <div class="ta-chart-shell" data-chart="radar">
+              <div id="taEaRadarPlaceholder" class="ta-chart-placeholder">
+                <span>EA Radar Chart Placeholder / 策略雷達圖佔位</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ta-card ta-card-symbol">
+          <div class="ta-card-header">
+            <h3>Symbol Performance 品種表現</h3>
+            <span class="ta-card-desc">
+              P/L by symbol and direction / 按品種及方向分析盈虧
+            </span>
+          </div>
+          <div class="ta-card-body">
+            <div class="ta-chart-shell" data-chart="symbol">
+              <div id="taSymbolPerfPlaceholder" class="ta-chart-placeholder">
+                <span>Symbol Performance Placeholder / 品種表現圖佔位</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Details Table（之後由 JS 填） -->
+      <div class="ta-row ta-row-bottom">
+        <div class="ta-card ta-card-table">
+          <div class="ta-card-header">
+            <h3>Details 明細</h3>
+            <span class="ta-card-desc">
+              Signal & strategy statistics / 信號及策略統計
+            </span>
+          </div>
+          <div class="ta-card-body">
+            <div class="ta-table-toolbar">
+              <span>View Mode 檢視模式：</span>
+              <button type="button" class="ta-view-btn" data-view="ea">
+                By EA / 按策略
+              </button>
+              <button type="button" class="ta-view-btn" data-view="symbol">
+                By Symbol / 按品種
+              </button>
+              <button type="button" class="ta-view-btn" data-view="time">
+                By Time / 按時間
+              </button>
+            </div>
+
+            <div class="ta-table-wrapper">
+              <table class="ta-table">
+                <thead>
+                  <tr>
+                    <th>EA / 策略</th>
+                    <th>Symbol 品種</th>
+                    <th>Signals 信號數</th>
+                    <th>Win Rate 勝率</th>
+                    <th>Net P/L 淨盈虧</th>
+                    <th>Profit Factor 盈利因子</th>
+                    <th>Max DD 最大回撤</th>
+                  </tr>
+                </thead>
+                <tbody id="taTableBody">
+                  <!-- JS to populate / 之後用 JS 填充 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Trade Analyzer Chart Modal -->
+  <div id="taChartModal" class="ta-modal" aria-hidden="true">
+    <div class="ta-modal-backdrop"></div>
+    <div class="ta-modal-dialog">
+      <div class="ta-modal-header">
+        <h3 id="taModalTitle">Chart</h3>
+        <button type="button" id="taModalClose" class="ta-modal-close">✕</button>
+      </div>
+      <div class="ta-modal-body">
+        <div id="taModalChartContainer">
+          <!-- 放大圖表容器 / Large chart container -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
       <!-- Equity / Radar / Symbol / Details 三個區，照剛才嗰套貼落嚟 -->
       <!-- ...（直接將我上個回覆個 ta-* HTML 貼入呢度）... -->
