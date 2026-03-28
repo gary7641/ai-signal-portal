@@ -532,6 +532,14 @@ function buildAll() {
     return;
   }
 
+  // 第一次有數據先顯示 taPanel
+  const taPanel = document.getElementById("taPanel");
+  if (taPanel) taPanel.style.display = "block";
+
+  const acc = buildAccountSummary();
+  ...
+}
+
   const acc = buildAccountSummary();
 
   renderSummaryCards(acc);
