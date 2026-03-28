@@ -561,6 +561,184 @@ function buildAll() {
   renderEaRadarDashboard();
 }
 
+// === Trade Analyzer chart popup modal ===
+(function setupTradeAnalyzerModal() {
+  const modal = document.getElementById("taChartModal");
+  if (!modal) return;
+
+  const backdrop = modal.querySelector(".ta-modal-backdrop");
+  const closeBtn = document.getElementById("taModalClose");
+  const titleEl = document.getElementById("taModalTitle");
+  const chartContainer = document.getElementById("taModalChartContainer");
+
+  // 監聽細圖容器 click（Equity / Radar / 之後可以加 Symbol）
+  document.addEventListener("click", (e) => {
+    const shell = e.target.closest(".ta-chart-shell");
+    if (!shell) return;
+
+    const chartType = shell.dataset.chart; // "equity" | "radar" | "symbol"
+    openTaChartModal(chartType);
+  });
+
+  const close = () => {
+    modal.classList.remove("open");
+    if (chartContainer) {
+      chartContainer.innerHTML = ""; // 清空大圖
+    }
+  };
+
+  if (backdrop) backdrop.addEventListener("click", close);
+  if (closeBtn) closeBtn.addEventListener("click", close);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+
+  // 對外可用（如果之後你想用按鈕開）
+  window.openTaChartModal = openTaChartModal;
+
+  function openTaChartModal(type) {
+    if (!modal || !chartContainer || !titleEl) return;
+
+    let titleText = "";
+    switch (type) {
+      case "equity":
+        titleText = "Equity Growth 資金曲線（放大）";
+        break;
+      case "radar":
+        titleText = "EA Radar 策略雷達圖（放大）";
+        break;
+      case "symbol":
+        titleText = "Symbol Performance 品種表現（放大）";
+        break;
+      default:
+        titleText = "Chart 圖表";
+    }
+    titleEl.textContent = titleText;
+
+    // 在 modal 入面建立一個 canvas 用嚟畫放大圖
+    chartContainer.innerHTML =
+      '<div style="height:400px;"><canvas id="taModalChart"></canvas></div>';
+
+    const modalCtx = document.getElementById("taModalChart");
+    if (!modalCtx) {
+      modal.classList.add("open");
+      return;
+    }
+
+    // 根據 type 用現有 data 畫放大圖
+    if (type === "equity") {
+      renderEquityGrowthInModal(modalCtx);
+    } else if (type === "radar") {
+      renderEaRadarInModal(modalCtx);
+    } else {
+      // 之後可以加 symbol performance
+    }
+
+    modal.classList.add("open");
+  }
+
+  // 用同一套 buildAccountSummary() data 畫放大版 equity
+  function renderEquityGrowthInModal(ctx) {
+    const acc = buildAccountSummary();
+    if (!acc || !acc.curve || !acc.curve.length) return;
+
+    const labels = acc.curve.map((p) => p.x);
+    const data = acc.curve.map((p) => p.y);
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Equity / 資金曲線",
+            data,
+            borderColor: "#0d9fff",
+            backgroundColor: "rgba(13,159,255,0.16)",
+            tension: 0.25,
+            borderWidth: 2,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            ticks: { maxTicksLimit: 10, color: "rgba(255,255,255,0.7)" },
+            grid: { display: false }
+          },
+          y: {
+            ticks: { color: "rgba(255,255,255,0.7)" },
+            grid: { color: "rgba(255,255,255,0.15)" }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (c) => "Equity: " + c.parsed.y.toFixed(2)
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 用 buildStats() → radar data 畫放大版 radar
+  function renderEaRadarInModal(ctx) {
+    const stats = buildStats(globalTrades || []);
+    const radarData = buildRadarMetricsFromStats(stats);
+    if (!radarData) return;
+
+    new Chart(ctx, {
+      type: "radar",
+      data: {
+        labels: radarData.labels,
+        datasets: [
+          {
+            label: "EA Performance / 策略表現",
+            data: radarData.values,
+            backgroundColor: "rgba(157,78,221,0.20)",
+            borderColor: "#f72585",
+            borderWidth: 2,
+            pointBackgroundColor: "#f72585",
+            pointRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            angleLines: { color: "rgba(255,255,255,0.15)" },
+            grid: { color: "rgba(255,255,255,0.15)" },
+            suggestedMin: 0,
+            suggestedMax: 100,
+            ticks: { display: false },
+            pointLabels: {
+              font: { size: 11 },
+              color: "rgba(255,255,255,0.85)"
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (c) =>
+                c.label + ": " + c.parsed.r.toFixed(1)
+            }
+          }
+        }
+      }
+    });
+  }
+})();
+
 function resetView() {
   globalTrades = [];
   globalBySymbol = {};
