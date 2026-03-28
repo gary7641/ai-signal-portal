@@ -969,5 +969,21 @@ function initMartinSymbolTable() {
 
 <script src="ea-rules.js"></script>
 <script src="trade-analyzer.js"></script>
+
+<!-- Trade Analyzer Chart Modal (全螢幕 popup，預設隱藏) -->
+<div id="taChartModal" class="ta-modal" aria-hidden="true">
+  <div class="ta-modal-backdrop"></div>
+  <div class="ta-modal-dialog">
+    <div class="ta-modal-header">
+      <h3 id="taModalTitle">Chart</h3>
+      <button type="button" id="taModalClose" class="ta-modal-close">✕</button>
+    </div>
+    <div class="ta-modal-body">
+      <div id="taModalChartContainer">
+        <!-- 放大圖表容器 / Large chart container -->
+      </div>
+    </div>
+  </div>
+</div>  
 </body>
 </html>
