@@ -330,6 +330,7 @@ function buildAll() {
   renderSymbolPerfDashboard();
   renderTaDetailsTable("ea");
 }
+
 // ---------- expandBody ----------
 function expandBody(id) {
   const el = document.getElementById(id);
