@@ -378,4 +378,4 @@ function buildSummaryRadarChart(s) {
 
   if (radarChart) { radarChart.destroy(); radarChart = null; }
 
-  const radarData = buildRadarMetricsFromStats(s
+  const radarData = buildRadarMetricsFromStats(s);
