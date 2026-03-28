@@ -368,6 +368,163 @@ function expandBody(id) {
   body.style.maxHeight = body.scrollHeight + "px";
 }
 
+// === Equity Growth Chart (Chart.js) ===
+function renderEquityGrowthDashboard() {
+  const acc = buildAccountSummary();
+  if (!acc || !acc.curve || !acc.curve.length) return;
+
+  const ctx = document.getElementById("taEquityChart");
+  if (!ctx) return;
+
+  if (equityChart) {
+    equityChart.destroy();
+    equityChart = null;
+  }
+
+  const labels = acc.curve.map((p) => p.x);
+  const data = acc.curve.map((p) => p.y);
+
+  equityChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Equity / 資金曲線",
+          data,
+          borderColor: "#0d9fff",
+          backgroundColor: "rgba(13,159,255,0.12)",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          ticks: { maxTicksLimit: 6, color: "rgba(0,0,0,0.55)" },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { color: "rgba(0,0,0,0.55)" },
+          grid: { color: "rgba(0,0,0,0.06)" }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => "Equity: " + ctx.parsed.y.toFixed(2)
+          }
+        }
+      }
+    }
+  });
+}
+
+// === EA Radar (6D) Chart ===
+function buildRadarMetricsFromStats(stats) {
+  if (!stats) return null;
+
+  const winRateScore = Math.min(100, Math.max(0, stats.winRate * 100));
+
+  const pfRaw =
+    stats.profitFactor === Infinity ? 5 : (stats.profitFactor || 0);
+  const pfScore = Math.max(0, Math.min(100, (pfRaw / 5) * 100));
+
+  const maxDd = Math.abs(stats.maxDrawdown || 0);
+  const ddScore = maxDd <= 0 ? 100 : Math.max(0, 100 - Math.min(100, maxDd));
+
+  const exp = stats.expectancy || 0;
+  const expScore =
+    exp <= 0 ? 0 : Math.max(0, Math.min(100, (exp / 10) * 100));
+
+  const avgWin = stats.avgWin || 0;
+  const avgLoss = Math.abs(stats.avgLoss || 0);
+  const avgWinScore =
+    avgWin <= 0 ? 0 : Math.max(0, Math.min(100, (avgWin / 10) * 100));
+  const avgLossScore =
+    avgLoss <= 0 ? 100 : Math.max(0, 100 - Math.min(100, (avgLoss / 10) * 100));
+
+  return {
+    labels: [
+      "Win Rate 勝率",
+      "Profit Factor 盈利因子",
+      "Risk (DD) 風險",
+      "Expectancy 期望值",
+      "Avg Win 平均盈利",
+      "Avg Loss 平均虧損"
+    ],
+    values: [
+      winRateScore,
+      pfScore,
+      ddScore,
+      expScore,
+      avgWinScore,
+      avgLossScore
+    ]
+  };
+}
+
+function renderEaRadarDashboard() {
+  const stats = buildStats(globalTrades || []);
+  const radarData = buildRadarMetricsFromStats(stats);
+  const ctx = document.getElementById("taRadarChart");
+  if (!ctx || !radarData) return;
+
+  if (radarChart) {
+    radarChart.destroy();
+    radarChart = null;
+  }
+
+  radarChart = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: radarData.labels,
+      datasets: [
+        {
+          label: "EA Performance / 策略表現",
+          data: radarData.values,
+          backgroundColor: "rgba(157,78,221,0.12)",
+          borderColor: "#9d4edd",
+          borderWidth: 2,
+          pointBackgroundColor: "#9d4edd",
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          angleLines: { color: "rgba(0,0,0,0.08)" },
+          grid: { color: "rgba(0,0,0,0.08)" },
+          suggestedMin: 0,
+          suggestedMax: 100,
+          ticks: { display: false },
+          pointLabels: {
+            font: { size: 11 },
+            color: "rgba(0,0,0,0.7)"
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) =>
+              ctx.label + ": " + ctx.parsed.r.toFixed(1)
+          }
+        }
+      }
+    }
+  });
+}
+
 // ---------- 總流程 / RESET ----------
 function buildAll() {
   if (!globalTrades.length) {
@@ -381,11 +538,7 @@ function buildAll() {
   document.getElementById("summaryCardsSection").style.display = "block";
   expandBody("summaryCardsBody");
 
-  renderSummaryCards(acc);
-  document.getElementById("summaryCardsSection").style.display = "block";
-  expandBody("summaryCardsBody");
-
-  renderAccountStatistics(acc.stats);  // ★ NEW
+  renderAccountStatistics(acc.stats);
   renderMinimumArea(acc.stats);
 
   renderSymbolButtons();
@@ -394,6 +547,10 @@ function buildAll() {
   expandBody("symbolBody");
 
   renderSymbol("ALL");
+
+  // 新 Dashboard 圖表
+  renderEquityGrowthDashboard();
+  renderEaRadarDashboard();
 }
 
 function resetView() {
