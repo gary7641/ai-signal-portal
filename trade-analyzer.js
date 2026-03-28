@@ -537,7 +537,6 @@ function buildAll() {
   if (taPanel) taPanel.style.display = "block";
 
   const acc = buildAccountSummary();
-  ...
 }
 
   const acc = buildAccountSummary();
