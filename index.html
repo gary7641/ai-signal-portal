@@ -17,6 +17,8 @@
             --status-green: #38a169;
             --status-red: #e53e3e;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --logo-main: #319795; /* Light Mode Logo Color */
+            --logo-accent: #d69e2e; /* Light Mode Logo Gold */
         }
 
         :root[data-theme="dark"] {
@@ -30,6 +32,8 @@
             --status-green: #48bb78;
             --status-red: #f56565;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --logo-main: #4fd1c5; /* Dark Mode Logo Color */
+            --logo-accent: #ed8936; /* Dark Mode Logo Gold */
         }
 
         * { box-sizing: border-box; transition: background 0.2s, color 0.2s; }
@@ -51,89 +55,58 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-        }
-
-        /* Card Style - 圓角跟返 Analyzer */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 1.5rem;
-        }
-
-        .title {
-            color: var(--text-title);
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0 0 1rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* 數據顯示 Block */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-box {
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.02);
-            border-radius: 0.5rem;
-            border: 1px solid var(--border);
-        }
-
-        [data-theme="dark"] .stat-box {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .stat-label { font-size: 0.875rem; color: var(--text-content); margin-bottom: 0.5rem; }
-        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text-title); }
-
-        /* EA 版本列表 */
-        .version-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
+            padding-bottom: 1rem;
             border-bottom: 1px solid var(--border);
         }
-        .version-row:last-child { border-bottom: none; }
 
-        /* 按鈕跟返主題色 */
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .status-pill {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-title);
             font-weight: bold;
-            text-transform: uppercase;
+            font-size: 1.25rem;
         }
+
+        /* SVG Logo Styling */
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+        .logo-main-path { fill: var(--logo-main); }
+        .logo-gold-path { fill: var(--logo-accent); }
+
+        /* 其他 CSS 保持不變 (Signal Profile, Data Blocks, Versions...) */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+        .title { color: var(--text-title); font-size: 1.25rem; font-weight: 700; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+        .stat-box { padding: 1rem; background: rgba(0, 0, 0, 0.02); border-radius: 0.5rem; border: 1px solid var(--border); }
+        [data-theme="dark"] .stat-box { background: rgba(255, 255, 255, 0.05); }
+        .stat-label { font-size: 0.875rem; color: var(--text-content); margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text-title); }
+        .version-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+        .version-row:last-child { border-bottom: none; }
+        .btn { background-color: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .status-pill { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <nav class="navbar">
-        <h1 style="color: var(--primary); font-size: 1.5rem; margin: 0;">AI Signal Hub 🤖</h1>
+        <a href="#" class="brand">
+            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path class="logo-main-path" d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" opacity="0.1"/>
+                <path class="logo-main-path" d="M30 65 L40 55 M50 70 L50 40 M70 55 L60 45" stroke-width="3" stroke-linecap="round"/>
+                <path class="logo-main-path" d="M25 70 L45 50 L55 60 L75 35" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path class="logo-gold-path" d="M72 32 C70 30, 78 25, 80 27 L82 32 Z M68 35 L86 35 C88 38, 86 42, 68 42 Z" stroke-width="1.5"/>
+                <rect class="logo-gold-path" x="76" x="25" width="8" height="8" rx="1"/>
+                <path class="logo-gold-path" d="M45 80 L55 80 C56 82, 54 86, 45 86 Z M48 83 C48 83, 52 83, 52 83" stroke-width="1"/>
+            </svg>
+            <span>AI Signal Hub</span>
+        </a>
         <button class="btn-outline" onclick="toggleTheme()">🌓 切換模式</button>
     </nav>
 
@@ -155,7 +128,7 @@
                 <div class="stat-value">1,500.00 <small style="font-size: 0.8rem;">USD</small></div>
             </div>
             <div class="stat-box" style="border-top: 3px solid var(--accent-gold);">
-                <div class="stat-label">Current Equity (Gold) 🧧</div>
+                <div class="stat-label">Current Equity (Gold) 💰🧧</div>
                 <div class="stat-value" style="color: var(--accent-gold);">1,588.20</div>
             </div>
             <div class="stat-box">
@@ -164,24 +137,8 @@
             </div>
         </div>
     </section>
-
-    <section class="card">
-        <h3 class="title">📦 EA Set Files (Version History)</h3>
-        <div class="version-row">
-            <div><strong>v2.1.0</strong> - 修正金價劇烈波動時的過濾邏輯</div>
-            <div style="color: var(--text-content); font-size: 0.85rem;">2026-03-29</div>
-        </div>
-        <div class="version-row">
-            <div><strong>v2.0.0</strong> - 大改版：加入多周期分析</div>
-            <div style="color: var(--text-content); font-size: 0.85rem;">2026-03-15</div>
-        </div>
-    </section>
-
-    <div style="display: flex; gap: 1rem;">
-        <button class="btn" style="flex: 1;">👍 點讚支持 (獲取積分)</button>
-        <button class="btn btn-outline" style="flex: 1;">🤝 申請私人 Handshake</button>
+    
     </div>
-</div>
 
 <script>
     function toggleTheme() {
@@ -189,8 +146,12 @@
         const currentTheme = root.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
-        // 你可以之後喺度加 localStorage 嚟記住 User 揀咗邊個 Mode
+        localStorage.setItem('hub-theme', newTheme); // 記住 Theme
     }
+    
+    // 初始化時檢查 Theme
+    const savedTheme = localStorage.getItem('hub-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
 </script>
 
 </body>
