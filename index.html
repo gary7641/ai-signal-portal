@@ -5,169 +5,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Signal Hub - Signal Detail</title>
     <style>
+        /* 跟隨 Trade History Analyzer 的配色體系 */
         :root[data-theme="light"] {
-            --bg-color: #f4f7f6; /* History Analyzer 溫潤底色 */
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-sub: #666666;
-            --accent-gold: #d4af37;
-            --status-active: #27ae60;
-            --status-inactive: #e74c3c;
-            --border-color: #dddddd;
+            --bg-body: #f7fafc;
+            --bg-card: #ffffff;
+            --text-title: #2d3748;
+            --text-content: #4a5568;
+            --primary: #319795; /* 類似 Analyzer 的主題色 */
+            --accent-gold: #d69e2e;
+            --border: #e2e8f0;
+            --status-green: #38a169;
+            --status-red: #e53e3e;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         :root[data-theme="dark"] {
-            --bg-color: #1a1c1e; /* 深炭灰，非純黑 */
-            --card-bg: #2d2f31;
-            --text-main: #e0e0e0;
-            --text-sub: #aaaaaa;
-            --accent-gold: #ffcc00;
-            --status-active: #2ecc71;
-            --status-inactive: #ff4757;
-            --border-color: #444444;
+            --bg-body: #1a202c; /* 深藍底 */
+            --bg-card: #2d3748;
+            --text-title: #f7fafc;
+            --text-content: #cbd5e0;
+            --primary: #4fd1c5;
+            --accent-gold: #ed8936;
+            --border: #4a5568;
+            --status-green: #48bb78;
+            --status-red: #f56565;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
+        * { box-sizing: border-box; transition: background 0.2s, color 0.2s; }
+        
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-content);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 20px;
-            transition: all 0.3s ease;
+            padding: 24px;
+            line-height: 1.5;
         }
 
-        /* Layout Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1100px; margin: 0 auto; }
 
-        /* Top Bar */
-        .top-bar {
+        /* Navigation Style */
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
 
-        /* Signal Header Card */
+        /* Card Style - 圓角跟返 Analyzer */
         .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
         }
 
-        .signal-header {
+        .title {
+            color: var(--text-title);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .badge-diamond {
-            color: var(--accent-gold);
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
-        }
-
-        /* Raw Data Grid */
-        .data-grid {
+        /* 數據顯示 Block */
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
         }
 
-        .data-item {
-            border-left: 4px solid var(--border-color);
-            padding-left: 15px;
+        .stat-box {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
         }
 
-        /* Version List */
-        .version-list {
-            list-style: none;
-            padding: 0;
+        [data-theme="dark"] .stat-box {
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .version-item {
+        .stat-label { font-size: 0.875rem; color: var(--text-content); margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text-title); }
+
+        /* EA 版本列表 */
+        .version-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed var(--border-color);
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .version-row:last-child { border-bottom: none; }
+
+        /* 按鈕跟返主題色 */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
         }
 
-        /* Button Style */
-        .btn-toggle {
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-main);
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .status-pill {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header class="top-bar">
-        <h1>AI Signal Hub 🚀</h1>
-        <button class="btn-toggle" onclick="toggleTheme()">🌓 Switch Mode</button>
-    </header>
+    <nav class="navbar">
+        <h1 style="color: var(--primary); font-size: 1.5rem; margin: 0;">AI Signal Hub 🤖</h1>
+        <button class="btn-outline" onclick="toggleTheme()">🌓 切換模式</button>
+    </nav>
 
     <section class="card">
-        <div class="signal-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <div>
-                <h2 id="signal-name">XAUUSD Scalper Pro</h2>
-                <p>Creator: <span class="badge-diamond">💎 Diamond Master</span> (Points: 4,500)</p>
+                <h2 class="title">XAUUSD Algo Master <span class="status-pill" style="background: rgba(56, 161, 105, 0.1); color: var(--status-green);">Active</span></h2>
+                <p style="margin: 0; font-size: 0.9rem;">Creator: <span style="color: var(--primary); font-weight: bold;">Gary 💎 Diamond</span></p>
             </div>
-            <div id="survival-status" style="color: var(--status-active); font-weight: bold;">
-                ● ACTIVE (Equity > $100)
+            <div style="text-align: right;">
+                <div class="stat-label">Survival Status</div>
+                <div style="color: var(--status-green); font-weight: bold;">Equity > $100.00</div>
             </div>
         </div>
 
-        <div class="data-grid">
-            <div class="data-item">
-                <small>Balance (Raw)</small>
-                <div style="font-size: 1.5rem; font-weight: bold;">
-                    1,250.00 <span style="font-size: 0.9rem; color: var(--text-sub);">USD</span>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">Balance (Raw)</div>
+                <div class="stat-value">1,500.00 <small style="font-size: 0.8rem;">USD</small></div>
             </div>
-            <div class="data-item" style="border-left-color: var(--accent-gold);">
-                <small>Equity (Gold Data)</small>
-                <div style="font-size: 1.5rem; font-weight: bold;">
-                    💰 1,280.45
-                </div>
+            <div class="stat-box" style="border-top: 3px solid var(--accent-gold);">
+                <div class="stat-label">Current Equity (Gold) 🧧</div>
+                <div class="stat-value" style="color: var(--accent-gold);">1,588.20</div>
             </div>
-            <div class="data-item">
-                <small>Max Drawdown</small>
-                <div style="font-size: 1.5rem; font-weight: bold; color: var(--status-inactive);">
-                    8.5%
-                </div>
+            <div class="stat-box">
+                <div class="stat-label">Max DD</div>
+                <div class="stat-value" style="color: var(--status-red);">4.2%</div>
             </div>
         </div>
     </section>
 
     <section class="card">
-        <h3>📦 EA Parameter Set Files</h3>
-        <ul class="version-list">
-            <li class="version-item">
-                <span><strong>v1.2</strong> - Reduced Gold Risk Offset</span>
-                <small>2026-03-25</small>
-            </li>
-            <li class="version-item">
-                <span><strong>v1.1</strong> - Initial Optimization</span>
-                <small>2026-03-10</small>
-            </li>
-        </ul>
+        <h3 class="title">📦 EA Set Files (Version History)</h3>
+        <div class="version-row">
+            <div><strong>v2.1.0</strong> - 修正金價劇烈波動時的過濾邏輯</div>
+            <div style="color: var(--text-content); font-size: 0.85rem;">2026-03-29</div>
+        </div>
+        <div class="version-row">
+            <div><strong>v2.0.0</strong> - 大改版：加入多周期分析</div>
+            <div style="color: var(--text-content); font-size: 0.85rem;">2026-03-15</div>
+        </div>
     </section>
 
-    <section style="display: flex; gap: 10px;">
-        <button class="btn-toggle" style="flex: 1;">👍 Like Signal (+1 Point)</button>
-        <button class="btn-toggle" style="flex: 1;">💬 Request Private Handshake</button>
-    </section>
+    <div style="display: flex; gap: 1rem;">
+        <button class="btn" style="flex: 1;">👍 點讚支持 (獲取積分)</button>
+        <button class="btn btn-outline" style="flex: 1;">🤝 申請私人 Handshake</button>
+    </div>
 </div>
 
 <script>
@@ -176,6 +189,7 @@
         const currentTheme = root.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
+        // 你可以之後喺度加 localStorage 嚟記住 User 揀咗邊個 Mode
     }
 </script>
 
