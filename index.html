@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Signal Hub - Signal Detail</title>
+    <title>AI Signal Hub - Full Layout</title>
     <style>
-        /* 跟隨 Trade History Analyzer 的配色體系 */
         :root[data-theme="light"] {
             --bg-body: #f7fafc;
             --bg-card: #ffffff;
             --text-title: #2d3748;
             --text-content: #4a5568;
-            --primary: #319795; /* 類似 Analyzer 的主題色 */
+            --primary: #319795;
             --accent-gold: #d69e2e;
             --border: #e2e8f0;
             --status-green: #38a169;
             --status-red: #e53e3e;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --logo-main: #319795; /* Light Mode Logo Color */
-            --logo-accent: #d69e2e; /* Light Mode Logo Gold */
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         :root[data-theme="dark"] {
-            --bg-body: #1a202c; /* 深藍底 */
+            --bg-body: #1a202c;
             --bg-card: #2d3748;
             --text-title: #f7fafc;
             --text-content: #cbd5e0;
@@ -32,113 +29,130 @@
             --status-green: #48bb78;
             --status-red: #f56565;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            --logo-main: #4fd1c5; /* Dark Mode Logo Color */
-            --logo-accent: #ed8936; /* Dark Mode Logo Gold */
         }
 
-        * { box-sizing: border-box; transition: background 0.2s, color 0.2s; }
-        
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-content);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 24px;
-            line-height: 1.5;
+        * { box-sizing: border-box; transition: 0.2s; }
+        body { background-color: var(--bg-body); color: var(--text-content); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+
+        /* HEADER - 包含 Logo, Mode Switch, Gmail Login */
+        .main-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
         }
-
-        .container { max-width: 1100px; margin: 0 auto; }
-
-        /* Navigation Style */
-        .navbar {
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
         }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.3rem; color: var(--primary); text-decoration: none; }
+        .header-actions { display: flex; align-items: center; gap: 15px; }
 
-        .brand {
+        /* Gmail Login Button Style */
+        .btn-google {
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text-title);
-            font-weight: bold;
-            font-size: 1.25rem;
+            gap: 8px;
+            background: white;
+            color: #757575;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
+        [data-theme="dark"] .btn-google { background: #f7fafc; color: #2d3748; }
 
-        /* SVG Logo Styling */
-        .logo-svg {
-            width: 40px;
-            height: 40px;
-        }
-        .logo-main-path { fill: var(--logo-main); }
-        .logo-gold-path { fill: var(--logo-accent); }
+        /* Card System */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .stat-item { padding: 16px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px solid var(--border); }
+        [data-theme="dark"] .stat-item { background: rgba(255,255,255,0.05); }
 
-        /* 其他 CSS 保持不變 (Signal Profile, Data Blocks, Versions...) */
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
-        .title { color: var(--text-title); font-size: 1.25rem; font-weight: 700; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
-        .stat-box { padding: 1rem; background: rgba(0, 0, 0, 0.02); border-radius: 0.5rem; border: 1px solid var(--border); }
-        [data-theme="dark"] .stat-box { background: rgba(255, 255, 255, 0.05); }
-        .stat-label { font-size: 0.875rem; color: var(--text-content); margin-bottom: 0.5rem; }
-        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--text-title); }
-        .version-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
-        .version-row:last-child { border-bottom: none; }
-        .btn { background-color: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .status-pill { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        /* Buttons */
+        .btn-main { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-mode { background: transparent; border: 1px solid var(--border); color: var(--text-content); padding: 8px; border-radius: 6px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <nav class="navbar">
+<header class="main-header">
+    <div class="header-content">
         <a href="#" class="brand">
-            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path class="logo-main-path" d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" opacity="0.1"/>
-                <path class="logo-main-path" d="M30 65 L40 55 M50 70 L50 40 M70 55 L60 45" stroke-width="3" stroke-linecap="round"/>
-                <path class="logo-main-path" d="M25 70 L45 50 L55 60 L75 35" stroke-width="4" stroke-linecap="round" fill="none"/>
-                <path class="logo-gold-path" d="M72 32 C70 30, 78 25, 80 27 L82 32 Z M68 35 L86 35 C88 38, 86 42, 68 42 Z" stroke-width="1.5"/>
-                <rect class="logo-gold-path" x="76" x="25" width="8" height="8" rx="1"/>
-                <path class="logo-gold-path" d="M45 80 L55 80 C56 82, 54 86, 45 86 Z M48 83 C48 83, 52 83, 52 83" stroke-width="1"/>
-            </svg>
-            <span>AI Signal Hub</span>
+            <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" stroke="var(--primary)" stroke-width="4" fill="none"/>
+                <path d="M30 70 L45 50 L55 60 L75 35" stroke="var(--primary)" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="75" cy="35" r="6" fill="var(--accent-gold)"/> <rect x="42" y="15" width="16" height="12" rx="2" fill="var(--primary)" opacity="0.8"/> </svg>
+            <span>AI SIGNAL HUB</span>
         </a>
-        <button class="btn-outline" onclick="toggleTheme()">🌓 切換模式</button>
-    </nav>
+        
+        <div class="header-actions">
+            <button class="btn-mode" onclick="toggleTheme()">🌓</button>
+            <button class="btn-google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="Google">
+                Sign in with Google
+            </button>
+        </div>
+    </div>
+</header>
 
+<div class="container">
     <section class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div>
-                <h2 class="title">XAUUSD Algo Master <span class="status-pill" style="background: rgba(56, 161, 105, 0.1); color: var(--status-green);">Active</span></h2>
-                <p style="margin: 0; font-size: 0.9rem;">Creator: <span style="color: var(--primary); font-weight: bold;">Gary 💎 Diamond</span></p>
+                <h2 style="margin: 0; color: var(--text-title);">XAUUSD Gold Scalper</h2>
+                <p style="margin: 5px 0 0 0; font-size: 0.9rem;">Author: <strong>Gary</strong> <span style="color: var(--accent-gold);">💎 Diamond</span></p>
             </div>
-            <div style="text-align: right;">
-                <div class="stat-label">Survival Status</div>
-                <div style="color: var(--status-green); font-weight: bold;">Equity > $100.00</div>
+            <div style="text-align: right">
+                <span style="background: rgba(56, 161, 105, 0.1); color: var(--status-green); padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.8rem;">● ACTIVE</span>
             </div>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-label">Balance (Raw)</div>
-                <div class="stat-value">1,500.00 <small style="font-size: 0.8rem;">USD</small></div>
+            <div class="stat-item">
+                <small>Balance</small>
+                <div style="font-size: 1.4rem; font-weight: 800;">1,250.00 <span style="font-size: 0.8rem; color: var(--text-content);">USD</span></div>
             </div>
-            <div class="stat-box" style="border-top: 3px solid var(--accent-gold);">
-                <div class="stat-label">Current Equity (Gold) 💰🧧</div>
-                <div class="stat-value" style="color: var(--accent-gold);">1,588.20</div>
+            <div class="stat-item" style="border-top: 3px solid var(--accent-gold);">
+                <small>Equity (Gold) 💰</small>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-gold);">1,280.45</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">Max DD</div>
-                <div class="stat-value" style="color: var(--status-red);">4.2%</div>
+            <div class="stat-item">
+                <small>Drawdown</small>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--status-red);">5.2%</div>
             </div>
         </div>
     </section>
-    
-    </div>
+
+    <section class="card">
+        <h3 style="margin-top: 0; color: var(--text-title);">📦 EA Parameter Versions</h3>
+        <div style="border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                <span><strong>v2.1</strong> - Optimized Gold Filter</span>
+                <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 600;">Download .set</a>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                <span><strong>v2.0</strong> - Master Release</span>
+                <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 600;">Download .set</a>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <button class="btn-main">👍 LIKE SIGNAL</button>
+        <button class="btn-main" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">🤝 HANDSHAKE FOR PRIVATE CHAT</button>
+    </section>
+</div>
 
 <script>
     function toggleTheme() {
@@ -146,12 +160,7 @@
         const currentTheme = root.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
-        localStorage.setItem('hub-theme', newTheme); // 記住 Theme
     }
-    
-    // 初始化時檢查 Theme
-    const savedTheme = localStorage.getItem('hub-theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
 </script>
 
 </body>
