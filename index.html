@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-theme="dark">
+<html lang="zh-Hant" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Signal Hub - Trading Analytics</title>
+    <title>AI Signal Hub - Admin Restricted</title>
     <style>
         :root[data-theme="light"] {
             --bg-body: #f7fafc;
@@ -11,10 +11,7 @@
             --text-title: #2d3748;
             --text-content: #4a5568;
             --primary: #319795;
-            --accent-gold: #d69e2e;
             --border: #e2e8f0;
-            --status-green: #38a169;
-            --status-red: #e53e3e;
             --shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
@@ -24,134 +21,136 @@
             --text-title: #f7fafc;
             --text-content: #cbd5e0;
             --primary: #4fd1c5;
-            --accent-gold: #ed8936;
             --border: #4a5568;
-            --status-green: #48bb78;
-            --status-red: #f56565;
             --shadow: 0 10px 15px rgba(0,0,0,0.3);
         }
 
-        * { box-sizing: border-box; transition: 0.3s; }
-        body { background-color: var(--bg-body); color: var(--text-content); font-family: -apple-system, system-ui, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; transition: 0.2s; }
+        body { background-color: var(--bg-body); color: var(--text-content); font-family: system-ui, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar */
-        .sidebar { width: 260px; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; background: var(--bg-body); }
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--primary); text-decoration: none; margin-bottom: 30px; }
-
-        /* Main Area */
+        .sidebar { width: 260px; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; background: var(--bg-card); }
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .header { background: var(--bg-card); padding: 12px 24px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+        .header { background: var(--bg-card); padding: 12px 24px; display: flex; justify-content: flex-end; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); }
 
-        /* Real Switch Style */
-        .theme-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(24px); }
+        /* Admin Badge */
+        #adminBadge { display: none; background: #ed8936; color: white; padding: 2px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
 
-        /* Gmail Button */
-        .btn-google { display: flex; align-items: center; gap: 8px; background: white; border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; color: #555; }
-
-        /* Content Card */
-        .container { padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+        .container { padding: 32px; max-width: 1000px; margin: 0 auto; width: 100%; }
         .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
-        .btn-start { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
-        .btn-start:hover { opacity: 0.9; transform: translateY(-1px); }
         
-        input[type="file"] { margin: 15px 0; display: block; width: 100%; }
+        /* 預設隱藏 Inventory */
+        #adminInventorySection { display: none; border: 2px solid #ed8936; }
+
+        .inventory-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .inventory-table th { text-align: left; padding: 12px; border-bottom: 2px solid var(--border); }
+        .inventory-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        .btn-start { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-login { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
 
 <nav class="sidebar">
-    <a href="#" class="brand">
-        <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
-            <path d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" stroke="var(--primary)" stroke-width="5"/>
-            <path d="M30 70 L45 50 L55 60 L75 35" stroke="var(--primary)" stroke-width="6" stroke-linecap="round"/>
-            <circle cx="75" cy="35" r="7" fill="var(--accent-gold)"/>
-        </svg>
-        <span>AI SIGNAL HUB</span>
-    </a>
-    <div style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 10px;">MENU</div>
-    <div style="color: var(--primary); font-weight: bold;">📊 分析儀表板</div>
+    <div style="font-weight: 800; color: var(--primary); font-size: 1.3rem; margin-bottom: 30px;">AI SIGNAL HUB</div>
+    <div id="adminMenuTitle" style="display:none; font-size: 0.75rem; color: #ed8936; margin-bottom: 10px;">ADMIN ACCESS ONLY</div>
+    <div id="inventoryLink" style="display:none; color: var(--text-title); padding: 10px 0;">📂 全局檔案管理</div>
 </nav>
 
 <main class="main-content">
     <header class="header">
-        <label class="theme-switch">
-            <input type="checkbox" id="theme-toggle" onclick="toggleTheme()">
-            <span class="slider"></span>
-        </label>
-        <button class="btn-google">
+        <span id="adminBadge">ADMIN MODE</span>
+        <button class="btn-login" id="gmailBtn" onclick="simulateAdminLogin()">
             <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            Google Login
+            <span id="loginText">Login as Admin</span>
         </button>
     </header>
 
     <div class="container">
         <section class="card">
-            <h2 style="margin-top:0; color:var(--text-title);"># 1. 匯入交易報表 CSV</h2>
-            <p>請選擇您的 MT4 或 MT5 導出的歷史紀錄檔案：</p>
-            <input type="file" id="csvFileInput" accept=".csv">
-            
-            <button id="startAnalysisBtn" class="btn-start">🚀 開始分析</button>
+            <h2>開始分析</h2>
+            <input type="file" id="csvFile" accept=".csv" style="width:100%; padding:10px;">
+            <button id="startBtn" class="btn-start" style="margin-top:10px;">🚀 分析數據</button>
         </section>
 
-        <section id="resultSection" class="card" style="display:none;">
-            <h3 color:var(--primary);>分析結果</h3>
-            <div id="statusOutput">等待分析中...</div>
+        <section class="card" id="adminInventorySection">
+            <h2 style="color: #ed8936;">📦 Files Inventory (Admin Only)</h2>
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>File Name</th>
+                        <th>User</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody">
+                    </tbody>
+            </table>
         </section>
     </div>
 </main>
 
 <script>
-    // 1. 修復「開始分析」掣嘅反應
-    document.getElementById('startAnalysisBtn').addEventListener('click', function() {
-        const fileInput = document.getElementById('csvFileInput');
-        const output = document.getElementById('statusOutput');
-        const resultSection = document.getElementById('resultSection');
+    let isAdmin = false;
+    let fileInventory = [];
 
-        if (fileInput.files.length === 0) {
-            alert("❌ 請先選擇一個 CSV 檔案！");
-            return;
+    // 模擬 Login
+    function simulateAdminLogin() {
+        isAdmin = !isAdmin; // 切換身份
+        const section = document.getElementById('adminInventorySection');
+        const badge = document.getElementById('adminBadge');
+        const sideTitle = document.getElementById('adminMenuTitle');
+        const sideLink = document.getElementById('inventoryLink');
+        const loginText = document.getElementById('loginText');
+
+        if (isAdmin) {
+            section.style.display = 'block';
+            badge.style.display = 'inline-block';
+            sideTitle.style.display = 'block';
+            sideLink.style.display = 'block';
+            loginText.innerText = "Logout (Admin)";
+            alert("已切換至 Admin 權限，後台庫存已解鎖。");
+        } else {
+            section.style.display = 'none';
+            badge.style.display = 'none';
+            sideTitle.style.display = 'none';
+            sideLink.style.display = 'none';
+            loginText.innerText = "Login as Admin";
         }
-
-        // 顯示結果區域
-        resultSection.style.display = 'block';
-        output.innerHTML = "⌛ 正在讀取數據並進行分析...";
-
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const text = e.target.result;
-            // 模擬分析邏輯
-            setTimeout(() => {
-                output.innerHTML = `✅ 成功讀取 <strong>${file.name}</strong><br>
-                                    分析完成！總交易筆數：${text.split('\n').length - 1} 筆。<br>
-                                    <span style="color:var(--status-green)">帳戶處於健康狀態。</span>`;
-            }, 1000);
-        };
-
-        reader.readAsText(file);
-    });
-
-    // 2. 修復 Theme Switch
-    function toggleTheme() {
-        const root = document.documentElement;
-        const isDark = root.getAttribute('data-theme') === 'dark';
-        const newTheme = isDark ? 'light' : 'dark';
-        root.setAttribute('data-theme', newTheme);
-        localStorage.setItem('hub-theme', newTheme);
     }
 
-    // 初始化設定
-    window.onload = () => {
-        const savedTheme = localStorage.getItem('hub-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        document.getElementById('theme-toggle').checked = (savedTheme === 'dark');
-    };
+    // 分析邏輯
+    document.getElementById('startBtn').addEventListener('click', function() {
+        const fileInput = document.getElementById('csvFile');
+        if (fileInput.files.length === 0) return alert("請先選擇 CSV！");
+
+        const file = fileInput.files[0];
+        const now = new Date();
+        
+        // 紀錄入 Inventory (就算 Admin 依家未 Login，後台數據都會照草低)
+        fileInventory.unshift({
+            time: now.toLocaleTimeString(),
+            name: file.name,
+            user: "Guest_User_01",
+            status: "Success"
+        });
+
+        updateUI();
+        alert("分析成功！紀錄已存入後台庫存。");
+    });
+
+    function updateUI() {
+        const body = document.getElementById('inventoryBody');
+        body.innerHTML = fileInventory.map(item => `
+            <tr>
+                <td>${item.time}</td>
+                <td>${item.name}</td>
+                <td>${item.user}</td>
+                <td style="color:green;">${item.status}</td>
+            </tr>
+        `).join('');
+    }
 </script>
 
 </body>
