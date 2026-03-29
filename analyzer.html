@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Signal Hub | 終極量化終端</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0f111a; --card-bg: #1a1d2e; --primary: #0d9fff;
+            --accent: #9d4edd; --text: #ffffff; --profit: #06d6a0; --loss: #ef476f;
+        }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        header { display: flex; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid #333; margin-bottom: 20px; }
+        .upload-section { background: var(--card-bg); padding: 20px; border-radius: 12px; display: flex; gap: 15px; margin-bottom: 20px; border: 1px solid #333; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .val { font-size: 22px; font-weight: bold; margin-top: 5px; }
+        .charts { display: grid; grid-template-columns: 1fr 2fr; gap: 15px; }
+        .chart-box { background: var(--card-bg); padding: 15px; border-radius: 12px; height: 350px; }
+        button { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        td { padding: 8px; border-bottom: 1px solid #333; }
+        .symbol-btn { background: #2a2e45; color: white; border: none; padding: 5px 10px; margin: 0 5px 5px 0; border-radius: 4px; cursor: pointer; }
+        .symbol-btn.active { background: var(--primary); }
+        #debugInfo { background: #000; color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; margin-top: 20px; border-radius: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-size: 24px; font-weight: bold; color: var(--primary);">AI Signal Hub 💰</div>
+        <div style="color: #666;">專業量化分析終端</div>
+    </header>
+
+    <div class="upload-section">
+        <input type="file" id="csvFileInput" accept=".csv">
+        <button id="analyzeBtn">開始分析 📊</button>
+    </div>
+
+    <div id="debugInfo"></div>
+
+    <div class="grid">
+        <div class="card"><div>總利潤 (Net)</div><div class="val" id="netProfit" style="color:var(--profit)">$0.00</div></div>
+        <div class="card"><div>最大回撤 (DD)</div><div class="val" id="maxDD" style="color:var(--loss)">$0.00</div></div>
+        <div class="card"><div>勝率 (Win%)</div><div class="val" id="winRate">0%</div></div>
+        <div class="card"><div>總交易次數</div><div class="val" id="totalTrades">0</div></div>
+    </div>
+
+    <div class="charts">
+        <div class="chart-box"><h4>能力雷達圖</h4><canvas id="radarChart"></canvas></div>
+        <div class="chart-box"><h4>資金曲線</h4><canvas id="equityChart"></canvas></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h4>品種細分分析</h4>
+        <div id="symbolButtons"></div>
+        <div id="statTable"></div>
+    </div>
+
+    <script>
+        // --- 核心變數 ---
+        let globalTrades = [];
+        let charts = {};
+
+        // --- 1. 啟動監聽 ---
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('csvFileInput');
+            const debug = document.getElementById('debugInfo');
+            debug.style.display = "block";
+            debug.innerText = "正在讀取檔案...";
+
+            if (!fileInput.files.length) {
+                alert("請先選取 CSV 檔案！");
+                return;
+            }
+
+            try {
+                const text = await fileInput.files[0].text();
+                debug.innerText += "\n讀取成功，開始解析 CSV...";
+                
+                const trades = parseCSV(text);
+                if (trades.length === 0) {
+                    debug.innerText += "\n❌ 錯誤：CSV 內容為空或格式不符。";
+                    return;
+                }
+
+                globalTrades = trades;
+                debug.innerText += `\n✅ 成功解析 ${trades.length} 筆交易。`;
+                
+                renderDashboard(trades);
+                debug.innerText += "\n✅ 渲染完成！";
+            } catch (err) {
+                debug.innerText += "\n❌ 發生錯誤：" + err.message;
+            }
+        });
+
+        // --- 2. CSV 解析邏輯 (加強版：自動搵 Header) ---
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/).filter(l => l.trim() !== "");
+            if (lines.length < 2) return [];
+
+            const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase());
+            
+            // 自動匹配 Header 位
+            const col = {
+                symbol: rawHeaders.findIndex(h => h.includes('symbol')),
+                profit: rawHeaders.findIndex(h => h.includes('profit')),
+                time: rawHeaders.findIndex(h => h.includes('time')),
+                type: rawHeaders.findIndex(h => h.includes('type')),
+                lots: rawHeaders.findIndex(h => h.includes('lots'))
+            };
+
+            return lines.slice(1).map(line => {
+                const cells = line.split(',');
+                return {
+                    symbol: cells[col.symbol] || "Unknown",
+                    profit: parseFloat(cells[col.profit]) || 0,
+                    time: new Date(cells[col.time]),
+                    type: cells[col.type] || "buy",
+                    lots: parseFloat(cells[col.lots]) || 0
+                };
+            }).filter(t => !isNaN(t.profit));
+        }
+
+        // --- 3. 渲染邏輯 ---
+        function renderDashboard(trades) {
+            const stats = calculateStats(trades);
+            
+            // 更新數字
+            document.getElementById('netProfit').innerText = "$" + stats.net.toFixed(2);
+            document.getElementById('maxDD').innerText = "$" + stats.maxDD.toFixed(2);
+            document.getElementById('winRate').innerText = (stats.winRate * 100).toFixed(1) + "%";
+            document.getElementById('totalTrades').innerText = trades.length;
+
+            // 畫圖
+            drawEquityChart(trades);
+            drawRadarChart(stats);
+            renderSymbolButtons(trades);
+        }
+
+        function calculateStats(trades) {
+            let net = 0, winCount = 0, maxDD = 0, peak = 0, cum = 0;
+            trades.forEach(t => {
+                net += t.profit;
+                if (t.profit > 0) winCount++;
+                cum += t.profit;
+                if (cum > peak) peak = cum;
+                let dd = peak - cum;
+                if (dd > maxDD) maxDD = dd;
+            });
+            return { net, winRate: winCount / trades.length, maxDD };
+        }
+
+        function drawEquityChart(trades) {
+            const ctx = document.getElementById('equityChart');
+            if (charts.equity) charts.equity.destroy();
+            let cum = 0;
+            const data = trades.map(t => { cum += t.profit; return cum; });
+            charts.equity = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trades.map((_, i) => i),
+                    datasets: [{ data: data, borderColor: '#0d9fff', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(13,159,255,0.1)' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function drawRadarChart(stats) {
+            const ctx = document.getElementById('radarChart');
+            if (charts.radar) charts.radar.destroy();
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['勝率', '盈利因子', '穩定性', '風險控制', '回報率'],
+                    datasets: [{ data: [stats.winRate * 100, 70, 80, 60, 90], backgroundColor: 'rgba(157,78,221,0.2)', borderColor: '#9d4edd' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderSymbolButtons(trades) {
+            const container = document.getElementById('symbolButtons');
+            const groups = trades.reduce((rv, x) => { (rv[x.symbol] = rv[x.symbol] || []).push(x); return rv; }, {});
+            container.innerHTML = '<button class="symbol-btn active">ALL</button>';
+            Object.keys(groups).forEach(sym => {
+                const btn = document.createElement('button');
+                btn.className = 'symbol-btn';
+                btn.innerText = sym;
+                btn.onclick = () => {
+                    document.querySelectorAll('.symbol-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const s = calculateStats(groups[sym]);
+                    document.getElementById('statTable').innerHTML = `<table><tr><td>品種</td><td><b>${sym}</b></td></tr><tr><td>淨利</td><td><b>${s.net.toFixed(2)}</b></td></tr></table>`;
+                };
+                container.appendChild(btn);
+            });
+        }
+    </script>
+</body>
+</html>
