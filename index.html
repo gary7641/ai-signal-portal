@@ -3,170 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Signal Hub - Analytics</title>
+    <title>AI Signal Hub - Trade History Analyzer</title>
     <style>
         :root[data-theme="light"] {
-            --bg-body: #f7fafc;
+            --primary-bg: #1da1f2; /* 截圖中的天藍色 */
+            --header-text: #ffffff;
+            --bg-body: #f0f2f5;
             --bg-card: #ffffff;
-            --text-title: #2d3748;
-            --text-content: #4a5568;
-            --primary: #319795;
-            --border: #e2e8f0;
-            --admin-gold: #d69e2e;
-            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+            --text-main: #2d3748;
+            --border-color: #d1d9e0;
         }
 
-        :root[data-theme="dark"] {
-            --bg-body: #1a202c;
-            --bg-card: #2d3748;
-            --text-title: #f7fafc;
-            --text-content: #cbd5e0;
-            --primary: #4fd1c5;
-            --border: #4a5568;
-            --shadow: 0 10px 15px rgba(0,0,0,0.3);
+        body { margin: 0; font-family: -apple-system, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
+
+        /* --- 頂部 Header 藍色條 --- */
+        .top-navbar {
+            background: linear-gradient(90deg, #1da1f2, #1590d8);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            color: var(--header-text);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        * { box-sizing: border-box; transition: 0.2s; }
-        body { background-color: var(--bg-body); color: var(--text-content); font-family: system-ui, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .brand-area { display: flex; align-items: center; gap: 12px; }
+        .logo-svg { width: 32px; height: 32px; fill: white; }
+        .brand-name { font-size: 1.25rem; font-weight: 600; letter-spacing: 0.5px; }
 
-        /* Sidebar */
-        .sidebar { width: 260px; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; background: var(--bg-card); }
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--primary); text-decoration: none; margin-bottom: 30px; font-size: 1.2rem; }
-
-        /* Layout Area */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .header { background: var(--bg-card); padding: 12px 24px; display: flex; justify-content: flex-end; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); }
-
-        .container { padding: 32px; max-width: 1000px; margin: 0 auto; width: 100%; }
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+        .nav-right { display: flex; align-items: center; gap: 20px; font-size: 0.85rem; }
         
-        /* Gmail Login Btn */
-        .btn-login { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        
-        /* Analysis Button */
-        .btn-start { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; margin-top: 15px; }
+        /* Switch 樣式 */
+        .switch-group { display: flex; align-items: center; gap: 8px; }
+        .theme-switch { position: relative; width: 40px; height: 20px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #5bb2e8; border-radius: 20px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #0d6efd; }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        /* Admin Section - Restricted */
-        #adminInventorySection { display: none; margin-top: 40px; border-top: 2px dashed var(--admin-gold); padding-top: 20px; }
-        .inventory-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .inventory-table th { text-align: left; padding: 12px; border-bottom: 2px solid var(--border); font-size: 0.85rem; }
-        .inventory-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        
-        .admin-badge { background: var(--admin-gold); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; display: none; }
+        .powered-by { opacity: 0.9; font-size: 0.75rem; }
+        .powered-by a { color: white; text-decoration: underline; }
+
+        /* Gmail 按鈕 */
+        .btn-gmail {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+        .btn-gmail:hover { background: rgba(255,255,255,0.3); }
+
+        /* --- 主內容卡片 --- */
+        .main-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .analyzer-card {
+            background: var(--bg-card);
+            border-radius: 25px; /* 截圖中的大圓角 */
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 25px; color: #1a202c; }
+
+        .input-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 20px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 0.85rem; color: #718096; }
+
+        /* 檔案選擇框 */
+        .file-box {
+            border: 1px dashed #cbd5e0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e0;
+            min-width: 180px;
+            background: white;
+        }
+
+        /* 按鈕樣式 */
+        .btn-start {
+            background: linear-gradient(to right, #24c1ed, #1086cc);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16, 134, 204, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-reset {
+            background: white;
+            border: 1px solid #cbd5e0;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            color: #4a5568;
+        }
     </style>
 </head>
 <body>
 
-<nav class="sidebar">
-    <a href="#" class="brand">
-        <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
-            <path d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" stroke="var(--primary)" stroke-width="5"/>
-            <path d="M30 70 L45 50 L55 60 L75 35" stroke="var(--primary)" stroke-width="6" stroke-linecap="round"/>
+<header class="top-navbar">
+    <div class="brand-area">
+        <svg class="logo-svg" viewBox="0 0 100 100">
+            <path d="M50 10 L90 30 V70 L50 90 L10 70 V30 Z" stroke="white" stroke-width="5" fill="none"/>
+            <path d="M30 70 L48 52 L58 62 L78 35" stroke="white" stroke-width="6" stroke-linecap="round"/>
         </svg>
-        <span>AI SIGNAL HUB</span>
-    </a>
-    <div style="font-size: 0.8rem; color: var(--text-content); margin-bottom: 10px; opacity: 0.7;">MAIN MENU</div>
-    <div style="color: var(--primary); font-weight: bold; cursor: pointer;">📈 交易數據分析</div>
-    
-    <div id="adminSidebarLink" style="display:none; margin-top: 20px;">
-        <div style="font-size: 0.8rem; color: var(--admin-gold); margin-bottom: 10px; font-weight: bold;">ADMIN PANEL</div>
-        <div style="color: var(--text-content); cursor: pointer;">📂 Files Inventory</div>
+        <div class="brand-name">AI SIGNALS HUB</div>
     </div>
-</nav>
 
-<main class="main-content">
-    <header class="header">
-        <div id="adminIndicator" class="admin-badge">ADMIN ACCESS</div>
-        <button class="btn-login" onclick="toggleAdminView()">
-            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6..."></path></svg>
-            <span id="loginBtnText">Login (Admin Sim)</span>
+    <div class="nav-right">
+        <div class="switch-group">
+            <span>Light</span>
+            <label class="theme-switch">
+                <input type="checkbox" id="modeSwitch">
+                <span class="slider"></span>
+            </label>
+            <span>Dark</span>
+        </div>
+        
+        <select style="background: rgba(255,255,255,0.2); border: none; color: white; min-width: 60px; padding: 4px;">
+            <option>繁</option>
+            <option>EN</option>
+        </select>
+
+        <div class="powered-by">
+            Powered by FF48 <a href="#">Gary 珅緒</a>
+        </div>
+
+        <button class="btn-gmail">
+            <svg width="14" height="14" viewBox="0 0 48 48"><path fill="white" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="white" opacity="0.8" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/></svg>
+            Login / Register
         </button>
-    </header>
-
-    <div class="container">
-        <section class="card">
-            <h2 style="margin-top:0; font-size: 1.4rem; color: var(--text-title);">匯入交易報表</h2>
-            <p style="font-size: 0.9rem;">上傳 MT4/MT5 導出的 CSV 檔案進行智能演算分析。</p>
-            <input type="file" id="csvFile" accept=".csv" style="width:100%; padding:10px; border: 1px dashed var(--border); border-radius: 6px;">
-            <button id="startBtn" class="btn-start">🚀 開始執行分析</button>
-        </section>
-
-        <section id="adminInventorySection">
-            <div class="card">
-                <h3 style="margin-top:0; color: var(--admin-gold);">📦 Files Inventory (Administrator)</h3>
-                <table class="inventory-table">
-                    <thead>
-                        <tr>
-                            <th>上傳時間</th>
-                            <th>檔案名稱</th>
-                            <th>用戶 ID</th>
-                            <th>演算狀態</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryBody">
-                        </tbody>
-                </table>
-            </div>
-        </section>
     </div>
-</main>
+</header>
+
+<div class="main-container">
+    <div class="analyzer-card">
+        <div class="card-title">Upload CSV for Investigation Reports</div>
+        
+        <div class="input-row">
+            <div class="input-group">
+                <label>交易報表 CSV</label>
+                <div class="file-box">
+                    <input type="file" id="csvFile" style="font-size: 0.8rem;">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>EA 類型</label>
+                <select id="eaType">
+                    <option>SMA (Standard)</option>
+                    <option>Grid Master</option>
+                    <option>Scalper Pro</option>
+                </select>
+            </div>
+
+            <button class="btn-start" id="startBtn">🚀 開始分析</button>
+            <button class="btn-reset">Reset</button>
+        </div>
+
+        <div id="resultOutput" style="margin-top: 30px; display: none;">
+            <hr style="border: 0.5px solid #eee;">
+            <p id="statusText" style="color: #319795; font-weight: 600;"></p>
+        </div>
+    </div>
+</div>
 
 <script>
-    let isAdminLoggedIn = false;
-    let records = [];
-
-    // 切換 Admin 視圖邏輯
-    function toggleAdminView() {
-        isAdminLoggedIn = !isAdminLoggedIn;
-        const section = document.getElementById('adminInventorySection');
-        const indicator = document.getElementById('adminIndicator');
-        const sideLink = document.getElementById('adminSidebarLink');
-        const btnText = document.getElementById('loginBtnText');
-
-        if (isAdminLoggedIn) {
-            section.style.display = 'block';
-            indicator.style.display = 'block';
-            sideLink.style.display = 'block';
-            btnText.innerText = "Logout Admin";
-        } else {
-            section.style.display = 'none';
-            indicator.style.display = 'none';
-            sideLink.style.display = 'none';
-            btnText.innerText = "Login (Admin Sim)";
-        }
-    }
-
-    // 分析按鈕點擊
+    // 開始分析功能
     document.getElementById('startBtn').addEventListener('click', function() {
         const fileInput = document.getElementById('csvFile');
-        if (fileInput.files.length === 0) return alert("請先選擇報表檔案。");
+        const output = document.getElementById('resultOutput');
+        const status = document.getElementById('statusText');
 
-        const file = fileInput.files[0];
-        const time = new Date().toLocaleTimeString();
+        if (fileInput.files.length === 0) {
+            alert("Please upload a CSV file first!");
+            return;
+        }
 
-        // 存入 Inventory 數據庫 (前端模擬)
-        records.unshift({
-            time: time,
-            name: file.name,
-            uid: "USER_" + Math.floor(Math.random()*1000),
-            status: "Completed"
-        });
-
-        updateInventoryUI();
-        alert("分析成功！紀錄已同步至 Files Inventory。");
+        output.style.display = 'block';
+        status.innerText = "⌛ Detecting trading patterns and generating investigation report...";
+        
+        setTimeout(() => {
+            status.innerHTML = "✅ Report Generated! Analysis for <b>" + fileInput.files[0].name + "</b> complete.";
+        }, 1500);
     });
 
-    function updateInventoryUI() {
-        const tbody = document.getElementById('inventoryBody');
-        tbody.innerHTML = records.map(r => `
-            <tr>
-                <td>${r.time}</td>
-                <td><strong>${r.name}</strong></td>
-                <td>${r.uid}</td>
-                <td style="color:var(--primary); font-weight:bold;">${r.status}</td>
-            </tr>
-        `).join('');
-    }
+    // Reset 功能
+    document.querySelector('.btn-reset').addEventListener('click', function() {
+        document.getElementById('csvFile').value = "";
+        document.getElementById('resultOutput').style.display = 'none';
+    });
 </script>
 
 </body>
