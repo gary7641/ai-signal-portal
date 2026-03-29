@@ -3,195 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Signal Hub - Analytics Dashboard</title>
+    <title>AI Signal Hub - Professional Trade History Analyzer</title>
     <style>
         :root {
-            --primary-blue: #1da1f2;
+            --primary-blue: #1da1f2; /* 截圖中的 Tiffany Blue */
+            --accent-gold: #d69e2e; /* Logo 中的金色元寶色 */
             --bg-body: #f4f7f9;
-            --bg-card: #ffffff;
             --text-main: #2d3748;
-            --border-radius: 8px; /* 小圓角設定 */
-            --sidebar-width: 240px;
+            --white: #ffffff;
+            --card-radius: 12px; /* 小圓角 */
         }
 
         * { box-sizing: border-box; transition: 0.2s; }
-        body { margin: 0; font-family: -apple-system, sans-serif; background-color: var(--bg-body); display: flex; height: 100vh; overflow: hidden; }
+        body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background-color: var(--bg-body); display: flex; flex-direction: column; height: 100vh; }
 
-        /* --- Side Bar --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: #ffffff;
-            border-right: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            color: var(--primary-blue);
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            text-decoration: none;
-        }
-        .menu-item {
-            padding: 12px 15px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            color: #4a5568;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-        .menu-item:hover, .menu-item.active {
-            background: rgba(29, 161, 242, 0.1);
-            color: var(--primary-blue);
-            font-weight: 600;
-        }
-
-        /* --- Main Content Area --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-
-        /* --- Header (跟返你截圖色) --- */
-        .top-header {
+        /* --- 1. Top Navbar (整合 Logo & Title) --- */
+        .navbar {
             background: linear-gradient(90deg, #1da1f2, #1590d8);
-            height: 55px;
+            height: 70px;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
             padding: 0 25px;
-            color: white;
-            gap: 20px;
-        }
-        .header-info { font-size: 0.75rem; opacity: 0.9; }
-        .btn-gmail {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
-        /* --- Content Container --- */
-        .container { padding: 30px; max-width: 1000px; margin: 0 auto; width: 100%; }
+        .brand-section { display: flex; align-items: center; gap: 15px; }
         
-        /* 卡片改為小圓角 */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            margin-bottom: 25px;
+        /* 使用 SVG 模擬你提供的精緻 Logo */
+        .logo-container {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; color: #1a202c; }
+        .brand-info h1 { margin: 0; font-size: 1.3rem; letter-spacing: 1px; }
+        .brand-info p { margin: 0; font-size: 0.65rem; opacity: 0.8; letter-spacing: 0.5px; }
 
-        /* Input 佈局 */
-        .flex-row { display: flex; align-items: flex-end; gap: 15px; flex-wrap: wrap; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group label { font-size: 0.8rem; color: #718096; }
+        .navbar-right { display: flex; align-items: center; gap: 20px; font-size: 0.8rem; }
+        .powered-by { font-size: 0.75rem; border-right: 1px solid rgba(255,255,255,0.3); padding-right: 15px; }
+        
+        /* Gmail Button */
+        .btn-auth {
+            background: white; color: #444; border: none; padding: 7px 14px; 
+            border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500;
+        }
+
+        /* --- 2. Main Layout (Sidebar + Content) --- */
+        .wrapper { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            width: 240px; background: var(--white); border-right: 1px solid #e1e8ed;
+            display: flex; flex-direction: column; padding: 20px;
+        }
+        .nav-item {
+            padding: 12px 15px; border-radius: 8px; color: #555; cursor: pointer; 
+            margin-bottom: 5px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(29, 161, 242, 0.1); color: var(--primary-blue); font-weight: 600; }
+        .nav-item.admin { border: 1px dashed var(--accent-gold); color: var(--accent-gold); margin-top: 20px; display: none; }
+
+        .content-area { flex: 1; padding: 35px; overflow-y: auto; }
+
+        /* --- 3. Card & Form --- */
+        .analyzer-card {
+            background: var(--white); border-radius: var(--card-radius); 
+            padding: 30px; border: 1px solid #e1e8ed; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .card-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; color: #1a2b3c; }
+
+        .input-flex { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; }
+        .field-group { display: flex; flex-direction: column; gap: 8px; }
+        .field-group label { font-size: 0.8rem; color: #718096; font-weight: 600; }
 
         input[type="file"], select {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e0;
-            font-size: 0.9rem;
+            padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem; background: #fdfdfd;
         }
 
-        .btn-start {
-            background: #1da1f2;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
+        .btn-primary {
+            background: linear-gradient(180deg, #42b9f4, #1da1f2);
+            color: white; border: none; padding: 12px 28px; border-radius: 30px;
+            font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
         }
-
-        /* Admin Section */
-        #adminSection { display: none; }
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .admin-table th { text-align: left; padding: 10px; border-bottom: 2px solid #edf2f7; font-size: 0.8rem; }
-        .admin-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 0.85rem; }
+        .btn-reset {
+            background: #fff; border: 1px solid #cbd5e0; padding: 12px 20px; 
+            border-radius: 30px; cursor: pointer; color: #666;
+        }
     </style>
 </head>
 <body>
 
-<nav class="sidebar">
-    <a href="#" class="brand">
-        <svg width="24" height="24" viewBox="0 0 100 100"><path d="M50 10 L90 30 V70 L50 90 L10 70 V30 Z" stroke="currentColor" stroke-width="8" fill="none"/></svg>
-        AI SIGNAL HUB
-    </a>
-    <div class="menu-item active">📈 Analysis Dashboard</div>
-    <div id="adminLink" class="menu-item" onclick="showAdmin()" style="display:none; color: #e67e22;">🔐 Admin Inventory</div>
-</nav>
+<header class="navbar">
+    <div class="brand-section">
+        <div class="logo-container">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <path d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" fill="none" stroke="white" stroke-width="4"/>
+                <rect x="42" y="15" width="16" height="12" fill="white" rx="2"/>
+                <circle cx="50" cy="55" r="25" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
+                <path d="M25 75 L45 55 L55 65 L80 30" stroke="#ffd700" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <path d="M40 82 Q50 75 60 82 T70 82" stroke="#ffd700" stroke-width="3" fill="none"/>
+            </svg>
+        </div>
+        <div class="brand-info">
+            <h1>AI SIGNAL HUB</h1>
+            <p>AUTOMATED TRADING SYSTEM</p>
+        </div>
+    </div>
 
-<main class="main-content">
-    <header class="top-header">
-        <div class="header-info">Powered by FF48 <a href="#" style="color:white;">Gary 珅緒</a></div>
-        <button class="btn-gmail" onclick="toggleAdmin()">Admin Login (Sim)</button>
-    </header>
+    <div class="navbar-right">
+        <div class="powered-by">Powered by FF48 <a href="#" style="color:white; font-weight:bold;">Gary 珅緒</a></div>
+        <button class="btn-auth" onclick="toggleAdmin()">
+            <img src="https://www.google.com/favicon.ico" width="16"> Login / Register
+        </button>
+    </div>
+</header>
 
-    <div class="container">
-        <section class="card">
-            <div class="card-title">Upload CSV for Investigation Reports</div>
-            <div class="flex-row">
-                <div class="input-group">
+<div class="wrapper">
+    <nav class="sidebar">
+        <div class="nav-item active">📈 Analysis Dashboard</div>
+        <div class="nav-item">📜 Signal Records</div>
+        <div class="nav-item">⚙️ Settings</div>
+        <div id="adminTab" class="nav-item admin">🔐 Files Inventory (Admin)</div>
+    </nav>
+
+    <main class="content-area">
+        <div class="analyzer-card">
+            <div class="card-header">Upload CSV for Investigation Reports</div>
+            
+            <div class="input-flex">
+                <div class="field-group" style="flex:1;">
                     <label>交易報表 CSV</label>
-                    <input type="file" id="csvFile">
+                    <input type="file" id="csvUpload">
                 </div>
-                <div class="input-group">
+                
+                <div class="field-group">
                     <label>EA 類型</label>
-                    <select>
+                    <select id="eaSelector">
                         <option>SMA (Standard)</option>
-                        <option>Grid Pro</option>
+                        <option>Grid Master</option>
+                        <option>Smart Hedge</option>
                     </select>
                 </div>
-                <button class="btn-start" onclick="runAnalysis()">🚀 開始分析</button>
-            </div>
-        </section>
 
-        <section id="adminSection" class="card">
-            <div class="card-title" style="color: #e67e22;">📦 Files Inventory (Admin Only)</div>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>File Name</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="inventoryBody"></tbody>
-            </table>
-        </section>
-    </div>
-</main>
+                <button class="btn-primary" onclick="handleAnalysis()">🚀 開始分析</button>
+                <button class="btn-reset" onclick="handleReset()">Reset</button>
+            </div>
+            
+            <div id="resultBox" style="margin-top:30px; display:none; padding:20px; background:#f0f9ff; border-radius:8px; border:1px solid #bae3ff;">
+                <span id="statusTxt" style="color:#0077cc; font-weight:600;"></span>
+            </div>
+        </div>
+    </main>
+</div>
 
 <script>
-    let isAdmin = false;
-
     function toggleAdmin() {
-        isAdmin = !isAdmin;
-        document.getElementById('adminLink').style.display = isAdmin ? 'block' : 'none';
-        alert(isAdmin ? "Admin Mode Enabled" : "Admin Mode Disabled");
+        const adminTab = document.getElementById('adminTab');
+        const isShown = adminTab.style.display === 'flex';
+        adminTab.style.display = isShown ? 'none' : 'flex';
+        alert(isShown ? "Logged out" : "Admin access granted");
     }
 
-    function showAdmin() {
-        const section = document.getElementById('adminSection');
-        section.style.display = section.style.display === 'block' ? 'none' : 'block';
-    }
+    function handleAnalysis() {
+        const file = document.getElementById('csvUpload').files[0];
+        const resBox = document.getElementById('resultBox');
+        const txt = document.getElementById('statusTxt');
 
-    function runAnalysis() {
-        const file = document.getElementById('csvFile').files[0];
-        if(!file) return alert("Please select file");
+        if (!file) return alert("Please select a CSV file first!");
+
+        resBox.style.display = 'block';
+        txt.innerText = "⌛ Processing " + file.name + " through AI engine...";
         
-        const row = `<tr><td>${new Date().toLocaleTimeString()}</td><td>${file.name}</td><td style="color:green">Completed</td></tr>`;
-        document.getElementById('inventoryBody').innerHTML += row;
-        alert("Analysis Complete!");
+        setTimeout(() => {
+            txt.innerHTML = "✅ Analysis Complete. Investigation report generated for " + file.name;
+        }, 1500);
+    }
+
+    function handleReset() {
+        document.getElementById('csvUpload').value = "";
+        document.getElementById('resultBox').style.display = 'none';
     }
 </script>
 
