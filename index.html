@@ -1,525 +1,989 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Signal Portal</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --bg: #0b1220;
-      --panel: #121a2b;
-      --panel-2: #182235;
-      --border: #2a3550;
-      --text: #e6edf7;
-      --muted: #93a4bd;
-      --accent: #2dd4bf;
-      --accent-2: #60a5fa;
-      --danger: #ef4444;
-      --good: #22c55e;
-      --warn: #f59e0b;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Signal Portal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg1:#ffffff;
+  --bg2:#f7f7f9;
+  --txt1:#1a1f3a;
+  --txt2:rgba(0,0,0,.6);
+  --cyan:#0d9fff;
+  --purple:#9d4edd;
+  --green:#06d6a0;
+  --red:#ef476f;
+  --border:#dee2e6
+}
+body[data-theme="dark"]{
+  --bg1:#0a0e27;
+  --bg2:#1a1f3a;
+  --txt1:#e8eaf6;
+  --txt2:#9e9e9e;
+  --border:#2d3354
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg1);
+  color:var(--txt1)
+}
 
-    body[data-theme="light"] {
-      --bg: #f4f7fb;
-      --panel: #ffffff;
-      --panel-2: #eef3f9;
-      --border: #d8e1ee;
-      --text: #0f172a;
-      --muted: #64748b;
-      --accent: #0ea5e9;
-      --accent-2: #2563eb;
-      --danger: #dc2626;
-      --good: #16a34a;
-      --warn: #d97706;
-    }
+/* Sidebar 收窄 + hover 展開 */
+.sidebar{
+  position:fixed;left:0;top:0;height:100vh;
+  background:var(--bg2);border-right:1px solid var(--border);
+  padding:20px 12px;overflow-y:auto;z-index:10;
+  width:60px;transition:width .2s;
+}
+.sidebar:hover{width:240px}
+.sidebar .logo-text,
+.sidebar .nav-text,
+.sidebar .quota-bar,
+.sidebar .nav-label{
+  opacity:0;visibility:hidden;
+  transition:opacity .2s;
+}
+.sidebar:hover .logo-text,
+.sidebar:hover .nav-text,
+.sidebar:hover .quota-bar,
+.sidebar:hover .nav-label{
+  opacity:1;visibility:visible;
+}
+.sidebar .logo{
+  display:flex;align-items:center;gap:8px;
+  font-size:18px;font-weight:700;
+  margin-bottom:24px;padding:10px 0;
+  border-bottom:1px solid var(--border)
+}
+.sidebar .logo-icon{font-size:20px}
+.nav-label{
+  font-size:11px;text-transform:uppercase;
+  color:var(--txt2);margin:16px 0 6px;
+  font-weight:600;letter-spacing:.8px
+}
+.nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 10px;border-radius:8px;
+  color:var(--txt2);cursor:pointer;
+  transition:.2s;margin-bottom:2px;font-size:14px;
+  white-space:nowrap;
+}
+.nav-icon{width:20px;text-align:center;font-size:16px}
+.nav-item:hover{background:var(--bg1);color:var(--txt1)}
+.nav-item.active{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff}
+.sub-nav{display:none;margin-left:12px}
+.sub-nav.show{display:block}
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+/* Header & Main */
+.header{
+  position:fixed;top:0;left:60px;right:0;height:64px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:5;transition:left .2s;
+}
+.sidebar:hover + .header{left:240px}
+.main{
+  margin-left:60px;margin-top:64px;padding:28px;
+  min-height:calc(100vh - 64px);background:var(--bg1);
+  transition:margin-left .2s;
+}
+.sidebar:hover ~ .main{margin-left:240px}
 
-    .wrap {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+.page{display:none}
+.page.active{display:block}
 
-    .toolbar, .section, .card, .mini-chart-card, .swot-box {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-    }
+/* 簡化：其他樣式用你原本既，這裏保留關鍵結構 */
+.page-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--txt2);margin-bottom:16px}
 
-    .toolbar {
-      padding: 16px;
-      margin-bottom: 16px;
-      display: grid;
-      gap: 12px;
-    }
+/* Trade Analyzer panel 主要容器 */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.panel h1,.panel h2,.panel h3{margin-bottom:8px}
+.upload-controls{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.file-input-wrapper input{padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg1);color:var(--txt1)}
+.upload-buttons{display:flex;gap:8px}
+.upload-buttons .primary{
+  background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;
+  border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px
+}
+.upload-buttons .secondary{
+  background:var(--bg1);color:var(--txt1);border:1px solid var(--border);
+  border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px
+}
 
-    .toolbar-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
+/* Summary layout 新樣式 */
+.summary-grid-2col{
+  display:grid;
+  grid-template-columns: 1fr 2fr;
+  gap:16px;
+}
+.radar-card .radar-row{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:4px;
+}
+.radar-chart-wrapper{
+  height:160px;
+  margin-bottom:8px;
+}
+.radar-chart-wrapper canvas{
+  width:100% !important;
+  height:100% !important;
+}
+.growth-card .growth-main-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:8px;
+}
+.growth-chart-wrapper{
+  height:180px;
+  margin-bottom:8px;
+}
+.growth-chart-wrapper canvas{
+  width:100% !important;
+  height:100% !important;
+}
+.growth-bars-row{
+  display:flex;
+  gap:12px;
+}
+.summary-kpi-value{
+  font-size:20px;
+  font-weight:600;
+}
+.summary-label.small{
+  font-size:11px;
+  color:var(--txt2);
+}
+</style>
 
-    .section {
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
-
-    .collapsible-header {
-      padding: 14px 16px;
-      background: var(--panel-2);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .collapsible-body {
-      padding: 16px;
-      overflow: hidden;
-      transition: max-height .25s ease;
-      max-height: 2000px;
-    }
-
-    .collapsible-body.collapsed {
-      max-height: 0 !important;
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      padding: 16px;
-      min-height: 120px;
-    }
-
-    .metric {
-      font-size: 28px;
-      font-weight: 800;
-      margin: 8px 0;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .bar-track {
-      height: 8px;
-      background: var(--panel-2);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    }
-
-    .symbol-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .symbol-btn {
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 8px 14px;
-      cursor: pointer;
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .symbol-btn.active {
-      background: var(--accent);
-      color: #001018;
-      border-color: transparent;
-      font-weight: 700;
-    }
-
-    .mini-chart-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }
-
-    .mini-chart-card {
-      padding: 12px;
-      height: 160px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .mini-chart-card canvas {
-      flex: 1;
-      width: 100% !important;
-      height: 100px !important;
-    }
-
-    .mini-chart-title {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .mini-chart-title .value {
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    .chart-shell {
-      height: 300px;
-    }
-
-    .chart-shell canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    .ta-chart-shell {
-      cursor: pointer;
-    }
-
-    .toggle-group {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .toggle-mode {
-      padding: 7px 12px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      border-radius: 999px;
-      cursor: pointer;
-    }
-
-    .toggle-mode.active {
-      background: var(--accent-2);
-      color: #fff;
-      border-color: transparent;
-    }
-
-    .martin-table-wrapper {
-      overflow-x: auto;
-      margin-top: 10px;
-      margin-bottom: 16px;
-    }
-
-    .martin-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .martin-table th,
-    .martin-table td {
-      border: 1px solid var(--border);
-      padding: 8px;
-      white-space: nowrap;
-    }
-
-    .martin-header {
-      margin-top: 12px;
-      font-weight: 700;
-    }
-
-    .row-total-negative { color: #f87171; }
-    .row-total-positive { color: #4ade80; }
-    .level-safe { background: rgba(34,197,94,.08); }
-    .level-risk { background: rgba(239,68,68,.08); }
-    .level-high-winrate { outline: 1px solid rgba(250,204,21,.5); }
-
-    .swot-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .swot-box {
-      padding: 12px;
-      min-height: 120px;
-      line-height: 1.6;
-    }
-
-    .swot-center {
-      grid-column: 2 / span 1;
-      min-height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-weight: 700;
-    }
-
-    .ta-modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      z-index: 9999;
-    }
-
-    .ta-modal.open {
-      display: block;
-    }
-
-    .ta-modal-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,.7);
-    }
-
-    .ta-modal-panel {
-      position: relative;
-      width: min(960px, calc(100vw - 32px));
-      margin: 40px auto;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      z-index: 2;
-    }
-
-    .ta-modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .ta-modal-chart {
-      height: 420px;
-    }
-
-    input, select, button {
-      font: inherit;
-    }
-
-    @media (max-width: 900px) {
-      .grid-3, .grid-2, .swot-grid {
-        grid-template-columns: 1fr;
-      }
-      .swot-center {
-        grid-column: auto;
-      }
-    }
-  </style>
+<!-- Trade Analyzer 樣式 + 圖表 -->
+<link rel="stylesheet" href="analyzer-style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-theme="light">
-  <div class="wrap">
-    <div class="toolbar">
-      <div class="toolbar-row">
-        <input type="file" id="csvFile" accept=".csv" />
-        <select id="eaSelect">
-          <option value="SMA">SMA</option>
-          <option value="FLASH">FLASH</option>
-          <option value="MKD">MKD</option>
-          <option value="S10">S10</option>
-          <option value="OtherBasic">OtherBasic</option>
-        </select>
-        <button id="analyzeBtn">Analyze</button>
-        <button id="resetBtn">Reset</button>
+<div class="sidebar" id="sidebar">
+  <div class="logo">
+    <span class="logo-icon">📡</span>
+    <span class="logo-text">AI Signal Portal</span>
+  </div>
+  <div class="nav-label">MAIN</div>
+<div class="nav-item active" data-page="home" onclick="showPage('home')">
+  <span class="nav-icon">🏠</span><span class="nav-text">Home</span>
+</div>
+
+<div class="nav-item" data-page="mysignals" onclick="showPage('mysignals')">
+  <span class="nav-icon">📊</span><span class="nav-text">My Signals</span>
+</div>
+
+<div class="nav-item" data-page="mygroups" onclick="showPage('mygroups')">
+  <span class="nav-icon">👥</span><span class="nav-text">My Groups</span>
+</div>
+
+<div class="nav-item" data-page="mylikes" onclick="showPage('mylikes')">
+  <span class="nav-icon">❤️</span><span class="nav-text">My Liked Signals</span>
+</div>
+
+<div class="nav-item" data-page="fxtools" onclick="showPage('fxtools')">
+  <span class="nav-icon">🔧</span><span class="nav-text">FX Tools</span>
+</div>
+
+<div class="nav-item" data-page="analyzer" onclick="showPage('analyzer')">
+  <span class="nav-icon">📈</span><span class="nav-text">Trade Analyzer</span>
+</div>
+  <div style="margin-top:auto;padding:8px 4px">
+    <div class="quota-bar">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:4px">
+        <span>Signal Quota</span><span id="quotaText">0 / 20</span>
       </div>
-
-      <div class="toolbar-row">
-        <label class="toggle-group">
-          <span>Theme</span>
-          <input type="checkbox" id="themeSwitch" />
-        </label>
-
-        <span id="cumSwitchWrapper" class="toggle-group">
-          <span>Cumulative Separate</span>
-          <input type="checkbox" id="cumSwitch" />
-        </span>
-
-        <div class="toggle-group">
-          <button class="toggle-mode active" data-mode="pips">Pips</button>
-          <button class="toggle-mode" data-mode="money">Money</button>
-        </div>
-
-        <span id="eaTag">EA</span>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div class="quota-fill" id="quotaFill" style="width:0%;height:100%;background:linear-gradient(135deg,var(--cyan),var(--purple));"></div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div id="taPanel" style="display:none;">
-      <section id="summaryCardsSection" class="section" style="display:none;">
+<div class="header">
+  <div style="font-weight:700;font-size:18px">AI Signal Portal <span style="font-size:11px;color:var(--cyan);margin-left:8px">v0.1</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <select onchange="setTheme(this.value)" id="themeSelect" style="background:var(--bg1);color:var(--txt1);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:13px">
+      <option value="light">☀️ Light</option>
+      <option value="dark">🌙 Dark</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="https://ui-avatars.com/api/?name=User&background=0dcaf0&color=fff&size=32" id="avatarImg" style="width:32px;height:32px;border-radius:50%;cursor:pointer" onclick="showPage('profile')">
+      <span id="headerUser" style="font-size:14px;color:var(--txt1)">Guest</span>
+    </div>
+    <button onclick="handleLogout()" style="background:var(--bg1);color:var(--txt2);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">Logout</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- HOME PAGE -->
+  <div class="page active" id="homePage">
+    <h2 class="page-title">📡 Home - Public Signals</h2>
+    <p class="page-sub">Live ranking of all public signals</p>
+    <div id="homeContent"></div>
+  </div>
+
+  <!-- 其他 My Signals / Groups / Likes / FX Tools 保持之前版本，略 -->
+  <!-- FX TOOLS PAGE -->
+  <div class="page" id="fxtoolsPage">
+    <h2 class="page-title">🔧 FX Tools</h2>
+    <p class="page-sub">Utility tools for FX and gold trading</p>
+
+    <!-- FX Tools Menu Bar -->
+<div id="fxToolsTabs" class="fx-tools-tabs">
+  <button class="fx-tab-btn secondary" data-fx-tab="volatility">Volatility Table</button>
+  <button class="fx-tab-btn secondary" data-fx-tab="cost">Cost Calculator</button>
+  <button class="fx-tab-btn primary" data-fx-tab="martingale">Martingale Calculator</button>
+</div><div id="fxTab-volatility" class="fx-tab-content" style="display:none;">
+  ...
+</div>
+
+<div id="fxTab-cost" class="fx-tab-content" style="display:none;">
+  ...
+</div>
+
+<div id="fxTab-martingale" class="fx-tab-content active">
+  ...
+</div>
+
+    <!-- Volatility Tool -->
+    <div id="fxTab-volatility" class="fx-tab-content active">
+      <section class="panel">
+        <h2>Volatility Table</h2>
+        <div id="volatilityTool">
+          <!-- 之後放返你原本 Volatility 工具 -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Cost Calculator -->
+    <div id="fxTab-cost" class="fx-tab-content" style="display:none;">
+      <section class="panel">
+        <h2>Cost Calculator</h2>
+        <div id="costTool">
+          <!-- 之後放返你原本 Cost Calculator 工具 -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Martingale Calculator -->
+    <div id="fxTab-martingale" class="fx-tab-content" style="display:none;">
+      <section class="panel" id="martinCalcPanel">
+        <h2>Martingale Calculator – Symbol Selection</h2>
+
+        <div class="martin-symbol-controls">
+          <button id="selectAllCcyBtn" class="secondary">Select All FX Pairs</button>
+          <button id="selectAllXauBtn" class="secondary">Select All XAU Pairs</button>
+          <button id="clearAllSymbolsBtn" class="secondary">Clear All</button>
+        </div>
+
+        <table class="martin-symbol-table">
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Symbol</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="martinSymbolTbody">
+            <!-- JS 會填 28 FX + 4 XAU -->
+          </tbody>
+        </table>
+
+        <div id="martinCalcResults" style="margin-top:12px;"></div>
+      </section>
+    </div>
+  </div>
+
+<!-- TRADE ANALYZER PAGE -->
+<div class="page" id="analyzerPage">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h2 class="page-title">📈 Trade Analyzer 交易分析</h2>
+    <span style="font-size:12px;color:var(--txt2)">Powered by ShenXu 2026</span>
+  </div>
+
+  <div
+    id="analyzerContainer"
+    style="background:var(--bg1);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:16px;"
+  >
+
+    <!-- 1. 匯入 MT4/MT5 報表 CSV -->
+    <section class="panel">
+      <h1 class="panel-title">1. 匯入 MT4/MT5 報表 CSV</h1>
+
+      <div class="upload-controls">
+        <div class="field">
+          <label for="csvFile">交易報表 CSV / Trade Report CSV</label>
+          <div class="file-input-wrapper">
+            <input type="file" id="csvFile" accept=".csv" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="eaSelect">EA 類型 / EA Type</label>
+          <select id="eaSelect">
+            <option value="SMA">SMA (Standard)</option>
+            <option value="SMA_Pro">SMA Pro</option>
+            <option value="MKD">MKD (Standard)</option>
+            <option value="MKD_Pro">MKD Pro</option>
+            <option value="Flash">Flash (Standard)</option>
+            <option value="Flash_Pro">Flash Pro</option>
+            <option value="S10">S10 (Standard)</option>
+            <option value="S10_Pro">S10 Pro</option>
+            <option value="OtherBasic">Other EA (Basic)</option>
+            <option value="OtherPro">Other EA (Pro)</option>
+          </select>
+        </div>
+
+        <div class="upload-buttons">
+          <button id="analyzeBtn" class="primary">
+            <span class="rocket">🚀</span>
+            <span>開始分析 / Analyze</span>
+          </button>
+          <button id="resetBtn" class="secondary">Reset / 重設</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Trade Analyzer Layout Dashboard -->
+    <section class="ta-panel" id="taPanel" style="display:none;">
+
+      <!-- Header（panel 內） -->
+      <div class="ta-header">
+        <div class="ta-title">
+          <h2>Trade Analyzer 交易分析儀表板</h2>
+          <p class="ta-subtitle">
+            Analyze AI trading signals & trades / 分析 AI 交易信號及交易表現
+          </p>
+        </div>
+      </div>
+
+      <!-- Top Row: Equity Growth -->
+      <div class="ta-row ta-row-top">
+        <div class="ta-card ta-card-equity">
+          <div class="ta-card-header">
+            <h3>Equity Growth 資金曲線</h3>
+            <span class="ta-card-desc">
+              Overall equity curve by time / 按時間顯示整體資金變化
+            </span>
+          </div>
+          <div class="ta-card-body">
+  <div class="ta-chart-shell" data-chart="equity">
+    <div class="growth-chart-wrapper">
+      <canvas id="taEquityChart"></canvas>
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+
+      <!-- Middle Row: EA Radar + Symbol Performance -->
+      <div class="ta-row ta-row-middle">
+        <div class="ta-card ta-card-radar">
+          <div class="ta-card-header">
+            <h3>EA Radar 策略雷達圖</h3>
+            <span class="ta-card-desc">
+              Multi-metric EA performance / 多維度策略表現
+            </span>
+          </div>
+          <div class="ta-card-body">
+  <div class="ta-chart-shell" data-chart="radar">
+    <div class="radar-chart-wrapper">
+      <canvas id="taRadarChart"></canvas>
+    </div>
+  </div>
+</div>
+        </div>
+
+        <div class="ta-card ta-card-symbol">
+          <div class="ta-card-header">
+            <h3>Symbol Performance 品種表現</h3>
+            <span class="ta-card-desc">
+              P/L by symbol and direction / 按品種及方向分析盈虧
+            </span>
+          </div>
+          <div class="ta-card-body">
+            <div class="ta-chart-shell" data-chart="symbol">
+              <div id="taSymbolPerfPlaceholder" class="ta-chart-placeholder">
+                <span>Symbol Performance Placeholder / 品種表現圖佔位</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Details Table（之後由 JS 填） -->
+      <div class="ta-row ta-row-bottom">
+        <div class="ta-card ta-card-table">
+          <div class="ta-card-header">
+            <h3>Details 明細</h3>
+            <span class="ta-card-desc">
+              Signal & strategy statistics / 信號及策略統計
+            </span>
+          </div>
+          <div class="ta-card-body">
+            <div class="ta-table-toolbar">
+              <span>View Mode 檢視模式：</span>
+              <button type="button" class="ta-view-btn" data-view="ea">
+                By EA / 按策略
+              </button>
+              <button type="button" class="ta-view-btn" data-view="symbol">
+                By Symbol / 按品種
+              </button>
+              <button type="button" class="ta-view-btn" data-view="time">
+                By Time / 按時間
+              </button>
+            </div>
+
+            <div class="ta-table-wrapper">
+              <table class="ta-table">
+                <thead>
+                  <tr>
+                    <th>EA / 策略</th>
+                    <th>Symbol 品種</th>
+                    <th>Signals 信號數</th>
+                    <th>Win Rate 勝率</th>
+                    <th>Net P/L 淨盈虧</th>
+                    <th>Profit Factor 盈利因子</th>
+                    <th>Max DD 最大回撤</th>
+                  </tr>
+                </thead>
+                <tbody id="taTableBody">
+                  <!-- JS to populate / 之後用 JS 填充 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+      <!-- Equity / Radar / Symbol / Details 三個區，照剛才嗰套貼落嚟 -->
+      <!-- ...（直接將我上個回覆個 ta-* HTML 貼入呢度）... -->
+    </section>
+
+  </div>
+</div>
+
+      <!-- 2. 帳戶 Summary Cards -->
+      <section id="summaryCardsSection" class="panel" style="display:none;">
         <div class="collapsible-header" data-target="summaryCardsBody">
-          <span>Summary Cards</span>
+          <h2>2. 帳戶總覽 Summary</h2>
           <span class="collapse-toggle">－</span>
         </div>
         <div id="summaryCardsBody" class="collapsible-body">
-          <div class="grid-3">
-            <div class="card">
-              <div class="muted">Growth</div>
-              <div class="metric" id="growthValue">0 %</div>
-              <div class="muted" id="growthPeriod"></div>
+          <div class="summary-grid summary-grid-2col">
+            <!-- 左：Radar 指標卡（1/3） -->
+            <div class="summary-card radar-card">
+              <h3>EA Radar (6D)</h3>
+
+              <div class="radar-chart-wrapper">
+                <canvas id="radarChart"></canvas>
+              </div>
+
+              <div class="radar-row">
+                <span>1) Profit Trades</span>
+                <span id="radarProfitTrades">–</span>
+              </div>
+              <div class="radar-row">
+                <span>2) Loss Trades</span>
+                <span id="radarLossTrades">–</span>
+              </div>
+              <div class="radar-row">
+                <span>3) Max Deposit Load</span>
+                <span id="radarDepositLoad">–</span>
+              </div>
+              <div class="radar-row">
+                <span>4) Max. DD</span>
+                <span id="radarMaxDD">–</span>
+              </div>
+              <div class="radar-row">
+                <span>5) Trading Activity</span>
+                <span id="radarActivity">–</span>
+              </div>
+              <div class="radar-row">
+                <span>6) Algo Trading</span>
+                <span id="radarAlgoScore">–</span>
+              </div>
             </div>
 
-            <div class="card">
-              <div class="muted">Equity</div>
-              <div class="metric" id="equityValue">0.00</div>
-              <div class="bar-track"><div id="equityBar" class="bar-fill"></div></div>
-            </div>
+            <!-- 右：放大 Growth Curve + 百分比（2/3） -->
+            <div class="summary-card growth-card">
+              <h3>Equity Growth</h3>
+              <div class="growth-main-row">
+                <div>
+                  <div class="summary-label">Growth</div>
+                  <div class="summary-value" id="growthValue">0 %</div>
+                  <div class="summary-sub" id="growthPeriod"></div>
+                </div>
+                <div class="growth-kpi">
+                  <div class="summary-label">Net Profit</div>
+                  <div class="summary-kpi-value" id="profitValue">0.00</div>
+                  <div class="summary-label small">
+                    Initial: <span id="initialDepositValue">0.00</span>
+                  </div>
+                  <div class="summary-label small">
+                    Equity: <span id="equityValue">0.00</span>
+                  </div>
+                </div>
+              </div>
 
-            <div class="card">
-              <div class="muted">Profit / Initial Deposit</div>
-              <div><span id="profitValue">0.00</span> / <span id="initialDepositValue">0.00</span></div>
-              <div class="bar-track"><div id="profitBar" class="bar-fill"></div></div>
-            </div>
-          </div>
+              <div class="growth-chart-wrapper">
+                <canvas id="equityChart"></canvas>
+              </div>
 
-          <div class="grid-2" style="margin-top:16px;">
-            <div class="card ta-chart-shell" data-chart="equity">
-              <div class="muted">Equity Growth</div>
-              <div class="chart-shell"><canvas id="taEquityChart"></canvas></div>
+              <div class="growth-bars-row">
+                <div class="bar-group">
+                  <div class="bar-label">Equity</div>
+                  <div class="bar-track">
+                    <div id="equityBar" class="bar-fill"></div>
+                  </div>
+                </div>
+                <div class="bar-group">
+                  <div class="bar-label">Profit</div>
+                  <div class="bar-track">
+                    <div id="profitBar" class="bar-fill bar-profit"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card ta-chart-shell" data-chart="radar">
-              <div class="muted">EA Radar</div>
-              <div class="chart-shell"><canvas id="taRadarChart"></canvas></div>
-            </div>
-          </div>
-
-          <div class="grid-3" style="margin-top:16px;">
-            <div class="card"><div class="muted">Profit Trades</div><div id="radarProfitTrades"></div></div>
-            <div class="card"><div class="muted">Loss Trades</div><div id="radarLossTrades"></div></div>
-            <div class="card"><div class="muted">Deposit Load</div><div id="radarDepositLoad"></div></div>
-            <div class="card"><div class="muted">Max DD</div><div id="radarMaxDD"></div></div>
-            <div class="card"><div class="muted">Activity</div><div id="radarActivity"></div></div>
-            <div class="card"><div class="muted">Algo Score</div><div id="radarAlgoScore"></div></div>
           </div>
         </div>
       </section>
 
-      <section id="accountSection" class="section">
-        <div class="collapsible-header" data-target="accountBody">
-          <span>Account</span>
-          <span class="collapse-toggle">－</span>
-        </div>
-        <div id="accountBody" class="collapsible-body">
-          <div id="accountStats" class="card"></div>
-          <div id="minimumArea" class="card" style="margin-top:12px;"></div>
-          <div class="grid-3" style="margin-top:12px;">
-            <div class="card"><div class="chart-shell"><canvas id="equityChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="weekdayChart"></canvas></div></div>
-            <div class="card ta-chart-shell" data-chart="symbol"><div class="chart-shell"><canvas id="symbolProfitChart"></canvas></div></div>
-          </div>
-        </div>
-      </section>
+      <!-- 3. 帳戶總體分析 -->
+<section id="accountSection" class="panel" style="display:none;">
+  <div class="collapsible-header" data-target="accountBody">
+    <h2>Account Analysis</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
+  <div id="accountBody" class="collapsible-body">
+    <div class="account-layout">
+      <!-- 左：帳戶統計文字 -->
+      <div class="account-stats">
+        <h3>Account Statistics</h3>
+        <div id="accountStats"></div>
+      </div>
 
-      <section id="symbolSection" class="section" style="display:none;">
+      <!-- 右：Equity / Weekday / Symbol Profit -->
+      <div class="account-charts">
+        <div class="chart-card">
+          <h3>Equity Curve</h3>
+          <canvas id="equityChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Weekday Trades</h3>
+          <canvas id="weekdayChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Symbol Profit Ranking</h3>
+          <canvas id="symbolProfitChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Minimum 區，對應 JS 裏面 renderMinimumArea -->
+    <div id="minimumArea" style="margin-top:12px;"></div>
+  </div>
+</section>
+
+      <!-- 4. Symbol Buttons + Mini Charts -->
+      <section id="symbolSection" class="panel" style="display:none;">
         <div class="collapsible-header" data-target="symbolBody">
-          <span>Symbols</span>
+          <h2>4. Symbol 一覽與 Mini Equity</h2>
           <span class="collapse-toggle">－</span>
         </div>
         <div id="symbolBody" class="collapsible-body">
-          <div id="symbolButtons" class="symbol-buttons"></div>
-          <div id="symbolMiniCharts" class="mini-chart-grid"></div>
+          <div>
+            <h3>Symbols</h3>
+            <div id="symbolButtons" class="symbol-buttons"></div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <h3>Symbol 累積 Profit 小圖</h3>
+            <div id="symbolMiniCharts" class="mini-chart-grid"></div>
+          </div>
         </div>
       </section>
 
-      <section id="symbolDetailSection" class="section" style="display:none;">
+      <!-- 5. Symbol 深入分析 📊 -->
+      <section id="symbolDetailSection" class="panel" style="display:none;">
         <div class="collapsible-header" data-target="symbolDetailBody">
-          <span id="symbolTitle">5. Symbol</span>
+          <h2 id="symbolTitle">5. Symbol 深入分析 📊</h2>
           <span class="collapse-toggle">－</span>
         </div>
         <div id="symbolDetailBody" class="collapsible-body">
-          <div id="symbolStats" class="card"></div>
 
-          <div class="grid-3" style="margin-top:12px;">
-            <div class="card"><div class="chart-shell"><canvas id="mfeChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="maeChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="holdingChart"></canvas></div></div>
+          <div class="symbol-summary-grid">
+            <div class="symbol-summary-main">
+              <h3>Symbol 指標</h3>
+              <div id="symbolStats"></div>
+            </div>
+            <div class="symbol-summary-ea">
+              <span id="eaTag" class="ea-tag">EA</span>
+              <div id="eaCenterAnalysis"></div>
+            </div>
+            <div class="symbol-summary-switches">
+              <span class="switch-text-left">All</span>
+              <label class="switch" id="cumSwitchWrapper" style="display:none;">
+                <input type="checkbox" id="cumSwitch" />
+                <span class="slider"></span>
+              </label>
+              <span class="switch-text-right">Separate</span>
+            </div>
           </div>
 
-          <div class="grid-2" style="margin-top:12px;">
-            <div class="card"><div class="chart-shell"><canvas id="symbolCumulativeChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="symbolWeekdayProfitChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="symbolWeekdayCountChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="symbolHourlyProfitChart"></canvas></div></div>
-            <div class="card"><div class="chart-shell"><canvas id="symbolHourlyCountChart"></canvas></div></div>
+          <div class="symbol-charts-layout">
+            <div class="symbol-charts-left">
+              <div class="chart-title-row">
+                <h3 class="chart-title">Cumulative Profit</h3>
+              </div>
+              <canvas id="symbolCumulativeChart"></canvas>
+            </div>
+
+            <div class="symbol-charts-right">
+              <div class="symbol-charts-row">
+                <div class="chart-box">
+                  <h3 class="chart-title">Weekday Profit</h3>
+                  <canvas id="symbolWeekdayProfitChart"></canvas>
+                </div>
+                <div class="chart-box">
+                  <h3 class="chart-title">Weekday Trades</h3>
+                  <canvas id="symbolWeekdayCountChart"></canvas>
+                </div>
+              </div>
+              <div class="symbol-charts-row">
+                <div class="chart-box">
+                  <h3 class="chart-title">Hourly Profit</h3>
+                  <canvas id="symbolHourlyProfitChart"></canvas>
+                </div>
+                <div class="chart-box">
+                  <h3 class="chart-title">Hourly Trades</h3>
+                  <canvas id="symbolHourlyCountChart"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="martinSection" class="section" style="display:none;">
-        <div class="collapsible-header" data-target="martinBody">
-          <span>Martin</span>
-          <span class="collapse-toggle">－</span>
-        </div>
-        <div id="martinBody" class="collapsible-body">
-          <div id="martinTables"></div>
-        </div>
-      </section>
+      <!-- 6. 馬丁層數分析 -->
+<section id="martinSection" class="panel" style="display:none;">
+  <div class="collapsible-header" data-target="martinBody">
+    <h2>Martingale Layer Analysis</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
+  <div id="martinBody" class="collapsible-body">
+    <div id="martinTables"></div>
 
-      <section id="swotSection" class="section" style="display:none;">
-        <div class="collapsible-header" data-target="swotBody">
-          <span>SWOT</span>
-          <span class="collapse-toggle">－</span>
-        </div>
-        <div id="swotBody" class="collapsible-body">
-          <div class="swot-grid">
-            <div id="swotST" class="swot-box"></div>
-            <div id="swotS" class="swot-box"></div>
-            <div id="swotSW" class="swot-box"></div>
+    <div class="martin-legend">
+      <span class="legend-box level-high-winrate"></span>
+      <span class="legend-text">High win rate level (Win Rate ≥ 80%)</span>
 
-            <div id="swotT" class="swot-box"></div>
-            <div id="swotCenterText" class="swot-box swot-center"></div>
-            <div id="swotW" class="swot-box"></div>
+      <span class="legend-box level-safe"></span>
+      <span class="legend-text">Safe level (Cumulative Profit ≥ 0)</span>
 
-            <div id="swotOT" class="swot-box"></div>
-            <div id="swotO" class="swot-box"></div>
-            <div id="swotOW" class="swot-box"></div>
-          </div>
-
-          <div id="eaCenterAnalysis" class="card" style="margin-top:12px;"></div>
-        </div>
-      </section>
+      <span class="legend-box row-total-negative"></span>
+      <span class="legend-text">Risk level (Symbol/Side TOTAL Profit &lt; 0)</span>
     </div>
   </div>
+</section>
 
-  <div id="taChartModal" class="ta-modal">
-    <div class="ta-modal-backdrop"></div>
-    <div class="ta-modal-panel">
-      <div class="ta-modal-head">
-        <h3 id="taModalTitle">Chart</h3>
-        <button id="taModalClose">Close</button>
+
+      <!-- 7. SWOT 分析 -->
+     <section id="swotSection" class="panel" style="display:none;">
+  <div class="collapsible-header" data-target="swotBody">
+    <h2>EA SWOT Analysis</h2>
+    <span class="collapse-toggle">－</span>
+  </div>
+
+  <div id="swotBody" class="collapsible-body">
+    <div class="swot-layout">
+      <!-- 上排：ST / S / SW -->
+      <div id="swotST" class="swot-cell swot-st">
+        <div class="swot-title">ST – Strength–Threat Strategies（優勢–威脅策略）</div>
+        <!-- 內容由 renderSwot(swot) 填入 -->
       </div>
-      <div id="taModalChartContainer" class="ta-modal-chart"></div>
+
+      <div id="swotS" class="swot-cell swot-s">
+        <div class="swot-title">S – Strengths（優勢）</div>
+      </div>
+
+      <div id="swotSW" class="swot-cell swot-sw">
+        <div class="swot-title">SW – Strength–Weakness Balance（優劣平衡 / 內部調整）</div>
+      </div>
+
+      <!-- 中排：T / 中央 EA SWOT / W -->
+      <div id="swotT" class="swot-cell swot-t">
+        <div class="swot-title">T – Threats（威脅）</div>
+      </div>
+
+      <div class="swot-center">
+        <div id="swotCenterText" class="swot-center-text">
+          <strong>EA</strong> SWOT
+        </div>
+      </div>
+
+      <div id="swotW" class="swot-cell swot-w">
+        <div class="swot-title">W – Weaknesses（劣勢）</div>
+      </div>
+
+      <!-- 下排：OT / O / OW -->
+      <div id="swotOT" class="swot-cell swot-ot">
+        <div class="swot-title">OT – Opportunity–Threat Strategies（機會–威脅策略）</div>
+      </div>
+
+      <div id="swotO" class="swot-cell swot-o">
+        <div class="swot-title">O – Opportunities（機會）</div>
+      </div>
+
+      <div id="swotOW" class="swot-cell swot-ow">
+        <div class="swot-title">OW – Opportunity–Weakness Strategies（機會–劣勢改善）</div>
+      </div>
     </div>
   </div>
+</section>
 
-  <script src="./trade-analyzer.js"></script>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem('aisp') || '{"portfolios":[],"signals":[],"groups":[],"likes":[]}');
+let currentPortfolio = 'all';
+
+function save(){localStorage.setItem('aisp',JSON.stringify(data));}
+function setTheme(t){
+  document.body.dataset.theme=t;
+  document.getElementById('themeSelect').value=t;
+  localStorage.setItem('theme',t);
+}
+function showPage(p){
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  const el=document.getElementById(p+'Page');
+  if(el)el.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.classList.remove('active');
+    if (item.dataset.page === p) item.classList.add('active');
+  });
+
+  if(p==='home')renderHome();
+  if(p==='mysignals')renderMySignals();
+  if(p==='mygroups')renderMyGroups();
+  if(p==='mylikes')renderMyLikes();
+  if(p==='fxtools') initFxToolsTabs();   // ★ 新增
+  if(p==='analyzer'){} // Analyzer 由 trade-analyzer.js 自己處理
+}
+
+
+function renderHome(){ /* 略，用你原本的 renderHome 實現 */ }
+function renderMySignals(){ /* 略，用你原本的 renderMySignals 實現 */ }
+function renderMyGroups(){ /* 略 */ }
+function renderMyLikes(){ /* 略 */ }
+function handleLogout(){alert('Logged out (demo)');}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  setTheme(localStorage.getItem('theme')||'light');
+  renderHome();
+});
+
+// FX Tools tabs
+function initFxToolsTabs() {
+  const tabs = document.querySelectorAll(".fx-tab-btn");
+  if (!tabs.length) return;
+
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.fxTab;
+      if (!key) return;
+
+      // Tab 按鈕 active 樣式
+      tabs.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // 內容切換
+      document.querySelectorAll(".fx-tab-content").forEach((c) => {
+        c.style.display = "none";
+        c.classList.remove("active");
+      });
+      const target = document.getElementById("fxTab-" + key);
+      if (target) {
+        target.style.display = "block";
+        target.classList.add("active");
+      }
+
+      // 進入 Martingale Calculator 時初始化 Symbol Table
+      if (key === "martingale") {
+        initMartinSymbolTable();
+      }
+    });
+  });
+}
+
+// 馬丁 Calculator 可選 Symbol 列表
+const MARTIN_SYMBOLS = [
+  // 你可以補齊28對FX，這裡示例幾個
+  { symbol: "EURUSD", type: "FX" },
+  { symbol: "GBPUSD", type: "FX" },
+  { symbol: "USDJPY", type: "FX" },
+  { symbol: "AUDUSD", type: "FX" },
+  { symbol: "USDCHF", type: "FX" },
+  // ... 其他 FX 對 ...
+  { symbol: "XAUUSD", type: "XAU" },
+  { symbol: "XAUAUD", type: "XAU" },
+  { symbol: "XAUEUR", type: "XAU" },
+  { symbol: "XAUJPY", type: "XAU" }
+];
+function initFxToolsTabs() {
+  const tabs = document.querySelectorAll(".fx-tab-btn");
+  if (!tabs.length) return;
+
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.fxTab;
+      if (!key) return;
+
+      tabs.forEach((b) => {
+        b.classList.remove("primary");
+        if (!b.classList.contains("secondary")) {
+          b.classList.add("secondary");
+        }
+      });
+      btn.classList.remove("secondary");
+      btn.classList.add("primary");
+
+      document.querySelectorAll(".fx-tab-content").forEach((c) => {
+        c.style.display = "none";
+        c.classList.remove("active");
+      });
+      const target = document.getElementById("fxTab-" + key);
+      if (target) {
+        target.style.display = "block";
+        target.classList.add("active");
+      }
+
+      if (key === "martingale") {
+        initMartinSymbolTable();
+      }
+    });
+  });
+
+  // 預設啟動時，強制切到 martingale
+  const defaultBtn = document.querySelector(
+    '.fx-tab-btn[data-fx-tab="martingale"]'
+  );
+  if (defaultBtn) {
+    defaultBtn.click();
+  }
+}
+
+  
+
+function initMartinSymbolTable() {
+  const fxGrid = document.getElementById("martinFxGrid");
+  const xauGrid = document.getElementById("martinXauGrid");
+  if (!fxGrid || !xauGrid) return;
+
+  // 已有內容就唔重覆建立
+  if (fxGrid.children.length || xauGrid.children.length) return;
+
+  fxGrid.innerHTML = "";
+  xauGrid.innerHTML = "";
+
+  const fxSymbols = MARTIN_SYMBOLS.filter((s) => s.type === "FX");
+  const xauSymbols = MARTIN_SYMBOLS.filter((s) => s.type === "XAU");
+
+  fxSymbols.forEach((s) => {
+    const div = document.createElement("label");
+    div.className = "martin-symbol-item";
+    div.innerHTML = `
+      <input type="checkbox"
+             class="martin-symbol-checkbox"
+             data-symbol="${s.symbol}"
+             data-type="${s.type}">
+      <span>${s.symbol}</span>
+    `;
+    fxGrid.appendChild(div);
+  });
+
+  xauSymbols.forEach((s) => {
+    const div = document.createElement("label");
+    div.className = "martin-symbol-item";
+    div.innerHTML = `
+      <input type="checkbox"
+             class="martin-symbol-checkbox"
+             data-symbol="${s.symbol}"
+             data-type="${s.type}">
+      <span>${s.symbol}</span>
+    `;
+    xauGrid.appendChild(div);
+  });
+
+  const btnAllCcy = document.getElementById("selectAllCcyBtn");
+  const btnAllXau = document.getElementById("selectAllXauBtn");
+  const btnClear = document.getElementById("clearAllSymbolsBtn");
+
+  if (btnAllCcy) {
+    btnAllCcy.onclick = () => {
+      document
+        .querySelectorAll('.martin-symbol-checkbox[data-type="FX"]')
+        .forEach((cb) => (cb.checked = true));
+    };
+  }
+
+  if (btnAllXau) {
+    btnAllXau.onclick = () => {
+      document
+        .querySelectorAll('.martin-symbol-checkbox[data-type="XAU"]')
+        .forEach((cb) => (cb.checked = true));
+    };
+  }
+
+  if (btnClear) {
+    btnClear.onclick = () => {
+      document
+        .querySelectorAll(".martin-symbol-checkbox")
+        .forEach((cb) => (cb.checked = false));
+    };
+  }
+}
+
+
+  
+</script>
+
+<script src="ea-rules.js"></script>
+<script src="trade-analyzer.js"></script>
+
+<!-- Trade Analyzer Chart Modal (全螢幕 popup，預設隱藏) -->
+<div id="taChartModal" class="ta-modal" aria-hidden="true">
+  <div class="ta-modal-backdrop"></div>
+  <div class="ta-modal-dialog">
+    <div class="ta-modal-header">
+      <h3 id="taModalTitle">Chart</h3>
+      <button type="button" id="taModalClose" class="ta-modal-close">✕</button>
+    </div>
+    <div class="ta-modal-body">
+      <div id="taModalChartContainer">
+        <!-- 放大圖表容器 / Large chart container -->
+      </div>
+    </div>
+  </div>
+</div>  
 </body>
 </html>
