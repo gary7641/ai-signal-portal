@@ -1,194 +1,525 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-theme="light">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Signal Hub - Professional Trade History Analyzer</title>
-    <style>
-        :root {
-            --primary-blue: #1da1f2; /* 截圖中的 Tiffany Blue */
-            --accent-gold: #d69e2e; /* Logo 中的金色元寶色 */
-            --bg-body: #f4f7f9;
-            --text-main: #2d3748;
-            --white: #ffffff;
-            --card-radius: 12px; /* 小圓角 */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Signal Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --panel-2: #182235;
+      --border: #2a3550;
+      --text: #e6edf7;
+      --muted: #93a4bd;
+      --accent: #2dd4bf;
+      --accent-2: #60a5fa;
+      --danger: #ef4444;
+      --good: #22c55e;
+      --warn: #f59e0b;
+    }
 
-        * { box-sizing: border-box; transition: 0.2s; }
-        body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background-color: var(--bg-body); display: flex; flex-direction: column; height: 100vh; }
+    body[data-theme="light"] {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-2: #eef3f9;
+      --border: #d8e1ee;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0ea5e9;
+      --accent-2: #2563eb;
+      --danger: #dc2626;
+      --good: #16a34a;
+      --warn: #d97706;
+    }
 
-        /* --- 1. Top Navbar (整合 Logo & Title) --- */
-        .navbar {
-            background: linear-gradient(90deg, #1da1f2, #1590d8);
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            color: var(--white);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-        .brand-section { display: flex; align-items: center; gap: 15px; }
-        
-        /* 使用 SVG 模擬你提供的精緻 Logo */
-        .logo-container {
-            width: 48px;
-            height: 48px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 4px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-        .brand-info h1 { margin: 0; font-size: 1.3rem; letter-spacing: 1px; }
-        .brand-info p { margin: 0; font-size: 0.65rem; opacity: 0.8; letter-spacing: 0.5px; }
+    .toolbar, .section, .card, .mini-chart-card, .swot-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
 
-        .navbar-right { display: flex; align-items: center; gap: 20px; font-size: 0.8rem; }
-        .powered-by { font-size: 0.75rem; border-right: 1px solid rgba(255,255,255,0.3); padding-right: 15px; }
-        
-        /* Gmail Button */
-        .btn-auth {
-            background: white; color: #444; border: none; padding: 7px 14px; 
-            border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500;
-        }
+    .toolbar {
+      padding: 16px;
+      margin-bottom: 16px;
+      display: grid;
+      gap: 12px;
+    }
 
-        /* --- 2. Main Layout (Sidebar + Content) --- */
-        .wrapper { display: flex; flex: 1; overflow: hidden; }
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
 
-        .sidebar {
-            width: 240px; background: var(--white); border-right: 1px solid #e1e8ed;
-            display: flex; flex-direction: column; padding: 20px;
-        }
-        .nav-item {
-            padding: 12px 15px; border-radius: 8px; color: #555; cursor: pointer; 
-            margin-bottom: 5px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
-        }
-        .nav-item:hover, .nav-item.active { background: rgba(29, 161, 242, 0.1); color: var(--primary-blue); font-weight: 600; }
-        .nav-item.admin { border: 1px dashed var(--accent-gold); color: var(--accent-gold); margin-top: 20px; display: none; }
+    .section {
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
 
-        .content-area { flex: 1; padding: 35px; overflow-y: auto; }
+    .collapsible-header {
+      padding: 14px 16px;
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 700;
+    }
 
-        /* --- 3. Card & Form --- */
-        .analyzer-card {
-            background: var(--white); border-radius: var(--card-radius); 
-            padding: 30px; border: 1px solid #e1e8ed; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        }
-        .card-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; color: #1a2b3c; }
+    .collapsible-body {
+      padding: 16px;
+      overflow: hidden;
+      transition: max-height .25s ease;
+      max-height: 2000px;
+    }
 
-        .input-flex { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; }
-        .field-group { display: flex; flex-direction: column; gap: 8px; }
-        .field-group label { font-size: 0.8rem; color: #718096; font-weight: 600; }
+    .collapsible-body.collapsed {
+      max-height: 0 !important;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
 
-        input[type="file"], select {
-            padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem; background: #fdfdfd;
-        }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
 
-        .btn-primary {
-            background: linear-gradient(180deg, #42b9f4, #1da1f2);
-            color: white; border: none; padding: 12px 28px; border-radius: 30px;
-            font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
-        }
-        .btn-reset {
-            background: #fff; border: 1px solid #cbd5e0; padding: 12px 20px; 
-            border-radius: 30px; cursor: pointer; color: #666;
-        }
-    </style>
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      padding: 16px;
+      min-height: 120px;
+    }
+
+    .metric {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar-track {
+      height: 8px;
+      background: var(--panel-2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .symbol-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .symbol-btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .symbol-btn.active {
+      background: var(--accent);
+      color: #001018;
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    .mini-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .mini-chart-card {
+      padding: 12px;
+      height: 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mini-chart-card canvas {
+      flex: 1;
+      width: 100% !important;
+      height: 100px !important;
+    }
+
+    .mini-chart-title {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .mini-chart-title .value {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .chart-shell {
+      height: 300px;
+    }
+
+    .chart-shell canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .ta-chart-shell {
+      cursor: pointer;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .toggle-mode {
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .toggle-mode.active {
+      background: var(--accent-2);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .martin-table-wrapper {
+      overflow-x: auto;
+      margin-top: 10px;
+      margin-bottom: 16px;
+    }
+
+    .martin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .martin-table th,
+    .martin-table td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      white-space: nowrap;
+    }
+
+    .martin-header {
+      margin-top: 12px;
+      font-weight: 700;
+    }
+
+    .row-total-negative { color: #f87171; }
+    .row-total-positive { color: #4ade80; }
+    .level-safe { background: rgba(34,197,94,.08); }
+    .level-risk { background: rgba(239,68,68,.08); }
+    .level-high-winrate { outline: 1px solid rgba(250,204,21,.5); }
+
+    .swot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .swot-box {
+      padding: 12px;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+
+    .swot-center {
+      grid-column: 2 / span 1;
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .ta-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 9999;
+    }
+
+    .ta-modal.open {
+      display: block;
+    }
+
+    .ta-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+    }
+
+    .ta-modal-panel {
+      position: relative;
+      width: min(960px, calc(100vw - 32px));
+      margin: 40px auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      z-index: 2;
+    }
+
+    .ta-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .ta-modal-chart {
+      height: 420px;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    @media (max-width: 900px) {
+      .grid-3, .grid-2, .swot-grid {
+        grid-template-columns: 1fr;
+      }
+      .swot-center {
+        grid-column: auto;
+      }
+    }
+  </style>
 </head>
-<body>
+<body data-theme="light">
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="toolbar-row">
+        <input type="file" id="csvFile" accept=".csv" />
+        <select id="eaSelect">
+          <option value="SMA">SMA</option>
+          <option value="FLASH">FLASH</option>
+          <option value="MKD">MKD</option>
+          <option value="S10">S10</option>
+          <option value="OtherBasic">OtherBasic</option>
+        </select>
+        <button id="analyzeBtn">Analyze</button>
+        <button id="resetBtn">Reset</button>
+      </div>
 
-<header class="navbar">
-    <div class="brand-section">
-        <div class="logo-container">
-            <svg viewBox="0 0 100 100" width="100%" height="100%">
-                <path d="M50 5 L90 27.5 V72.5 L50 95 L10 72.5 V27.5 Z" fill="none" stroke="white" stroke-width="4"/>
-                <rect x="42" y="15" width="16" height="12" fill="white" rx="2"/>
-                <circle cx="50" cy="55" r="25" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
-                <path d="M25 75 L45 55 L55 65 L80 30" stroke="#ffd700" stroke-width="6" fill="none" stroke-linecap="round"/>
-                <path d="M40 82 Q50 75 60 82 T70 82" stroke="#ffd700" stroke-width="3" fill="none"/>
-            </svg>
+      <div class="toolbar-row">
+        <label class="toggle-group">
+          <span>Theme</span>
+          <input type="checkbox" id="themeSwitch" />
+        </label>
+
+        <span id="cumSwitchWrapper" class="toggle-group">
+          <span>Cumulative Separate</span>
+          <input type="checkbox" id="cumSwitch" />
+        </span>
+
+        <div class="toggle-group">
+          <button class="toggle-mode active" data-mode="pips">Pips</button>
+          <button class="toggle-mode" data-mode="money">Money</button>
         </div>
-        <div class="brand-info">
-            <h1>AI SIGNAL HUB</h1>
-            <p>AUTOMATED TRADING SYSTEM</p>
-        </div>
+
+        <span id="eaTag">EA</span>
+      </div>
     </div>
 
-    <div class="navbar-right">
-        <div class="powered-by">Powered by FF48 <a href="#" style="color:white; font-weight:bold;">Gary 珅緒</a></div>
-        <button class="btn-auth" onclick="toggleAdmin()">
-            <img src="https://www.google.com/favicon.ico" width="16"> Login / Register
-        </button>
-    </div>
-</header>
-
-<div class="wrapper">
-    <nav class="sidebar">
-        <div class="nav-item active">📈 Analysis Dashboard</div>
-        <div class="nav-item">📜 Signal Records</div>
-        <div class="nav-item">⚙️ Settings</div>
-        <div id="adminTab" class="nav-item admin">🔐 Files Inventory (Admin)</div>
-    </nav>
-
-    <main class="content-area">
-        <div class="analyzer-card">
-            <div class="card-header">Upload CSV for Investigation Reports</div>
-            
-            <div class="input-flex">
-                <div class="field-group" style="flex:1;">
-                    <label>交易報表 CSV</label>
-                    <input type="file" id="csvUpload">
-                </div>
-                
-                <div class="field-group">
-                    <label>EA 類型</label>
-                    <select id="eaSelector">
-                        <option>SMA (Standard)</option>
-                        <option>Grid Master</option>
-                        <option>Smart Hedge</option>
-                    </select>
-                </div>
-
-                <button class="btn-primary" onclick="handleAnalysis()">🚀 開始分析</button>
-                <button class="btn-reset" onclick="handleReset()">Reset</button>
-            </div>
-            
-            <div id="resultBox" style="margin-top:30px; display:none; padding:20px; background:#f0f9ff; border-radius:8px; border:1px solid #bae3ff;">
-                <span id="statusTxt" style="color:#0077cc; font-weight:600;"></span>
-            </div>
+    <div id="taPanel" style="display:none;">
+      <section id="summaryCardsSection" class="section" style="display:none;">
+        <div class="collapsible-header" data-target="summaryCardsBody">
+          <span>Summary Cards</span>
+          <span class="collapse-toggle">－</span>
         </div>
-    </main>
-</div>
+        <div id="summaryCardsBody" class="collapsible-body">
+          <div class="grid-3">
+            <div class="card">
+              <div class="muted">Growth</div>
+              <div class="metric" id="growthValue">0 %</div>
+              <div class="muted" id="growthPeriod"></div>
+            </div>
 
-<script>
-    function toggleAdmin() {
-        const adminTab = document.getElementById('adminTab');
-        const isShown = adminTab.style.display === 'flex';
-        adminTab.style.display = isShown ? 'none' : 'flex';
-        alert(isShown ? "Logged out" : "Admin access granted");
-    }
+            <div class="card">
+              <div class="muted">Equity</div>
+              <div class="metric" id="equityValue">0.00</div>
+              <div class="bar-track"><div id="equityBar" class="bar-fill"></div></div>
+            </div>
 
-    function handleAnalysis() {
-        const file = document.getElementById('csvUpload').files[0];
-        const resBox = document.getElementById('resultBox');
-        const txt = document.getElementById('statusTxt');
+            <div class="card">
+              <div class="muted">Profit / Initial Deposit</div>
+              <div><span id="profitValue">0.00</span> / <span id="initialDepositValue">0.00</span></div>
+              <div class="bar-track"><div id="profitBar" class="bar-fill"></div></div>
+            </div>
+          </div>
 
-        if (!file) return alert("Please select a CSV file first!");
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="card ta-chart-shell" data-chart="equity">
+              <div class="muted">Equity Growth</div>
+              <div class="chart-shell"><canvas id="taEquityChart"></canvas></div>
+            </div>
+            <div class="card ta-chart-shell" data-chart="radar">
+              <div class="muted">EA Radar</div>
+              <div class="chart-shell"><canvas id="taRadarChart"></canvas></div>
+            </div>
+          </div>
 
-        resBox.style.display = 'block';
-        txt.innerText = "⌛ Processing " + file.name + " through AI engine...";
-        
-        setTimeout(() => {
-            txt.innerHTML = "✅ Analysis Complete. Investigation report generated for " + file.name;
-        }, 1500);
-    }
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="card"><div class="muted">Profit Trades</div><div id="radarProfitTrades"></div></div>
+            <div class="card"><div class="muted">Loss Trades</div><div id="radarLossTrades"></div></div>
+            <div class="card"><div class="muted">Deposit Load</div><div id="radarDepositLoad"></div></div>
+            <div class="card"><div class="muted">Max DD</div><div id="radarMaxDD"></div></div>
+            <div class="card"><div class="muted">Activity</div><div id="radarActivity"></div></div>
+            <div class="card"><div class="muted">Algo Score</div><div id="radarAlgoScore"></div></div>
+          </div>
+        </div>
+      </section>
 
-    function handleReset() {
-        document.getElementById('csvUpload').value = "";
-        document.getElementById('resultBox').style.display = 'none';
-    }
-</script>
+      <section id="accountSection" class="section">
+        <div class="collapsible-header" data-target="accountBody">
+          <span>Account</span>
+          <span class="collapse-toggle">－</span>
+        </div>
+        <div id="accountBody" class="collapsible-body">
+          <div id="accountStats" class="card"></div>
+          <div id="minimumArea" class="card" style="margin-top:12px;"></div>
+          <div class="grid-3" style="margin-top:12px;">
+            <div class="card"><div class="chart-shell"><canvas id="equityChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="weekdayChart"></canvas></div></div>
+            <div class="card ta-chart-shell" data-chart="symbol"><div class="chart-shell"><canvas id="symbolProfitChart"></canvas></div></div>
+          </div>
+        </div>
+      </section>
 
+      <section id="symbolSection" class="section" style="display:none;">
+        <div class="collapsible-header" data-target="symbolBody">
+          <span>Symbols</span>
+          <span class="collapse-toggle">－</span>
+        </div>
+        <div id="symbolBody" class="collapsible-body">
+          <div id="symbolButtons" class="symbol-buttons"></div>
+          <div id="symbolMiniCharts" class="mini-chart-grid"></div>
+        </div>
+      </section>
+
+      <section id="symbolDetailSection" class="section" style="display:none;">
+        <div class="collapsible-header" data-target="symbolDetailBody">
+          <span id="symbolTitle">5. Symbol</span>
+          <span class="collapse-toggle">－</span>
+        </div>
+        <div id="symbolDetailBody" class="collapsible-body">
+          <div id="symbolStats" class="card"></div>
+
+          <div class="grid-3" style="margin-top:12px;">
+            <div class="card"><div class="chart-shell"><canvas id="mfeChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="maeChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="holdingChart"></canvas></div></div>
+          </div>
+
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="card"><div class="chart-shell"><canvas id="symbolCumulativeChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="symbolWeekdayProfitChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="symbolWeekdayCountChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="symbolHourlyProfitChart"></canvas></div></div>
+            <div class="card"><div class="chart-shell"><canvas id="symbolHourlyCountChart"></canvas></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="martinSection" class="section" style="display:none;">
+        <div class="collapsible-header" data-target="martinBody">
+          <span>Martin</span>
+          <span class="collapse-toggle">－</span>
+        </div>
+        <div id="martinBody" class="collapsible-body">
+          <div id="martinTables"></div>
+        </div>
+      </section>
+
+      <section id="swotSection" class="section" style="display:none;">
+        <div class="collapsible-header" data-target="swotBody">
+          <span>SWOT</span>
+          <span class="collapse-toggle">－</span>
+        </div>
+        <div id="swotBody" class="collapsible-body">
+          <div class="swot-grid">
+            <div id="swotST" class="swot-box"></div>
+            <div id="swotS" class="swot-box"></div>
+            <div id="swotSW" class="swot-box"></div>
+
+            <div id="swotT" class="swot-box"></div>
+            <div id="swotCenterText" class="swot-box swot-center"></div>
+            <div id="swotW" class="swot-box"></div>
+
+            <div id="swotOT" class="swot-box"></div>
+            <div id="swotO" class="swot-box"></div>
+            <div id="swotOW" class="swot-box"></div>
+          </div>
+
+          <div id="eaCenterAnalysis" class="card" style="margin-top:12px;"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="taChartModal" class="ta-modal">
+    <div class="ta-modal-backdrop"></div>
+    <div class="ta-modal-panel">
+      <div class="ta-modal-head">
+        <h3 id="taModalTitle">Chart</h3>
+        <button id="taModalClose">Close</button>
+      </div>
+      <div id="taModalChartContainer" class="ta-modal-chart"></div>
+    </div>
+  </div>
+
+  <script src="./trade-analyzer.js"></script>
 </body>
 </html>
