@@ -11,8 +11,8 @@
 }
 
 /* 顏色全部由 index.html 內的 body[data-theme] 控制：
-   --bg1, --bg2, --txt1, --txt2, --cyan, --green, --red, --border
-   所有原本 Analyzer 的變數改用這些 */
+--bg1, --bg2, --txt1, --txt2, --cyan, --green, --red, --border
+所有原本 Analyzer 的變數改用這些 */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
@@ -604,12 +604,12 @@ button {
 }
 
 .swot-st { grid-area: st; }
-.swot-s  { grid-area: s; }
+.swot-s { grid-area: s; }
 .swot-sw { grid-area: sw; }
-.swot-t  { grid-area: t; }
-.swot-w  { grid-area: w; }
+.swot-t { grid-area: t; }
+.swot-w { grid-area: w; }
 .swot-ot { grid-area: ot; }
-.swot-o  { grid-area: o; }
+.swot-o { grid-area: o; }
 .swot-ow { grid-area: ow; }
 
 .swot-center {
@@ -640,12 +640,15 @@ button {
   .symbol-summary-grid {
     grid-template-columns: 1fr;
   }
+
   .symbol-summary-switches {
     justify-content: flex-start;
   }
+
   .symbol-charts-layout {
     flex-direction: column;
   }
+
   .symbol-charts-row {
     flex-direction: column;
   }
@@ -677,42 +680,50 @@ button {
   }
 }
 
-.summary-grid-2col{
-  display:grid;
+.summary-grid-2col {
+  display: grid;
   grid-template-columns: 1fr 2fr;
-  gap:16px;
+  gap: 16px;
 }
-.radar-card .radar-row{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  margin-bottom:4px;
+
+.radar-card .radar-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 4px;
 }
-.growth-card .growth-main-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  margin-bottom:8px;
+
+.growth-card .growth-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
 }
-.growth-chart-wrapper{
-  height:180px;
-  margin-bottom:8px;
+
+.growth-chart-wrapper {
+  height: 180px;
+  margin-bottom: 8px;
 }
-.growth-bars-row{
-  display:flex;
-  gap:12px;
+
+.growth-bars-row {
+  display: flex;
+  gap: 12px;
 }
-.summary-kpi-value{
-  font-size:20px;
-  font-weight:600;
+
+.summary-kpi-value {
+  font-size: 20px;
+  font-weight: 600;
 }
-.summary-label.small{
-  font-size:11px;
-  color:var(--txt2);
+
+.summary-label.small {
+  font-size: 11px;
+  color: var(--txt2);
 }
+
 .level-high-winrate {
-  background: rgba(125, 211, 252, 0.25); /* 粉藍色 */
+  background: rgba(125, 211, 252, 0.25);
 }
+
 .martin-legend {
   margin-top: 8px;
   font-size: 12px;
@@ -737,11 +748,11 @@ button {
 }
 
 .martin-legend .level-safe {
-  background: rgba(187, 247, 208, 0.8); /* 你現時安全層綠色，可微調 */
+  background: rgba(187, 247, 208, 0.8);
 }
 
 .martin-legend .row-total-negative {
-  background: rgba(254, 202, 202, 0.9); /* 你現時負數紅色，可微調 */
+  background: rgba(254, 202, 202, 0.9);
 }
 
 .swot-title {
@@ -791,14 +802,14 @@ button {
 .ta-modal {
   position: fixed;
   inset: 0;
-  display: none;          /* 預設完全看不到 */
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
 .ta-modal.open {
-  display: flex;          /* 加 open class 時先顯示 */
+  display: flex;
 }
 
 .ta-modal-backdrop {
